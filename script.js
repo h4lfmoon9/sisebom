@@ -62,6 +62,19 @@
     document.title = `시세봄 - ${currentPhone.name}`;
   }
 
+  function renderOfficialSource() {
+    const link = $("#officialSourceLink");
+    if (!link) return;
+
+    if (currentPhone?.officialSource) {
+      link.href = currentPhone.officialSource;
+      link.hidden = false;
+    } else {
+      link.removeAttribute("href");
+      link.hidden = true;
+    }
+  }
+
   function renderColors() {
     const box = $("#colorButtons");
     const colors = currentPhone?.colors ?? [];

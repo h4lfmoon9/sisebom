@@ -738,3 +738,15 @@ footer{margin-top:40px;border-top:1px solid var(--line);padding:30px 6vw;display
 .compare-controls>span{color:var(--green);font-weight:950}
 .compare-controls button{border:0;background:var(--green);color:#fff;border-radius:12px;padding:11px 16px;font-weight:900}
 @media(max-width:620px){.compare-controls{grid-template-columns:1fr}.compare-controls>span{text-align:center}}
+
+
+.official-source-link{
+  margin-top:10px;
+  color:var(--green-dark);
+  font-size:11px;
+  font-weight:900;
+  text-decoration:none;
+}
+.official-source-link:hover{
+  text-decoration:underline;
+}
