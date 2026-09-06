@@ -391,27 +391,32 @@
       {
         "name": "핑크",
         "hex": "#e8c7cf",
-        "image": "https://www.apple.com/newsroom/images/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/article/Apple-iPhone-15-lineup-design-230912_big.jpg.large.jpg"
+        "image": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch-pink?wid=1024&hei=1024&fmt=png-alpha",
+        "imageVerified": true
       },
       {
         "name": "블랙",
         "hex": "#303331",
-        "image": "https://www.apple.com/newsroom/images/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/article/Apple-iPhone-15-lineup-design-230912_big.jpg.large.jpg"
+        "image": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch-black?wid=1024&hei=1024&fmt=png-alpha",
+        "imageVerified": true
       },
       {
         "name": "블루",
         "hex": "#bfd2dc",
-        "image": "https://www.apple.com/newsroom/images/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/article/Apple-iPhone-15-lineup-design-230912_big.jpg.large.jpg"
+        "image": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch-blue?wid=1024&hei=1024&fmt=png-alpha",
+        "imageVerified": true
       },
       {
         "name": "그린",
         "hex": "#cadbc8",
-        "image": "https://www.apple.com/newsroom/images/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/article/Apple-iPhone-15-lineup-design-230912_big.jpg.large.jpg"
+        "image": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch-green?wid=1024&hei=1024&fmt=png-alpha",
+        "imageVerified": true
       },
       {
         "name": "옐로",
         "hex": "#e8ddb8",
-        "image": "https://www.apple.com/newsroom/images/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/article/Apple-iPhone-15-lineup-design-230912_big.jpg.large.jpg"
+        "image": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch-yellow?wid=1024&hei=1024&fmt=png-alpha",
+        "imageVerified": true
       }
     ],
     "listings": [
@@ -486,8 +491,9 @@
         "url": "https://example.com/iphone15-7"
       }
     ],
-    "officialSource": "https://www.apple.com/kr/newsroom/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/",
-    "verified": true
+    "officialSource": "https://support.apple.com/ko-kr/111831",
+    "verified": true,
+    "imageMode": "official-color"
   },
   {
     "id": "아이폰-15-plus",

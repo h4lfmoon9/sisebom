@@ -334,22 +334,26 @@
       {
         "name": "블랙",
         "hex": "#343536",
-        "image": "https://images.samsung.com/kdp/goods/2023/12/28/1a3a19f4-e8d9-4925-a6cb-ebf4ecc58794.png?$Q90_1920_1280_F_JPG$="
+        "image": null,
+        "imageVerified": false
       },
       {
         "name": "그레이",
         "hex": "#b9b8b0",
-        "image": "https://images.samsung.com/kdp/goods/2023/12/28/1a3a19f4-e8d9-4925-a6cb-ebf4ecc58794.png?$Q90_1920_1280_F_JPG$="
+        "image": null,
+        "imageVerified": false
       },
       {
         "name": "바이올렛",
         "hex": "#c9c0dc",
-        "image": "https://images.samsung.com/kdp/goods/2023/12/28/1a3a19f4-e8d9-4925-a6cb-ebf4ecc58794.png?$Q90_1920_1280_F_JPG$="
+        "image": null,
+        "imageVerified": false
       },
       {
         "name": "옐로",
         "hex": "#ebe2ad",
-        "image": "https://images.samsung.com/kdp/goods/2023/12/28/1a3a19f4-e8d9-4925-a6cb-ebf4ecc58794.png?$Q90_1920_1280_F_JPG$="
+        "image": null,
+        "imageVerified": false
       }
     ],
     "listings": [
@@ -404,8 +408,9 @@
         "url": "https://example.com/s24-5"
       }
     ],
-    "officialSource": "https://www.samsung.com/sec/smartphones/galaxy-s24-s921/SM-S921NZKFKOO/",
-    "verified": true
+    "officialSource": "https://www.samsung.com/sec/smartphones/galaxy-s24/specs/",
+    "verified": true,
+    "imageMode": "official-color-pending"
   },
   {
     "id": "갤럭시-s24-plus",
