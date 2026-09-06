@@ -391,31 +391,31 @@
       {
         "name": "핑크",
         "hex": "#e8c7cf",
-        "image": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch-pink?wid=1024&hei=1024&fmt=png-alpha",
+        "image": "images/apple/iphone15-colors/iphone15-pink.png",
         "imageVerified": true
       },
       {
         "name": "블랙",
         "hex": "#303331",
-        "image": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch-black?wid=1024&hei=1024&fmt=png-alpha",
+        "image": "images/apple/iphone15-colors/iphone15-black.png",
         "imageVerified": true
       },
       {
         "name": "블루",
         "hex": "#bfd2dc",
-        "image": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch-blue?wid=1024&hei=1024&fmt=png-alpha",
+        "image": "images/apple/iphone15-colors/iphone15-blue.png",
         "imageVerified": true
       },
       {
         "name": "그린",
         "hex": "#cadbc8",
-        "image": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch-green?wid=1024&hei=1024&fmt=png-alpha",
+        "image": "images/apple/iphone15-colors/iphone15-green.png",
         "imageVerified": true
       },
       {
         "name": "옐로",
         "hex": "#e8ddb8",
-        "image": "https://store.storeimages.cdn-apple.com/4982/as-images.apple.com/is/iphone-15-finish-select-202309-6-1inch-yellow?wid=1024&hei=1024&fmt=png-alpha",
+        "image": "images/apple/iphone15-colors/iphone15-yellow.png",
         "imageVerified": true
       }
     ],
@@ -493,7 +493,9 @@
     ],
     "officialSource": "https://support.apple.com/ko-kr/111831",
     "verified": true,
-    "imageMode": "official-color"
+    "imageMode": "official-color",
+    "heroImage": "images/apple/iphone15-colors/iphone15-blue.png",
+    "imageType": "generated-cutout-illustration"
   },
   {
     "id": "아이폰-15-plus",
@@ -523,7 +525,9 @@
     },
     "colors": [],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "heroImage": "images/apple/batch1/iphone15-plus.png",
+    "imageType": "generated-cutout-illustration"
   },
   {
     "id": "아이폰-15-pro",
@@ -553,7 +557,9 @@
     },
     "colors": [],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "heroImage": "images/apple/batch1/iphone15-pro.png",
+    "imageType": "generated-cutout-illustration"
   },
   {
     "id": "아이폰-15-pro-max",
@@ -583,7 +589,9 @@
     },
     "colors": [],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "heroImage": "images/apple/batch1/iphone15-pro-max.png",
+    "imageType": "generated-cutout-illustration"
   },
   {
     "id": "아이폰-16",
@@ -612,7 +620,9 @@
     },
     "colors": [],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "heroImage": "images/apple/batch1/iphone16.png",
+    "imageType": "generated-cutout-illustration"
   },
   {
     "id": "아이폰-16-plus",
@@ -642,7 +652,9 @@
     },
     "colors": [],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "heroImage": "images/apple/batch1/iphone16-plus.png",
+    "imageType": "generated-cutout-illustration"
   },
   {
     "id": "아이폰-16-pro",
@@ -672,7 +684,9 @@
     },
     "colors": [],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "heroImage": "images/apple/batch1/iphone16-pro.png",
+    "imageType": "generated-cutout-illustration"
   },
   {
     "id": "아이폰-16-pro-max",
@@ -702,7 +716,9 @@
     },
     "colors": [],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "heroImage": "images/apple/batch1/iphone16-pro-max.png",
+    "imageType": "generated-cutout-illustration"
   },
   {
     "id": "아이폰-16e",
@@ -760,7 +776,9 @@
     },
     "colors": [],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "heroImage": "images/apple/batch1/iphone17.png",
+    "imageType": "generated-cutout-illustration"
   },
   {
     "id": "아이폰-17-air",
@@ -790,7 +808,9 @@
     },
     "colors": [],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "heroImage": "images/apple/batch1/iphone17-air.png",
+    "imageType": "generated-cutout-illustration"
   },
   {
     "id": "아이폰-17-pro",
@@ -820,7 +840,9 @@
     },
     "colors": [],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "heroImage": "images/apple/batch1/iphone17-pro.png",
+    "imageType": "generated-cutout-illustration"
   },
   {
     "id": "아이폰-17-pro-max",

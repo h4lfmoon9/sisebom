@@ -81,8 +81,8 @@
     box.innerHTML = "";
 
     if (!colors.length) {
-      $("#colorName").textContent = "색상 정보 없음";
-      showImage(null, "");
+      $("#colorName").textContent = currentPhone?.heroImage ? "대표 이미지" : "색상 정보 없음";
+      showImage(currentPhone?.heroImage ?? null, currentPhone?.name ?? "");
       return;
     }
 
@@ -96,13 +96,13 @@
         $$("#colorButtons .color-dynamic").forEach((x) => x.classList.remove("active"));
         b.classList.add("active");
         $("#colorName").textContent = color.name;
-        showImage(color.image, `${currentPhone.name} ${color.name}`);
+        showImage(color.image || currentPhone?.heroImage || null, `${currentPhone.name} ${color.name}`);
       });
       box.appendChild(b);
     });
 
     $("#colorName").textContent = colors[0].name;
-    showImage(colors[0].image, `${currentPhone.name} ${colors[0].name}`);
+    showImage(colors[0].image || currentPhone?.heroImage || null, `${currentPhone.name} ${colors[0].name}`);
   }
 
   function showImage(url, alt) {
