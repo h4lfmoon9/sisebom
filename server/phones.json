@@ -1,0 +1,232 @@
+[
+  {
+    "id": "iphone15",
+    "name": "아이폰 15",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰15",
+      "iphone 15",
+      "iphone15"
+    ],
+    "storage": [128, 256, 512],
+    "launchPrices": {
+      "128": 1250000,
+      "256": 1400000,
+      "512": 1700000
+    },
+    "specs": {
+      "chipset": "A16 Bionic",
+      "display": "6.1인치",
+      "camera": "듀얼 카메라",
+      "charging": "USB-C",
+      "frame": "알루미늄"
+    },
+    "scores": {
+      "performance": 86,
+      "daily": 94,
+      "gaming": 86,
+      "camera": 84
+    },
+    "colors": [
+      {
+        "name": "핑크",
+        "image": null
+      },
+      {
+        "name": "블랙",
+        "image": null
+      },
+      {
+        "name": "블루",
+        "image": null
+      },
+      {
+        "name": "그린",
+        "image": null
+      },
+      {
+        "name": "옐로",
+        "image": null
+      }
+    ],
+    "listings": [
+      {
+        "platform": "당근",
+        "storage": 128,
+        "price": 430000,
+        "minutes": 64,
+        "title": "아이폰 15 128GB 블랙",
+        "region": "서울",
+        "buyNow": false,
+        "url": "https://example.com"
+      },
+      {
+        "platform": "번개장터",
+        "storage": 256,
+        "price": 535000,
+        "minutes": 5,
+        "title": "아이폰 15 256GB",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com"
+      },
+      {
+        "platform": "중고나라",
+        "storage": 512,
+        "price": 635000,
+        "minutes": 11,
+        "title": "아이폰 15 512GB",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com"
+      }
+    ]
+  },
+
+  {
+    "id": "galaxy-s24",
+    "name": "갤럭시 S24",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시s24",
+      "galaxy s24",
+      "s24"
+    ],
+    "storage": [256, 512],
+    "launchPrices": {
+      "256": 1155000,
+      "512": 1298000
+    },
+    "specs": {
+      "chipset": "Exynos 2400",
+      "display": "6.2인치",
+      "camera": "트리플 카메라",
+      "charging": "USB-C",
+      "frame": "알루미늄"
+    },
+    "scores": {
+      "performance": 91,
+      "daily": 95,
+      "gaming": 91,
+      "camera": 87
+    },
+    "colors": [
+      {
+        "name": "블랙",
+        "image": null
+      },
+      {
+        "name": "그레이",
+        "image": null
+      },
+      {
+        "name": "바이올렛",
+        "image": null
+      },
+      {
+        "name": "옐로",
+        "image": null
+      }
+    ],
+    "listings": [
+      {
+        "platform": "당근",
+        "storage": 256,
+        "price": 390000,
+        "minutes": 12,
+        "title": "갤럭시 S24 256GB",
+        "region": "서울",
+        "buyNow": true,
+        "url": "https://example.com"
+      },
+      {
+        "platform": "번개장터",
+        "storage": 256,
+        "price": 425000,
+        "minutes": 18,
+        "title": "갤럭시 S24 256GB 자급제",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com"
+      },
+      {
+        "platform": "중고나라",
+        "storage": 512,
+        "price": 495000,
+        "minutes": 8,
+        "title": "갤럭시 S24 512GB",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com"
+      }
+    ]
+  },
+
+  {
+    "id": "xiaomi14",
+    "name": "샤오미 14",
+    "brand": "Xiaomi",
+    "series": "Xiaomi",
+    "aliases": [
+      "샤오미14",
+      "xiaomi 14",
+      "xiaomi14"
+    ],
+    "storage": [256, 512],
+    "launchPrices": {
+      "256": null,
+      "512": null
+    },
+    "specs": {
+      "chipset": "Snapdragon 8 Gen 3",
+      "display": "6.36인치",
+      "camera": "트리플 카메라",
+      "charging": "USB-C",
+      "frame": "알루미늄"
+    },
+    "scores": {
+      "performance": 93,
+      "daily": 94,
+      "gaming": 93,
+      "camera": 88
+    },
+    "colors": [
+      {
+        "name": "블랙",
+        "image": null
+      },
+      {
+        "name": "화이트",
+        "image": null
+      },
+      {
+        "name": "그린",
+        "image": null
+      }
+    ],
+    "listings": [
+      {
+        "platform": "번개장터",
+        "storage": 256,
+        "price": 490000,
+        "minutes": 17,
+        "title": "샤오미 14 256GB",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com"
+      },
+      {
+        "platform": "중고나라",
+        "storage": 512,
+        "price": 590000,
+        "minutes": 9,
+        "title": "샤오미 14 512GB",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com"
+      }
+    ]
+  }
+]
