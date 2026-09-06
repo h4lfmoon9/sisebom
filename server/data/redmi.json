@@ -1,0 +1,362 @@
+[
+  {
+    "id": "redmi-note-12",
+    "name": "Redmi Note 12",
+    "brand": "Xiaomi",
+    "series": "Redmi Note",
+    "aliases": [
+      "RedmiNote12",
+      "redmi note 12",
+      "redminote12"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "redmi-note-12-pro",
+    "name": "Redmi Note 12 Pro",
+    "brand": "Xiaomi",
+    "series": "Redmi Note",
+    "aliases": [
+      "RedmiNote12Pro",
+      "redmi note 12 pro",
+      "redminote12pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "redmi-note-13",
+    "name": "Redmi Note 13",
+    "brand": "Xiaomi",
+    "series": "Redmi Note",
+    "aliases": [
+      "RedmiNote13",
+      "redmi note 13",
+      "redminote13"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "redmi-note-13-pro",
+    "name": "Redmi Note 13 Pro",
+    "brand": "Xiaomi",
+    "series": "Redmi Note",
+    "aliases": [
+      "RedmiNote13Pro",
+      "redmi note 13 pro",
+      "redminote13pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "redmi-note-13-pro-plus",
+    "name": "Redmi Note 13 Pro+",
+    "brand": "Xiaomi",
+    "series": "Redmi Note",
+    "aliases": [
+      "RedmiNote13Pro+",
+      "redmi note 13 pro+",
+      "redminote13pro+"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "redmi-note-14",
+    "name": "Redmi Note 14",
+    "brand": "Xiaomi",
+    "series": "Redmi Note",
+    "aliases": [
+      "RedmiNote14",
+      "redmi note 14",
+      "redminote14"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "redmi-note-14-pro",
+    "name": "Redmi Note 14 Pro",
+    "brand": "Xiaomi",
+    "series": "Redmi Note",
+    "aliases": [
+      "RedmiNote14Pro",
+      "redmi note 14 pro",
+      "redminote14pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "redmi-note-14-pro-plus",
+    "name": "Redmi Note 14 Pro+",
+    "brand": "Xiaomi",
+    "series": "Redmi Note",
+    "aliases": [
+      "RedmiNote14Pro+",
+      "redmi note 14 pro+",
+      "redminote14pro+"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "redmi-k70",
+    "name": "Redmi K70",
+    "brand": "Xiaomi",
+    "series": "Redmi K",
+    "aliases": [
+      "RedmiK70",
+      "redmi k70",
+      "redmik70"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "redmi-k70-pro",
+    "name": "Redmi K70 Pro",
+    "brand": "Xiaomi",
+    "series": "Redmi K",
+    "aliases": [
+      "RedmiK70Pro",
+      "redmi k70 pro",
+      "redmik70pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "redmi-k80",
+    "name": "Redmi K80",
+    "brand": "Xiaomi",
+    "series": "Redmi K",
+    "aliases": [
+      "RedmiK80",
+      "redmi k80",
+      "redmik80"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "redmi-k80-pro",
+    "name": "Redmi K80 Pro",
+    "brand": "Xiaomi",
+    "series": "Redmi K",
+    "aliases": [
+      "RedmiK80Pro",
+      "redmi k80 pro",
+      "redmik80pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  }
+]

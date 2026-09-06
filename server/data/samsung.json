@@ -1,0 +1,1220 @@
+[
+  {
+    "id": "갤럭시-s21",
+    "name": "갤럭시 S21",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s21",
+      "갤럭시S21",
+      "갤럭시s21"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s21-plus",
+    "name": "갤럭시 S21+",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s21+",
+      "갤럭시S21+",
+      "갤럭시s21+"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s21-ultra",
+    "name": "갤럭시 S21 Ultra",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s21 ultra",
+      "갤럭시S21Ultra",
+      "갤럭시s21ultra"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s22",
+    "name": "갤럭시 S22",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s22",
+      "갤럭시S22",
+      "갤럭시s22"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s22-plus",
+    "name": "갤럭시 S22+",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s22+",
+      "갤럭시S22+",
+      "갤럭시s22+"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s22-ultra",
+    "name": "갤럭시 S22 Ultra",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s22 ultra",
+      "갤럭시S22Ultra",
+      "갤럭시s22ultra"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s23",
+    "name": "갤럭시 S23",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s23",
+      "갤럭시S23",
+      "갤럭시s23"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s23-plus",
+    "name": "갤럭시 S23+",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s23+",
+      "갤럭시S23+",
+      "갤럭시s23+"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s23-ultra",
+    "name": "갤럭시 S23 Ultra",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s23 ultra",
+      "갤럭시S23Ultra",
+      "갤럭시s23ultra"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s23-fe",
+    "name": "갤럭시 S23 FE",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s23 fe",
+      "갤럭시S23FE",
+      "갤럭시s23fe"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "galaxy-s24",
+    "name": "갤럭시 S24",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시s24",
+      "galaxy s24",
+      "s24"
+    ],
+    "storage": [
+      256,
+      512
+    ],
+    "launchPrices": {
+      "256": 1155000,
+      "512": 1298000
+    },
+    "specs": {
+      "chipset": "Exynos 2400",
+      "display": "6.2인치",
+      "camera": "트리플 카메라",
+      "charging": "USB-C",
+      "frame": "알루미늄"
+    },
+    "scores": {
+      "performance": 91,
+      "daily": 95,
+      "gaming": 91,
+      "camera": 87
+    },
+    "colors": [
+      {
+        "name": "블랙",
+        "hex": "#343536",
+        "image": "https://images.samsung.com/kdp/goods/2023/12/28/1a3a19f4-e8d9-4925-a6cb-ebf4ecc58794.png?$Q90_1920_1280_F_JPG$="
+      },
+      {
+        "name": "그레이",
+        "hex": "#b9b8b0",
+        "image": "https://images.samsung.com/kdp/goods/2023/12/28/1a3a19f4-e8d9-4925-a6cb-ebf4ecc58794.png?$Q90_1920_1280_F_JPG$="
+      },
+      {
+        "name": "바이올렛",
+        "hex": "#c9c0dc",
+        "image": "https://images.samsung.com/kdp/goods/2023/12/28/1a3a19f4-e8d9-4925-a6cb-ebf4ecc58794.png?$Q90_1920_1280_F_JPG$="
+      },
+      {
+        "name": "옐로",
+        "hex": "#ebe2ad",
+        "image": "https://images.samsung.com/kdp/goods/2023/12/28/1a3a19f4-e8d9-4925-a6cb-ebf4ecc58794.png?$Q90_1920_1280_F_JPG$="
+      }
+    ],
+    "listings": [
+      {
+        "platform": "당근",
+        "storage": 256,
+        "price": 390000,
+        "minutes": 12,
+        "title": "갤럭시 S24 256GB 상태 좋음",
+        "region": "서울",
+        "buyNow": true,
+        "url": "https://example.com/s24-1"
+      },
+      {
+        "platform": "번개장터",
+        "storage": 256,
+        "price": 425000,
+        "minutes": 18,
+        "title": "갤럭시 S24 256GB 자급제",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com/s24-2"
+      },
+      {
+        "platform": "중고나라",
+        "storage": 256,
+        "price": 450000,
+        "minutes": 35,
+        "title": "갤럭시 S24 256기가 판매",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com/s24-3"
+      },
+      {
+        "platform": "당근",
+        "storage": 512,
+        "price": 495000,
+        "minutes": 8,
+        "title": "갤럭시 S24 512GB 풀박스",
+        "region": "경기",
+        "buyNow": false,
+        "url": "https://example.com/s24-4"
+      },
+      {
+        "platform": "번개장터",
+        "storage": 512,
+        "price": 530000,
+        "minutes": 44,
+        "title": "갤럭시 S24 512GB A급",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com/s24-5"
+      }
+    ],
+    "officialSource": "https://www.samsung.com/sec/smartphones/galaxy-s24-s921/SM-S921NZKFKOO/",
+    "verified": true
+  },
+  {
+    "id": "갤럭시-s24-plus",
+    "name": "갤럭시 S24+",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s24+",
+      "갤럭시S24+",
+      "갤럭시s24+"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s24-ultra",
+    "name": "갤럭시 S24 Ultra",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s24 ultra",
+      "갤럭시S24Ultra",
+      "갤럭시s24ultra"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s24-fe",
+    "name": "갤럭시 S24 FE",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s24 fe",
+      "갤럭시S24FE",
+      "갤럭시s24fe"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s25",
+    "name": "갤럭시 S25",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s25",
+      "갤럭시S25",
+      "갤럭시s25"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s25-plus",
+    "name": "갤럭시 S25+",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s25+",
+      "갤럭시S25+",
+      "갤럭시s25+"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s25-ultra",
+    "name": "갤럭시 S25 Ultra",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s25 ultra",
+      "갤럭시S25Ultra",
+      "갤럭시s25ultra"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s25-edge",
+    "name": "갤럭시 S25 Edge",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s25 edge",
+      "갤럭시S25Edge",
+      "갤럭시s25edge"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s26",
+    "name": "갤럭시 S26",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s26",
+      "갤럭시S26",
+      "갤럭시s26"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s26-plus",
+    "name": "갤럭시 S26+",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s26+",
+      "갤럭시S26+",
+      "갤럭시s26+"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-s26-ultra",
+    "name": "갤럭시 S26 Ultra",
+    "brand": "Samsung",
+    "series": "Galaxy S",
+    "aliases": [
+      "갤럭시 s26 ultra",
+      "갤럭시S26Ultra",
+      "갤럭시s26ultra"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-z-fold3",
+    "name": "갤럭시 Z Fold3",
+    "brand": "Samsung",
+    "series": "Galaxy Z",
+    "aliases": [
+      "갤럭시 z fold3",
+      "갤럭시ZFold3",
+      "갤럭시zfold3"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-z-flip3",
+    "name": "갤럭시 Z Flip3",
+    "brand": "Samsung",
+    "series": "Galaxy Z",
+    "aliases": [
+      "갤럭시 z flip3",
+      "갤럭시ZFlip3",
+      "갤럭시zflip3"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-z-fold4",
+    "name": "갤럭시 Z Fold4",
+    "brand": "Samsung",
+    "series": "Galaxy Z",
+    "aliases": [
+      "갤럭시 z fold4",
+      "갤럭시ZFold4",
+      "갤럭시zfold4"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-z-flip4",
+    "name": "갤럭시 Z Flip4",
+    "brand": "Samsung",
+    "series": "Galaxy Z",
+    "aliases": [
+      "갤럭시 z flip4",
+      "갤럭시ZFlip4",
+      "갤럭시zflip4"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-z-fold5",
+    "name": "갤럭시 Z Fold5",
+    "brand": "Samsung",
+    "series": "Galaxy Z",
+    "aliases": [
+      "갤럭시 z fold5",
+      "갤럭시ZFold5",
+      "갤럭시zfold5"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-z-flip5",
+    "name": "갤럭시 Z Flip5",
+    "brand": "Samsung",
+    "series": "Galaxy Z",
+    "aliases": [
+      "갤럭시 z flip5",
+      "갤럭시ZFlip5",
+      "갤럭시zflip5"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-z-fold6",
+    "name": "갤럭시 Z Fold6",
+    "brand": "Samsung",
+    "series": "Galaxy Z",
+    "aliases": [
+      "갤럭시 z fold6",
+      "갤럭시ZFold6",
+      "갤럭시zfold6"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-z-flip6",
+    "name": "갤럭시 Z Flip6",
+    "brand": "Samsung",
+    "series": "Galaxy Z",
+    "aliases": [
+      "갤럭시 z flip6",
+      "갤럭시ZFlip6",
+      "갤럭시zflip6"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-z-fold7",
+    "name": "갤럭시 Z Fold7",
+    "brand": "Samsung",
+    "series": "Galaxy Z",
+    "aliases": [
+      "갤럭시 z fold7",
+      "갤럭시ZFold7",
+      "갤럭시zfold7"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-z-flip7",
+    "name": "갤럭시 Z Flip7",
+    "brand": "Samsung",
+    "series": "Galaxy Z",
+    "aliases": [
+      "갤럭시 z flip7",
+      "갤럭시ZFlip7",
+      "갤럭시zflip7"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-a16",
+    "name": "갤럭시 A16",
+    "brand": "Samsung",
+    "series": "Galaxy A",
+    "aliases": [
+      "갤럭시 a16",
+      "갤럭시A16",
+      "갤럭시a16"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-a25",
+    "name": "갤럭시 A25",
+    "brand": "Samsung",
+    "series": "Galaxy A",
+    "aliases": [
+      "갤럭시 a25",
+      "갤럭시A25",
+      "갤럭시a25"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-a26",
+    "name": "갤럭시 A26",
+    "brand": "Samsung",
+    "series": "Galaxy A",
+    "aliases": [
+      "갤럭시 a26",
+      "갤럭시A26",
+      "갤럭시a26"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-a35",
+    "name": "갤럭시 A35",
+    "brand": "Samsung",
+    "series": "Galaxy A",
+    "aliases": [
+      "갤럭시 a35",
+      "갤럭시A35",
+      "갤럭시a35"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-a36",
+    "name": "갤럭시 A36",
+    "brand": "Samsung",
+    "series": "Galaxy A",
+    "aliases": [
+      "갤럭시 a36",
+      "갤럭시A36",
+      "갤럭시a36"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-a55",
+    "name": "갤럭시 A55",
+    "brand": "Samsung",
+    "series": "Galaxy A",
+    "aliases": [
+      "갤럭시 a55",
+      "갤럭시A55",
+      "갤럭시a55"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "갤럭시-a56",
+    "name": "갤럭시 A56",
+    "brand": "Samsung",
+    "series": "Galaxy A",
+    "aliases": [
+      "갤럭시 a56",
+      "갤럭시A56",
+      "갤럭시a56"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  }
+]

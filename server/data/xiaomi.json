@@ -1,0 +1,482 @@
+[
+  {
+    "id": "샤오미-12",
+    "name": "샤오미 12",
+    "brand": "Xiaomi",
+    "series": "Xiaomi",
+    "aliases": [
+      "샤오미 12",
+      "샤오미12"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "샤오미-12-pro",
+    "name": "샤오미 12 Pro",
+    "brand": "Xiaomi",
+    "series": "Xiaomi",
+    "aliases": [
+      "샤오미 12 pro",
+      "샤오미12Pro",
+      "샤오미12pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "샤오미-12t",
+    "name": "샤오미 12T",
+    "brand": "Xiaomi",
+    "series": "Xiaomi T",
+    "aliases": [
+      "샤오미 12t",
+      "샤오미12T",
+      "샤오미12t"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "샤오미-12t-pro",
+    "name": "샤오미 12T Pro",
+    "brand": "Xiaomi",
+    "series": "Xiaomi T",
+    "aliases": [
+      "샤오미 12t pro",
+      "샤오미12TPro",
+      "샤오미12tpro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "샤오미-13",
+    "name": "샤오미 13",
+    "brand": "Xiaomi",
+    "series": "Xiaomi",
+    "aliases": [
+      "샤오미 13",
+      "샤오미13"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "샤오미-13-pro",
+    "name": "샤오미 13 Pro",
+    "brand": "Xiaomi",
+    "series": "Xiaomi",
+    "aliases": [
+      "샤오미 13 pro",
+      "샤오미13Pro",
+      "샤오미13pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "샤오미-13t",
+    "name": "샤오미 13T",
+    "brand": "Xiaomi",
+    "series": "Xiaomi T",
+    "aliases": [
+      "샤오미 13t",
+      "샤오미13T",
+      "샤오미13t"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "샤오미-13t-pro",
+    "name": "샤오미 13T Pro",
+    "brand": "Xiaomi",
+    "series": "Xiaomi T",
+    "aliases": [
+      "샤오미 13t pro",
+      "샤오미13TPro",
+      "샤오미13tpro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "xiaomi14",
+    "name": "샤오미 14",
+    "brand": "Xiaomi",
+    "series": "Xiaomi",
+    "aliases": [
+      "샤오미14",
+      "xiaomi 14",
+      "xiaomi14"
+    ],
+    "storage": [
+      256,
+      512
+    ],
+    "launchPrices": {
+      "256": null,
+      "512": null
+    },
+    "specs": {
+      "chipset": "Snapdragon 8 Gen 3",
+      "display": "6.36인치",
+      "camera": "트리플 카메라",
+      "charging": "USB-C",
+      "frame": "알루미늄"
+    },
+    "scores": {
+      "performance": 93,
+      "daily": 94,
+      "gaming": 93,
+      "camera": 88
+    },
+    "colors": [
+      {
+        "name": "블랙",
+        "hex": "#262626",
+        "image": null
+      },
+      {
+        "name": "화이트",
+        "hex": "#eeeeec",
+        "image": null
+      },
+      {
+        "name": "그린",
+        "hex": "#b7c7b3",
+        "image": null
+      }
+    ],
+    "listings": [
+      {
+        "platform": "번개장터",
+        "storage": 256,
+        "price": 490000,
+        "minutes": 17,
+        "title": "샤오미 14 256GB 판매",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com/xiaomi14-1"
+      },
+      {
+        "platform": "중고나라",
+        "storage": 256,
+        "price": 520000,
+        "minutes": 28,
+        "title": "샤오미 14 256기가 상태 양호",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com/xiaomi14-2"
+      },
+      {
+        "platform": "당근",
+        "storage": 512,
+        "price": 590000,
+        "minutes": 9,
+        "title": "샤오미 14 512GB 풀박스",
+        "region": "서울",
+        "buyNow": false,
+        "url": "https://example.com/xiaomi14-3"
+      },
+      {
+        "platform": "번개장터",
+        "storage": 512,
+        "price": 625000,
+        "minutes": 41,
+        "title": "샤오미 14 512GB 판매",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com/xiaomi14-4"
+      }
+    ],
+    "officialSource": null,
+    "verified": true
+  },
+  {
+    "id": "샤오미-14-ultra",
+    "name": "샤오미 14 Ultra",
+    "brand": "Xiaomi",
+    "series": "Xiaomi",
+    "aliases": [
+      "샤오미 14 ultra",
+      "샤오미14Ultra",
+      "샤오미14ultra"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "샤오미-14t",
+    "name": "샤오미 14T",
+    "brand": "Xiaomi",
+    "series": "Xiaomi T",
+    "aliases": [
+      "샤오미 14t",
+      "샤오미14T",
+      "샤오미14t"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "샤오미-14t-pro",
+    "name": "샤오미 14T Pro",
+    "brand": "Xiaomi",
+    "series": "Xiaomi T",
+    "aliases": [
+      "샤오미 14t pro",
+      "샤오미14TPro",
+      "샤오미14tpro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "샤오미-15",
+    "name": "샤오미 15",
+    "brand": "Xiaomi",
+    "series": "Xiaomi",
+    "aliases": [
+      "샤오미 15",
+      "샤오미15"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "샤오미-15-ultra",
+    "name": "샤오미 15 Ultra",
+    "brand": "Xiaomi",
+    "series": "Xiaomi",
+    "aliases": [
+      "샤오미 15 ultra",
+      "샤오미15Ultra",
+      "샤오미15ultra"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  }
+]

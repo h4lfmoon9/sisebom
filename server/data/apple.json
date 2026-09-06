@@ -1,0 +1,878 @@
+[
+  {
+    "id": "아이폰-12",
+    "name": "아이폰 12",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 12",
+      "아이폰12"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-12-mini",
+    "name": "아이폰 12 mini",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 12 mini",
+      "아이폰12mini"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-12-pro",
+    "name": "아이폰 12 Pro",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 12 pro",
+      "아이폰12Pro",
+      "아이폰12pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-12-pro-max",
+    "name": "아이폰 12 Pro Max",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 12 pro max",
+      "아이폰12ProMax",
+      "아이폰12promax"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-13",
+    "name": "아이폰 13",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 13",
+      "아이폰13"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-13-mini",
+    "name": "아이폰 13 mini",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 13 mini",
+      "아이폰13mini"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-13-pro",
+    "name": "아이폰 13 Pro",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 13 pro",
+      "아이폰13Pro",
+      "아이폰13pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-13-pro-max",
+    "name": "아이폰 13 Pro Max",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 13 pro max",
+      "아이폰13ProMax",
+      "아이폰13promax"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-14",
+    "name": "아이폰 14",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 14",
+      "아이폰14"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-14-plus",
+    "name": "아이폰 14 Plus",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 14 plus",
+      "아이폰14Plus",
+      "아이폰14plus"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-14-pro",
+    "name": "아이폰 14 Pro",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 14 pro",
+      "아이폰14Pro",
+      "아이폰14pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-14-pro-max",
+    "name": "아이폰 14 Pro Max",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 14 pro max",
+      "아이폰14ProMax",
+      "아이폰14promax"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "iphone15",
+    "name": "아이폰 15",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰15",
+      "iphone 15",
+      "iphone15"
+    ],
+    "storage": [
+      128,
+      256,
+      512
+    ],
+    "launchPrices": {
+      "128": 1250000,
+      "256": 1400000,
+      "512": 1700000
+    },
+    "specs": {
+      "chipset": "A16 Bionic",
+      "display": "6.1인치",
+      "camera": "듀얼 카메라",
+      "charging": "USB-C",
+      "frame": "알루미늄"
+    },
+    "scores": {
+      "performance": 86,
+      "daily": 94,
+      "gaming": 86,
+      "camera": 84
+    },
+    "colors": [
+      {
+        "name": "핑크",
+        "hex": "#e8c7cf",
+        "image": "https://www.apple.com/newsroom/images/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/article/Apple-iPhone-15-lineup-design-230912_big.jpg.large.jpg"
+      },
+      {
+        "name": "블랙",
+        "hex": "#303331",
+        "image": "https://www.apple.com/newsroom/images/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/article/Apple-iPhone-15-lineup-design-230912_big.jpg.large.jpg"
+      },
+      {
+        "name": "블루",
+        "hex": "#bfd2dc",
+        "image": "https://www.apple.com/newsroom/images/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/article/Apple-iPhone-15-lineup-design-230912_big.jpg.large.jpg"
+      },
+      {
+        "name": "그린",
+        "hex": "#cadbc8",
+        "image": "https://www.apple.com/newsroom/images/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/article/Apple-iPhone-15-lineup-design-230912_big.jpg.large.jpg"
+      },
+      {
+        "name": "옐로",
+        "hex": "#e8ddb8",
+        "image": "https://www.apple.com/newsroom/images/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/article/Apple-iPhone-15-lineup-design-230912_big.jpg.large.jpg"
+      }
+    ],
+    "listings": [
+      {
+        "platform": "당근",
+        "storage": 128,
+        "price": 430000,
+        "minutes": 64,
+        "title": "아이폰 15 128GB 블랙 사용감 있음",
+        "region": "서울",
+        "buyNow": false,
+        "url": "https://example.com/iphone15-1"
+      },
+      {
+        "platform": "번개장터",
+        "storage": 128,
+        "price": 475000,
+        "minutes": 7,
+        "title": "아이폰 15 128GB 핑크 풀박스",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com/iphone15-2"
+      },
+      {
+        "platform": "중고나라",
+        "storage": 128,
+        "price": 490000,
+        "minutes": 21,
+        "title": "아이폰 15 128GB 블루 상태 좋음",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com/iphone15-3"
+      },
+      {
+        "platform": "당근",
+        "storage": 256,
+        "price": 535000,
+        "minutes": 5,
+        "title": "아이폰 15 256GB 자급제",
+        "region": "경기",
+        "buyNow": true,
+        "url": "https://example.com/iphone15-4"
+      },
+      {
+        "platform": "번개장터",
+        "storage": 256,
+        "price": 565000,
+        "minutes": 9,
+        "title": "아이폰 15 256GB 풀박스",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com/iphone15-5"
+      },
+      {
+        "platform": "중고나라",
+        "storage": 512,
+        "price": 635000,
+        "minutes": 11,
+        "title": "아이폰 15 512GB 상태 양호",
+        "region": "전국",
+        "buyNow": false,
+        "url": "https://example.com/iphone15-6"
+      },
+      {
+        "platform": "당근",
+        "storage": 512,
+        "price": 720000,
+        "minutes": 52,
+        "title": "아이폰 15 512GB 미개봉급",
+        "region": "부산",
+        "buyNow": true,
+        "url": "https://example.com/iphone15-7"
+      }
+    ],
+    "officialSource": "https://www.apple.com/kr/newsroom/2023/09/apple-debuts-iphone-15-and-iphone-15-plus/",
+    "verified": true
+  },
+  {
+    "id": "아이폰-15-plus",
+    "name": "아이폰 15 Plus",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 15 plus",
+      "아이폰15Plus",
+      "아이폰15plus"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-15-pro",
+    "name": "아이폰 15 Pro",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 15 pro",
+      "아이폰15Pro",
+      "아이폰15pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-15-pro-max",
+    "name": "아이폰 15 Pro Max",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 15 pro max",
+      "아이폰15ProMax",
+      "아이폰15promax"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-16",
+    "name": "아이폰 16",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 16",
+      "아이폰16"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-16-plus",
+    "name": "아이폰 16 Plus",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 16 plus",
+      "아이폰16Plus",
+      "아이폰16plus"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-16-pro",
+    "name": "아이폰 16 Pro",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 16 pro",
+      "아이폰16Pro",
+      "아이폰16pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-16-pro-max",
+    "name": "아이폰 16 Pro Max",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 16 pro max",
+      "아이폰16ProMax",
+      "아이폰16promax"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-16e",
+    "name": "아이폰 16e",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 16e",
+      "아이폰16e"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-17",
+    "name": "아이폰 17",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 17",
+      "아이폰17"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-17-air",
+    "name": "아이폰 17 Air",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 17 air",
+      "아이폰17Air",
+      "아이폰17air"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-17-pro",
+    "name": "아이폰 17 Pro",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 17 pro",
+      "아이폰17Pro",
+      "아이폰17pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-17-pro-max",
+    "name": "아이폰 17 Pro Max",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 17 pro max",
+      "아이폰17ProMax",
+      "아이폰17promax"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "아이폰-17e",
+    "name": "아이폰 17e",
+    "brand": "Apple",
+    "series": "iPhone",
+    "aliases": [
+      "아이폰 17e",
+      "아이폰17e"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  }
+]

@@ -1,0 +1,452 @@
+[
+  {
+    "id": "pixel-7",
+    "name": "Pixel 7",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel7",
+      "pixel 7",
+      "pixel7"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "pixel-7-pro",
+    "name": "Pixel 7 Pro",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel7Pro",
+      "pixel 7 pro",
+      "pixel7pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "pixel-7a",
+    "name": "Pixel 7a",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel7a",
+      "pixel 7a",
+      "pixel7a"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "pixel-8",
+    "name": "Pixel 8",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel8",
+      "pixel 8",
+      "pixel8"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "pixel-8-pro",
+    "name": "Pixel 8 Pro",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel8Pro",
+      "pixel 8 pro",
+      "pixel8pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "pixel-8a",
+    "name": "Pixel 8a",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel8a",
+      "pixel 8a",
+      "pixel8a"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "pixel-9",
+    "name": "Pixel 9",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel9",
+      "pixel 9",
+      "pixel9"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "pixel-9-pro",
+    "name": "Pixel 9 Pro",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel9Pro",
+      "pixel 9 pro",
+      "pixel9pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "pixel-9-pro-xl",
+    "name": "Pixel 9 Pro XL",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel9ProXL",
+      "pixel 9 pro xl",
+      "pixel9proxl"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "pixel-9-pro-fold",
+    "name": "Pixel 9 Pro Fold",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel9ProFold",
+      "pixel 9 pro fold",
+      "pixel9profold"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "pixel-9a",
+    "name": "Pixel 9a",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel9a",
+      "pixel 9a",
+      "pixel9a"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "pixel-10",
+    "name": "Pixel 10",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel10",
+      "pixel 10",
+      "pixel10"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "pixel-10-pro",
+    "name": "Pixel 10 Pro",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel10Pro",
+      "pixel 10 pro",
+      "pixel10pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "pixel-10-pro-xl",
+    "name": "Pixel 10 Pro XL",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel10ProXL",
+      "pixel 10 pro xl",
+      "pixel10proxl"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "pixel-10-pro-fold",
+    "name": "Pixel 10 Pro Fold",
+    "brand": "Google",
+    "series": "Pixel",
+    "aliases": [
+      "Pixel10ProFold",
+      "pixel 10 pro fold",
+      "pixel10profold"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  }
+]

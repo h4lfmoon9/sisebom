@@ -1,0 +1,392 @@
+[
+  {
+    "id": "motorola-edge-40",
+    "name": "Motorola Edge 40",
+    "brand": "Motorola",
+    "series": "Edge",
+    "aliases": [
+      "MotorolaEdge40",
+      "motorola edge 40",
+      "motorolaedge40"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "motorola-edge-40-pro",
+    "name": "Motorola Edge 40 Pro",
+    "brand": "Motorola",
+    "series": "Edge",
+    "aliases": [
+      "MotorolaEdge40Pro",
+      "motorola edge 40 pro",
+      "motorolaedge40pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "motorola-edge-50",
+    "name": "Motorola Edge 50",
+    "brand": "Motorola",
+    "series": "Edge",
+    "aliases": [
+      "MotorolaEdge50",
+      "motorola edge 50",
+      "motorolaedge50"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "motorola-edge-50-pro",
+    "name": "Motorola Edge 50 Pro",
+    "brand": "Motorola",
+    "series": "Edge",
+    "aliases": [
+      "MotorolaEdge50Pro",
+      "motorola edge 50 pro",
+      "motorolaedge50pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "motorola-edge-50-ultra",
+    "name": "Motorola Edge 50 Ultra",
+    "brand": "Motorola",
+    "series": "Edge",
+    "aliases": [
+      "MotorolaEdge50Ultra",
+      "motorola edge 50 ultra",
+      "motorolaedge50ultra"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "motorola-edge-60",
+    "name": "Motorola Edge 60",
+    "brand": "Motorola",
+    "series": "Edge",
+    "aliases": [
+      "MotorolaEdge60",
+      "motorola edge 60",
+      "motorolaedge60"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "motorola-edge-60-pro",
+    "name": "Motorola Edge 60 Pro",
+    "brand": "Motorola",
+    "series": "Edge",
+    "aliases": [
+      "MotorolaEdge60Pro",
+      "motorola edge 60 pro",
+      "motorolaedge60pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "motorola-razr-40",
+    "name": "Motorola Razr 40",
+    "brand": "Motorola",
+    "series": "Razr",
+    "aliases": [
+      "MotorolaRazr40",
+      "motorola razr 40",
+      "motorolarazr40"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "motorola-razr-40-ultra",
+    "name": "Motorola Razr 40 Ultra",
+    "brand": "Motorola",
+    "series": "Razr",
+    "aliases": [
+      "MotorolaRazr40Ultra",
+      "motorola razr 40 ultra",
+      "motorolarazr40ultra"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "motorola-razr-50",
+    "name": "Motorola Razr 50",
+    "brand": "Motorola",
+    "series": "Razr",
+    "aliases": [
+      "MotorolaRazr50",
+      "motorola razr 50",
+      "motorolarazr50"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "motorola-razr-50-ultra",
+    "name": "Motorola Razr 50 Ultra",
+    "brand": "Motorola",
+    "series": "Razr",
+    "aliases": [
+      "MotorolaRazr50Ultra",
+      "motorola razr 50 ultra",
+      "motorolarazr50ultra"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "motorola-razr-60",
+    "name": "Motorola Razr 60",
+    "brand": "Motorola",
+    "series": "Razr",
+    "aliases": [
+      "MotorolaRazr60",
+      "motorola razr 60",
+      "motorolarazr60"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "motorola-razr-60-ultra",
+    "name": "Motorola Razr 60 Ultra",
+    "brand": "Motorola",
+    "series": "Razr",
+    "aliases": [
+      "MotorolaRazr60Ultra",
+      "motorola razr 60 ultra",
+      "motorolarazr60ultra"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  }
+]

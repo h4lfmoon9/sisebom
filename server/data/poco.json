@@ -1,0 +1,452 @@
+[
+  {
+    "id": "poco-x6",
+    "name": "POCO X6",
+    "brand": "POCO",
+    "series": "POCO X",
+    "aliases": [
+      "POCOX6",
+      "poco x6",
+      "pocox6"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "poco-x6-pro",
+    "name": "POCO X6 Pro",
+    "brand": "POCO",
+    "series": "POCO X",
+    "aliases": [
+      "POCOX6Pro",
+      "poco x6 pro",
+      "pocox6pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "poco-x7",
+    "name": "POCO X7",
+    "brand": "POCO",
+    "series": "POCO X",
+    "aliases": [
+      "POCOX7",
+      "poco x7",
+      "pocox7"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "poco-x7-pro",
+    "name": "POCO X7 Pro",
+    "brand": "POCO",
+    "series": "POCO X",
+    "aliases": [
+      "POCOX7Pro",
+      "poco x7 pro",
+      "pocox7pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "poco-x8",
+    "name": "POCO X8",
+    "brand": "POCO",
+    "series": "POCO X",
+    "aliases": [
+      "POCOX8",
+      "poco x8",
+      "pocox8"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "poco-x8-pro",
+    "name": "POCO X8 Pro",
+    "brand": "POCO",
+    "series": "POCO X",
+    "aliases": [
+      "POCOX8Pro",
+      "poco x8 pro",
+      "pocox8pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "poco-x8-pro-max",
+    "name": "POCO X8 Pro Max",
+    "brand": "POCO",
+    "series": "POCO X",
+    "aliases": [
+      "POCOX8ProMax",
+      "poco x8 pro max",
+      "pocox8promax"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "poco-f6",
+    "name": "POCO F6",
+    "brand": "POCO",
+    "series": "POCO F",
+    "aliases": [
+      "POCOF6",
+      "poco f6",
+      "pocof6"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "poco-f6-pro",
+    "name": "POCO F6 Pro",
+    "brand": "POCO",
+    "series": "POCO F",
+    "aliases": [
+      "POCOF6Pro",
+      "poco f6 pro",
+      "pocof6pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "poco-f7",
+    "name": "POCO F7",
+    "brand": "POCO",
+    "series": "POCO F",
+    "aliases": [
+      "POCOF7",
+      "poco f7",
+      "pocof7"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "poco-f7-pro",
+    "name": "POCO F7 Pro",
+    "brand": "POCO",
+    "series": "POCO F",
+    "aliases": [
+      "POCOF7Pro",
+      "poco f7 pro",
+      "pocof7pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "poco-f7-ultra",
+    "name": "POCO F7 Ultra",
+    "brand": "POCO",
+    "series": "POCO F",
+    "aliases": [
+      "POCOF7Ultra",
+      "poco f7 ultra",
+      "pocof7ultra"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "poco-m6",
+    "name": "POCO M6",
+    "brand": "POCO",
+    "series": "POCO M",
+    "aliases": [
+      "POCOM6",
+      "poco m6",
+      "pocom6"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "poco-m6-pro",
+    "name": "POCO M6 Pro",
+    "brand": "POCO",
+    "series": "POCO M",
+    "aliases": [
+      "POCOM6Pro",
+      "poco m6 pro",
+      "pocom6pro"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  },
+  {
+    "id": "poco-m7",
+    "name": "POCO M7",
+    "brand": "POCO",
+    "series": "POCO M",
+    "aliases": [
+      "POCOM7",
+      "poco m7",
+      "pocom7"
+    ],
+    "verified": false,
+    "storage": [],
+    "launchPrices": {},
+    "specs": {
+      "chipset": null,
+      "display": null,
+      "camera": null,
+      "charging": null,
+      "frame": null
+    },
+    "scores": {
+      "performance": null,
+      "daily": null,
+      "gaming": null,
+      "camera": null
+    },
+    "colors": [],
+    "officialSource": null,
+    "listings": []
+  }
+]
