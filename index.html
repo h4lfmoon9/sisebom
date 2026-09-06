@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="시세봄 - 중고 매물부터 시세까지 한 번에" />
-  <title>시세봄 - iPhone 15 통합검색</title>
+  <title>시세봄</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -34,29 +34,28 @@
     <p>당근 · 번개장터 · 중고나라의 공개 매물을 모아 가격과 시세를 비교합니다.</p>
 
     <div class="search-shell">
-      <input id="searchInput" type="text" value="아이폰 15" />
+      <input id="searchInput" type="text" value="아이폰 15" placeholder="예: 아이폰 15 256GB" />
       <button id="searchBtn">검색</button>
     </div>
+    <p id="searchMessage" class="search-message"></p>
   </section>
 
-  
   <section class="section overview-section" id="overview">
     <div class="overview-grid">
 
       <div class="overview-column market-column">
-
         <div class="stats-grid stats-compact">
           <article class="stat-card">
             <span>최저가</span>
-            <strong id="minPrice">430,000원</strong>
+            <strong id="minPrice">-</strong>
           </article>
           <article class="stat-card">
             <span>평균가</span>
-            <strong id="avgPrice">558,000원</strong>
+            <strong id="avgPrice">-</strong>
           </article>
           <article class="stat-card">
             <span>최고가</span>
-            <strong id="maxPrice">720,000원</strong>
+            <strong id="maxPrice">-</strong>
           </article>
         </div>
 
@@ -82,12 +81,12 @@
 
           <div class="score-wrap">
             <div id="scoreCircle" class="score-circle green">
-              <b id="buyScore">84</b>
+              <b id="buyScore">0</b>
               <small>/100</small>
             </div>
             <div>
-              <h4 id="aiHeadline">현재는 구매하기 좋은 편이에요.</h4>
-              <p id="aiText">가격 분포가 안정적이고 평균보다 저렴한 매물이 여러 개 있습니다.</p>
+              <h4 id="aiHeadline">매물을 분석하는 중이에요.</h4>
+              <p id="aiText">검색한 제품의 매물 데이터를 기준으로 분석합니다.</p>
             </div>
           </div>
 
@@ -100,73 +99,65 @@
       </div>
 
       <div class="overview-column product-column">
-
         <article class="phone-card product-visual-card">
-          <div id="phoneMock" class="phone pink">
-            <div class="camera c1"></div>
-            <div class="camera c2"></div>
-            <div class="flash"></div>
+          <span id="productNameBadge" class="product-name-badge">아이폰 15</span>
+
+          <div class="official-image-area">
+            <img id="phoneImage" alt="" />
+            <div id="noImage" class="no-image">예시 이미지 없음</div>
           </div>
 
-          <div class="colors">
-            <button class="color pink active" data-color="pink" data-name="핑크"></button>
-            <button class="color black" data-color="black" data-name="블랙"></button>
-            <button class="color blue" data-color="blue" data-name="블루"></button>
-            <button class="color green-color" data-color="green-color" data-name="그린"></button>
-            <button class="color yellow-color" data-color="yellow-color" data-name="옐로"></button>
-          </div>
-          <small id="colorName">핑크</small>
+          <div class="colors" id="colorButtons"></div>
+          <small id="colorName">-</small>
         </article>
 
         <article class="panel specs product-spec-card">
-          <div class="spec-row"><span>칩셋</span><b>A16 Bionic</b></div>
-          <div class="spec-row"><span>화면</span><b>6.1인치</b></div>
-          <div class="spec-row"><span>카메라</span><b>듀얼 카메라</b></div>
-          <div class="spec-row"><span>충전</span><b>USB-C</b></div>
-          <div class="spec-row"><span>프레임</span><b>알루미늄</b></div>
-          <div class="spec-row"><span>지원 용량</span><b>128GB · 256GB · 512GB</b></div>
+          <div class="spec-row"><span>제조사</span><b id="specBrand">-</b></div>
+          <div class="spec-row"><span>칩셋</span><b id="specChipset">-</b></div>
+          <div class="spec-row"><span>화면</span><b id="specDisplay">-</b></div>
+          <div class="spec-row"><span>카메라</span><b id="specCamera">-</b></div>
+          <div class="spec-row"><span>충전</span><b id="specCharging">-</b></div>
+          <div class="spec-row"><span>프레임</span><b id="specFrame">-</b></div>
+          <div class="spec-row"><span>지원 용량</span><b id="specStorage">-</b></div>
         </article>
-
       </div>
-
 
       <article class="panel performance product-performance-card performance-span-card">
         <div class="performance-span-head">
           <div class="performance-score-area">
             <span class="summary-label">성능점수</span>
-            <div class="performance-score">86<span>/100</span></div>
+            <div class="performance-score"><span id="performanceScore">-</span><span class="score-denominator">/100</span></div>
             <small>종합 성능 기준</small>
           </div>
 
           <div class="launch-price-area">
             <span class="summary-label">공식 출시가</span>
-            <strong id="launchPrice" class="launch-price">1,250,000원</strong>
-            <small id="launchPriceBasis">128GB 기준</small>
+            <strong id="launchPrice" class="launch-price">-</strong>
+            <small id="launchPriceBasis">용량을 선택하면 변경됩니다.</small>
           </div>
 
-          <button class="ai-compare-btn" onclick="document.querySelector('#compare').scrollIntoView({behavior:'smooth'})">AI로 비교하기</button>
+          <button class="ai-compare-btn" id="goCompareBtn">AI로 비교하기</button>
         </div>
 
         <div class="meter-group performance-span-meters">
-          <div class="meter"><span>일상 성능</span><i><em style="width:94%"></em></i><b>94</b></div>
-          <div class="meter"><span>게임 성능</span><i><em style="width:86%"></em></i><b>86</b></div>
-          <div class="meter"><span>카메라</span><i><em style="width:84%"></em></i><b>84</b></div>
+          <div class="meter"><span>일상 성능</span><i><em id="dailyMeter"></em></i><b id="dailyScore">-</b></div>
+          <div class="meter"><span>게임 성능</span><i><em id="gamingMeter"></em></i><b id="gamingScore">-</b></div>
+          <div class="meter"><span>카메라</span><i><em id="cameraMeter"></em></i><b id="cameraScore">-</b></div>
         </div>
 
         <button class="info-btn" id="infoBtn">ⓘ 성능점수 기준</button>
-        <div class="info-box" id="infoBox">여러 성능 측정 자료를 바탕으로 시세봄이 이해하기 쉽게 점수화한 값입니다.</div>
+        <div class="info-box" id="infoBox">현재는 테스트 점수입니다. 실제 공개 시에는 검증된 벤치마크와 제품 정보를 바탕으로 계산하도록 서버에서 관리하는 것이 좋습니다.</div>
       </article>
 
     </div>
   </section>
-
 
   <section class="section" id="listings">
     <div class="section-heading">
       <div>
         <p class="eyebrow">USED LISTINGS</p>
         <h2>통합 매물</h2>
-        <p class="muted">당근 · 번개장터 · 중고나라 매물을 한 화면에서 넓게 확인하세요.</p>
+        <p class="muted">현재는 테스트 매물입니다. 실제 서비스에서는 허용되는 방식으로 가져온 공개 매물을 연결합니다.</p>
       </div>
     </div>
 
@@ -183,12 +174,7 @@
 
       <div class="filter-group">
         <span>용량</span>
-        <div class="chips" id="storageFilters">
-          <button class="chip active" data-storage="all">전체</button>
-          <button class="chip" data-storage="128">128GB</button>
-          <button class="chip" data-storage="256">256GB</button>
-          <button class="chip" data-storage="512">512GB</button>
-        </div>
+        <div class="chips" id="storageFilters"></div>
       </div>
 
       <div class="filter-group price-filter">
@@ -212,7 +198,7 @@
     </div>
 
     <div class="listing-toolbar">
-      <b><span id="visibleCount">12</span>개 매물</b>
+      <b><span id="visibleCount">0</span>개 매물</b>
       <button id="resetBtn">필터 초기화</button>
     </div>
 
@@ -224,28 +210,29 @@
       <div>
         <p class="eyebrow">COMPARE</p>
         <h2>비교하기</h2>
-        <p class="muted">제품 자체 비교와 매물 비교를 나중에 모두 지원할 수 있습니다.</p>
+        <p class="muted">등록된 제품끼리 기본 정보를 비교합니다.</p>
       </div>
+    </div>
+
+    <div class="compare-controls">
+      <select id="compareA"></select>
+      <span>VS</span>
+      <select id="compareB"></select>
+      <button id="compareBtn">비교</button>
     </div>
 
     <div class="compare-box">
       <div class="compare-head">
-        <div>
-          <small>제품 A</small>
-          <b>iPhone 15</b>
-        </div>
+        <div><small>제품 A</small><b id="compareNameA">-</b></div>
         <span>VS</span>
-        <div>
-          <small>제품 B</small>
-          <b>Galaxy S24</b>
-        </div>
+        <div><small>제품 B</small><b id="compareNameB">-</b></div>
       </div>
-      <div class="compare-row"><span>성능점수</span><b>86</b><b>91</b></div>
-      <div class="compare-row"><span>카메라</span><b>84</b><b>87</b></div>
-      <div class="compare-row"><span>중고 평균가</span><b>55만원</b><b>46만원</b></div>
+      <div class="compare-row"><span>성능점수</span><b id="comparePerformanceA">-</b><b id="comparePerformanceB">-</b></div>
+      <div class="compare-row"><span>카메라 점수</span><b id="compareCameraA">-</b><b id="compareCameraB">-</b></div>
+      <div class="compare-row"><span>기본 공식 출시가</span><b id="comparePriceA">-</b><b id="comparePriceB">-</b></div>
       <div class="compare-ai">
-        <b>AI 비교</b>
-        <p>가격 대비 성능은 Galaxy S24가 유리하고, iOS 사용 경험을 중요하게 보면 iPhone 15가 더 적합합니다.</p>
+        <b>AI 비교 준비</b>
+        <p id="compareText">실제 AI API를 연결하기 전에는 등록된 수치로 기본 비교 문구를 보여줍니다.</p>
       </div>
     </div>
   </section>
@@ -256,6 +243,7 @@
   <span>중고 매물부터 시세까지 한 번에.</span>
 </footer>
 
+<script src="phones.js"></script>
 <script src="script.js"></script>
 </body>
 </html>
