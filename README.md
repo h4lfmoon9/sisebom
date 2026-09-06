@@ -1,49 +1,104 @@
-# 시세봄 — 멀티 스마트폰 검색 구조
+# 시세봄 전체 프로젝트 완성본
 
-이 버전은 기존 `아이폰 15` 전용 코드를 버리고, 여러 스마트폰을 하나의 데이터베이스에서 검색할 수 있도록 다시 정리한 버전입니다.
+지금까지 만든 시세봄을 한 번에 다시 정리한 버전입니다.
 
-## 파일
-- `index.html`
-- `style.css`
-- `phones.js`
-- `script.js`
+## 구조
 
-## 지금 되는 것
-- 아이폰 / 갤럭시 / 샤오미 등 제품 DB 공통 구조
-- 제품명 및 별칭 검색
-- `아이폰 15 256GB`처럼 용량까지 검색하면 자동 용량 필터
-- 제품별 제조사/칩셋/화면/카메라/충전/프레임/용량 표시
-- 제품별 성능점수와 세부 점수 자동 변경
-- 제품별 공식 출시가 자동 변경
-- 제품별 색상 버튼 자동 생성
-- 공식 이미지 URL이 있으면 색상별 이미지 변경
-- 공식 이미지가 없으면 `예시 이미지 없음`
-- 제품별 테스트 중고 매물 / 필터 / 시세 계산
-- 제품 비교
+```text
+sisebom
+├─ index.html
+├─ style.css
+├─ script.js
+├─ favicon.svg
+├─ .gitignore
+├─ README.md
+└─ server
+   ├─ server.js
+   ├─ phones.json
+   ├─ package.json
+   └─ .env.example
+```
 
-## 현재 들어 있는 테스트 제품
+## 프론트엔드
+
+GitHub Pages에서 동작합니다.
+
+온라인 API:
+`https://sisebom.onrender.com`
+
+로컬에서 `localhost`로 열면 자동으로:
+`http://localhost:3000`
+
+을 사용합니다.
+
+## Render 서버 설정
+
+- Root Directory: `server`
+- Build Command: `npm install`
+- Start Command: `npm start`
+- Plan: Free
+
+## 주요 API
+
+- `GET /api/health`
+- `GET /api/phones`
+- `GET /api/search?q=아이폰15`
+- `GET /api/phones/:id`
+- `GET /api/listings/:id`
+- `GET /api/market/:id`
+- `GET /api/compare?a=iphone15&b=galaxy-s24`
+- `POST /api/ai/judge`
+
+## 적용 방법
+
+기존 `Documents/GitHub/sisebom` 폴더 안에 ZIP의 파일을 전부 덮어씁니다.
+
+예전에 만든 `phones.js`는 삭제해도 됩니다. 새 버전은 서버의 `phones.json`을 사용합니다.
+
+그다음 GitHub Desktop에서:
+
+1. Changes 확인
+2. Summary에 `전체 프로젝트 구조 정리`
+3. Commit to main
+4. Push origin
+
+Render가 GitHub 저장소를 자동 배포하도록 설정돼 있으면 서버도 같이 갱신됩니다.
+
+## 폰 추가
+
+`server/phones.json`에 같은 형식으로 제품을 추가하면 검색, 제품정보, 시세, 비교에 자동 반영됩니다.
+
+## 공식 이미지
+
+각 색상의 `image`에 사용 가능한 제조사 공식 이미지 URL을 넣으면 해당 색상 버튼을 누를 때 이미지가 바뀝니다.
+
+공식 이미지가 없으면:
+
+```json
+"image": null
+```
+
+그대로 두면 `예시 이미지 없음`이 표시됩니다.
+
+## 현재 테스트 데이터
+
 - 아이폰 15
 - 갤럭시 S24
 - 샤오미 14
 
-사이트 코드는 이 3개에 한정되지 않습니다.
-`PHONE_DB`에 같은 형식으로 추가하면 검색과 비교에 자동으로 들어갑니다.
+현재 매물/점수 일부는 프로토타입 테스트용입니다.
 
-## 중요
-현재 `phones.js` 안의 매물과 일부 점수는 프로토타입 테스트용입니다.
-실제 공개 서비스에서는 제조사 공식 정보와 검증된 데이터로 교체해야 합니다.
+## 실제 서비스에서 추가로 필요한 것
 
-실제 당근/번개장터/중고나라 매물을 자동 수집하거나 실제 AI API를 연결하려면 GitHub Pages만으로는 부족합니다.
-다음 단계에서 별도 서버/API를 추가하고 API 키는 서버에만 보관해야 합니다.
+아래는 외부 권한/데이터가 있어야 실제 연결할 수 있습니다.
 
-## 적용 방법
-기존 컴퓨터의 `Documents/GitHub/sisebom` 폴더 안 파일을 이 ZIP의 파일로 덮어씁니다.
+- 당근 실제 매물
+- 번개장터 실제 매물
+- 중고나라 실제 매물
+- 제조사 전체 스마트폰 DB 자동 수집
+- 공식 이미지 실제 등록
+- 실제 AI API 연결
 
-그 다음:
-1. GitHub Desktop 열기
-2. Changes 확인
-3. Summary에 `멀티폰 검색 구조 적용`
-4. Commit to main
-5. Push origin
+공개 페이지라고 해서 자동 수집/재사용 권한이 자동으로 생기는 것은 아니므로 각 서비스의 허용 방식/API/정책에 맞춰 연결해야 합니다.
 
-그러면 GitHub Pages 사이트도 자동 업데이트됩니다.
+AI API 키는 절대 `script.js`나 공개 GitHub 저장소에 넣지 말고 Render Environment Variables 또는 `server/.env`에만 저장해야 합니다.
