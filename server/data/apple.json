@@ -13,7 +13,7 @@
       "오리지널 아이폰"
     ],
     "releaseYear": 2007,
-    "verified": false,
+    "verified": true,
     "storage": [
       4,
       8,
@@ -33,9 +33,17 @@
       "gaming": null,
       "camera": null
     },
-    "colors": [],
+    "colors": [
+      {
+        "name": "실버",
+        "hex": "#c8c8c8",
+        "image": "images/apple/classic-batch1/iphone-original.png",
+        "imageVerified": true
+      }
+    ],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "imageMode": "local-cutout"
   },
   {
     "id": "iphone-3g",
@@ -51,7 +59,7 @@
       "아이폰3G"
     ],
     "releaseYear": 2008,
-    "verified": false,
+    "verified": true,
     "storage": [
       8,
       16
@@ -70,9 +78,17 @@
       "gaming": null,
       "camera": null
     },
-    "colors": [],
+    "colors": [
+      {
+        "name": "블랙",
+        "hex": "#171717",
+        "image": "images/apple/classic-batch1/iphone-3g.png",
+        "imageVerified": true
+      }
+    ],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "imageMode": "local-cutout"
   },
   {
     "id": "iphone-3gs",
@@ -88,7 +104,7 @@
       "아이폰3GS"
     ],
     "releaseYear": 2009,
-    "verified": false,
+    "verified": true,
     "storage": [
       8,
       16,
@@ -108,9 +124,17 @@
       "gaming": null,
       "camera": null
     },
-    "colors": [],
+    "colors": [
+      {
+        "name": "블랙",
+        "hex": "#171717",
+        "image": "images/apple/classic-batch1/iphone-3gs.png",
+        "imageVerified": true
+      }
+    ],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "imageMode": "local-cutout"
   },
   {
     "id": "iphone-4",
@@ -126,7 +150,7 @@
       "아이폰4"
     ],
     "releaseYear": 2010,
-    "verified": false,
+    "verified": true,
     "storage": [
       8,
       16,
@@ -146,9 +170,17 @@
       "gaming": null,
       "camera": null
     },
-    "colors": [],
+    "colors": [
+      {
+        "name": "블랙",
+        "hex": "#171717",
+        "image": "images/apple/classic-batch1/iphone-4.png",
+        "imageVerified": true
+      }
+    ],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "imageMode": "local-cutout"
   },
   {
     "id": "iphone-4s",
@@ -203,7 +235,7 @@
       "아이폰5"
     ],
     "releaseYear": 2012,
-    "verified": false,
+    "verified": true,
     "storage": [
       16,
       32,
@@ -223,9 +255,17 @@
       "gaming": null,
       "camera": null
     },
-    "colors": [],
+    "colors": [
+      {
+        "name": "블랙 & 슬레이트",
+        "hex": "#34383c",
+        "image": "images/apple/classic-batch1/iphone-5.png",
+        "imageVerified": true
+      }
+    ],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "imageMode": "local-cutout"
   },
   {
     "id": "iphone-5c",
@@ -317,7 +357,7 @@
       "아이폰6"
     ],
     "releaseYear": 2014,
-    "verified": false,
+    "verified": true,
     "storage": [
       16,
       32,
@@ -338,9 +378,17 @@
       "gaming": null,
       "camera": null
     },
-    "colors": [],
+    "colors": [
+      {
+        "name": "실버",
+        "hex": "#c7c7c7",
+        "image": "images/apple/classic-batch1/iphone-6.png",
+        "imageVerified": true
+      }
+    ],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "imageMode": "local-cutout"
   },
   {
     "id": "iphone-6-plus",
@@ -514,7 +562,7 @@
       "아이폰7"
     ],
     "releaseYear": 2016,
-    "verified": false,
+    "verified": true,
     "storage": [
       32,
       128,
@@ -534,9 +582,17 @@
       "gaming": null,
       "camera": null
     },
-    "colors": [],
+    "colors": [
+      {
+        "name": "블랙",
+        "hex": "#262626",
+        "image": "images/apple/classic-batch1/iphone-7.png",
+        "imageVerified": true
+      }
+    ],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "imageMode": "local-cutout"
   },
   {
     "id": "iphone-7-plus",
@@ -590,7 +646,7 @@
       "아이폰8"
     ],
     "releaseYear": 2017,
-    "verified": false,
+    "verified": true,
     "storage": [
       64,
       128,
@@ -610,9 +666,17 @@
       "gaming": null,
       "camera": null
     },
-    "colors": [],
+    "colors": [
+      {
+        "name": "스페이스 그레이",
+        "hex": "#5a5957",
+        "image": "images/apple/classic-batch1/iphone-8.png",
+        "imageVerified": true
+      }
+    ],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "imageMode": "local-cutout"
   },
   {
     "id": "iphone-8-plus",
@@ -666,7 +730,7 @@
       "아이폰X"
     ],
     "releaseYear": 2017,
-    "verified": false,
+    "verified": true,
     "storage": [
       64,
       256
@@ -685,9 +749,17 @@
       "gaming": null,
       "camera": null
     },
-    "colors": [],
+    "colors": [
+      {
+        "name": "실버",
+        "hex": "#d7d7d5",
+        "image": "images/apple/classic-batch1/iphone-x.png",
+        "imageVerified": true
+      }
+    ],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "imageMode": "local-cutout"
   },
   {
     "id": "iphone-xr",
@@ -703,7 +775,7 @@
       "아이폰XR"
     ],
     "releaseYear": 2018,
-    "verified": false,
+    "verified": true,
     "storage": [
       64,
       128,
@@ -723,9 +795,17 @@
       "gaming": null,
       "camera": null
     },
-    "colors": [],
+    "colors": [
+      {
+        "name": "블랙",
+        "hex": "#252525",
+        "image": "images/apple/classic-batch1/iphone-xr.png",
+        "imageVerified": true
+      }
+    ],
     "officialSource": null,
-    "listings": []
+    "listings": [],
+    "imageMode": "local-cutout"
   },
   {
     "id": "iphone-xs",
