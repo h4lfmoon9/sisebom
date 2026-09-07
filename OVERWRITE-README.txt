@@ -1,11 +1,13 @@
-시세봄 덮어쓰기용 배치 1
+시세봄 iPhone 15 색상 수정 덮어쓰기용 파일입니다.
 
-1) 이 폴더 안의 파일/폴더를 기존 Documents\GitHub\sisebom 안에 그대로 복사
-2) 같은 이름이 나오면 덮어쓰기
-3) GitHub Desktop → Summary: 아이폰 누끼 이미지 배치1 추가
-4) Commit to main → Push origin
-5) Render 자동 배포 완료 후 GitHub Pages에서 Ctrl+F5
+포함된 수정:
+1) images/apple/iphone15-colors/iphone15-blue.png
+   - 사용자가 올린 레퍼런스 이미지를 기준으로 배경 제거(누끼)한 블루 이미지로 교체
+2) images/apple/iphone15-colors/iphone15-green.png
+   - 기존에 블루 슬롯에 들어가 있던 이미지를 그린 이미지로 배치
 
-이번 배치 이미지: iPhone 17 / 17 Air / 17 Pro / 16 / 16 Plus / 16 Pro / 16 Pro Max / 15 Plus / 15 Pro / 15 Pro Max
-iPhone 15는 기존 색상별 로컬 누끼 이미지도 포함.
-주의: 이번 누끼들은 AI 생성 제품 일러스트이며 공식 Apple 이미지가 아닙니다.
+적용 방법:
+- ZIP 압축 해제
+- 안의 images 폴더를 기존 sisebom 폴더에 그대로 덮어쓰기
+- GitHub Desktop에서 Commit 후 Push
+- 사이트에서 Ctrl+F5로 새로고침
