@@ -34,6 +34,298 @@
   }
 
 
+  const LOCAL_COLOR_SETS = {
+  "iphone-original": {
+    "base": "images/apple/classic-batch1/iphone-original.png",
+    "colors": [
+      {
+        "name": "실버",
+        "hex": "#c8c8c8"
+      }
+    ]
+  },
+  "iphone-3g": {
+    "base": "images/apple/classic-batch1/iphone-3g.png",
+    "colors": [
+      {
+        "name": "블랙",
+        "hex": "#171717"
+      },
+      {
+        "name": "화이트",
+        "hex": "#eeeeee"
+      }
+    ]
+  },
+  "iphone-3gs": {
+    "base": "images/apple/classic-batch1/iphone-3gs.png",
+    "colors": [
+      {
+        "name": "블랙",
+        "hex": "#171717"
+      },
+      {
+        "name": "화이트",
+        "hex": "#eeeeee"
+      }
+    ]
+  },
+  "iphone-4": {
+    "base": "images/apple/classic-batch1/iphone-4.png",
+    "colors": [
+      {
+        "name": "블랙",
+        "hex": "#171717"
+      },
+      {
+        "name": "화이트",
+        "hex": "#eeeeee"
+      }
+    ]
+  },
+  "iphone-5": {
+    "base": "images/apple/classic-batch1/iphone-5.png",
+    "colors": [
+      {
+        "name": "블랙 & 슬레이트",
+        "hex": "#34383c"
+      },
+      {
+        "name": "화이트 & 실버",
+        "hex": "#e6e6e6"
+      }
+    ]
+  },
+  "iphone-6": {
+    "base": "images/apple/classic-batch1/iphone-6.png",
+    "colors": [
+      {
+        "name": "스페이스 그레이",
+        "hex": "#767676"
+      },
+      {
+        "name": "실버",
+        "hex": "#c7c7c7"
+      },
+      {
+        "name": "골드",
+        "hex": "#d8c08d"
+      }
+    ]
+  },
+  "iphone-7": {
+    "base": "images/apple/classic-batch1/iphone-7.png",
+    "colors": [
+      {
+        "name": "블랙",
+        "hex": "#262626"
+      },
+      {
+        "name": "제트 블랙",
+        "hex": "#070707"
+      },
+      {
+        "name": "실버",
+        "hex": "#d9d9d9"
+      },
+      {
+        "name": "골드",
+        "hex": "#dcc38f"
+      },
+      {
+        "name": "로즈 골드",
+        "hex": "#d7a8a4"
+      },
+      {
+        "name": "레드",
+        "hex": "#c62828"
+      }
+    ]
+  },
+  "iphone-8": {
+    "base": "images/apple/classic-batch1/iphone-8.png",
+    "colors": [
+      {
+        "name": "스페이스 그레이",
+        "hex": "#5a5957"
+      },
+      {
+        "name": "실버",
+        "hex": "#d8d8d6"
+      },
+      {
+        "name": "골드",
+        "hex": "#d6bf98"
+      },
+      {
+        "name": "레드",
+        "hex": "#c62828"
+      }
+    ]
+  },
+  "iphone-x": {
+    "base": "images/apple/classic-batch1/iphone-x.png",
+    "colors": [
+      {
+        "name": "스페이스 그레이",
+        "hex": "#646464"
+      },
+      {
+        "name": "실버",
+        "hex": "#d7d7d5"
+      }
+    ]
+  },
+  "iphone-xr": {
+    "base": "images/apple/classic-batch1/iphone-xr.png",
+    "colors": [
+      {
+        "name": "블랙",
+        "hex": "#252525"
+      },
+      {
+        "name": "화이트",
+        "hex": "#ededeb"
+      },
+      {
+        "name": "블루",
+        "hex": "#5caaff"
+      },
+      {
+        "name": "옐로",
+        "hex": "#f0c94a"
+      },
+      {
+        "name": "코랄",
+        "hex": "#ff8476"
+      },
+      {
+        "name": "레드",
+        "hex": "#d83333"
+      }
+    ]
+  }
+};
+  const LOCAL_COLOR_CACHE = new Map();
+
+  function hexToRgb(hex) {
+    const raw = String(hex || "#888888").replace("#", "");
+    const v = raw.length === 3
+      ? raw.split("").map((x) => x + x).join("")
+      : raw.padEnd(6, "8").slice(0, 6);
+    return {
+      r: parseInt(v.slice(0, 2), 16),
+      g: parseInt(v.slice(2, 4), 16),
+      b: parseInt(v.slice(4, 6), 16)
+    };
+  }
+
+  function saturationOf(r, g, b) {
+    const max = Math.max(r, g, b);
+    const min = Math.min(r, g, b);
+    return max === 0 ? 0 : (max - min) / max;
+  }
+
+  async function makeLocalColorImage(basePath, hex) {
+    const key = `${basePath}|${hex}`;
+    if (LOCAL_COLOR_CACHE.has(key)) return LOCAL_COLOR_CACHE.get(key);
+
+    const target = hexToRgb(hex);
+    const src = new URL(basePath, document.baseURI).href;
+
+    const result = await new Promise((resolve) => {
+      const source = new Image();
+      source.onload = () => {
+        try {
+          const canvas = document.createElement("canvas");
+          canvas.width = source.naturalWidth;
+          canvas.height = source.naturalHeight;
+          const ctx = canvas.getContext("2d", { willReadFrequently: true });
+          ctx.drawImage(source, 0, 0);
+
+          const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+          const d = img.data;
+          const xSolid = canvas.width * 0.38;
+          const xEnd = canvas.width * 0.56;
+          const targetAvg = (target.r + target.g + target.b) / 3;
+          const lightColor = targetAvg > 195;
+          const darkColor = targetAvg < 65;
+
+          for (let y = 0; y < canvas.height; y++) {
+            for (let x = 0; x < xEnd; x++) {
+              const idx = (y * canvas.width + x) * 4;
+              const a = d[idx + 3];
+              if (a === 0) continue;
+
+              const r = d[idx];
+              const g = d[idx + 1];
+              const b = d[idx + 2];
+              const sat = saturationOf(r, g, b);
+              const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+
+              // Keep saturated screen / wallpaper areas unchanged.
+              if (sat > 0.28 && lum > 0.08) continue;
+
+              const fade = x <= xSolid ? 1 : Math.max(0, Math.min(1, (xEnd - x) / (xEnd - xSolid)));
+              const baseMix = lightColor ? 0.84 : darkColor ? 0.80 : 0.88;
+              const mix = baseMix * fade;
+              const minBrightness = lightColor ? 0.58 : darkColor ? 0.08 : 0.27;
+              const brightness = minBrightness + (1 - minBrightness) * lum;
+
+              d[idx] = Math.max(0, Math.min(255, (1 - mix) * r + mix * target.r * brightness));
+              d[idx + 1] = Math.max(0, Math.min(255, (1 - mix) * g + mix * target.g * brightness));
+              d[idx + 2] = Math.max(0, Math.min(255, (1 - mix) * b + mix * target.b * brightness));
+            }
+          }
+
+          ctx.putImageData(img, 0, 0);
+          resolve(canvas.toDataURL("image/png"));
+        } catch (error) {
+          console.warn("색상 이미지 생성 실패", error);
+          resolve(src);
+        }
+      };
+      source.onerror = () => resolve(src);
+      source.src = src;
+    });
+
+    LOCAL_COLOR_CACHE.set(key, result);
+    return result;
+  }
+
+  async function showLocalColorImage(set, color, alt) {
+    const img = $("#phoneImage");
+    const none = $("#noImage");
+    if (!img || !none) return;
+
+    none.hidden = false;
+    none.textContent = "색상 이미지 준비 중...";
+    img.hidden = true;
+
+    try {
+      const url = await makeLocalColorImage(set.base, color.hex);
+      img.onload = () => {
+        img.hidden = false;
+        none.hidden = true;
+      };
+      img.onerror = () => {
+        const fallback = new URL(set.base, document.baseURI).href;
+        if (img.src !== fallback) {
+          img.src = fallback;
+        } else {
+          img.hidden = true;
+          none.hidden = false;
+          none.textContent = "이미지 로딩 실패";
+        }
+      };
+      img.alt = alt;
+      img.src = url;
+    } catch (error) {
+      showImage(set.base, alt);
+    }
+  }
+
+
   async function api(path, options = {}) {
     const res = await fetch(`${API_BASE}${path}`, options);
     let data = null;
@@ -96,12 +388,36 @@
 
   function renderColors() {
     const box = $("#colorButtons");
-    const colors = currentPhone?.colors ?? [];
+    const localSet = LOCAL_COLOR_SETS[currentPhone?.id];
+    const serverColors = currentPhone?.colors ?? [];
     const fallback = localModelImage(currentPhone);
 
     box.innerHTML = "";
 
-    if (!colors.length) {
+    // Classic batch: always use the local color set so Render cache/stale DB cannot break colors.
+    if (localSet) {
+      localSet.colors.forEach((color, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = `color-dynamic${i === 0 ? " active" : ""}`;
+        b.title = color.name;
+        b.style.background = color.hex;
+        b.addEventListener("click", () => {
+          $$("#colorButtons .color-dynamic").forEach((x) => x.classList.remove("active"));
+          b.classList.add("active");
+          $("#colorName").textContent = color.name;
+          showLocalColorImage(localSet, color, `${currentPhone.name} ${color.name}`);
+        });
+        box.appendChild(b);
+      });
+
+      const first = localSet.colors[0];
+      $("#colorName").textContent = first.name;
+      showLocalColorImage(localSet, first, `${currentPhone.name} ${first.name}`);
+      return;
+    }
+
+    if (!serverColors.length) {
       if (fallback) {
         $("#colorName").textContent = "기본 색상";
         showImage(fallback, currentPhone?.name || "");
@@ -112,31 +428,23 @@
       return;
     }
 
-    colors.forEach((color, i) => {
+    serverColors.forEach((color, i) => {
       const b = document.createElement("button");
       b.type = "button";
       b.className = `color-dynamic${i === 0 ? " active" : ""}`;
       b.title = color.name;
       b.style.background = color.hex || "#ddd";
-
       b.addEventListener("click", () => {
         $$("#colorButtons .color-dynamic").forEach((x) => x.classList.remove("active"));
         b.classList.add("active");
         $("#colorName").textContent = color.name;
-        showImage(
-          color.image || fallback,
-          `${currentPhone.name} ${color.name}`
-        );
+        showImage(color.image || fallback, `${currentPhone.name} ${color.name}`);
       });
-
       box.appendChild(b);
     });
 
-    $("#colorName").textContent = colors[0].name;
-    showImage(
-      colors[0].image || fallback,
-      `${currentPhone.name} ${colors[0].name}`
-    );
+    $("#colorName").textContent = serverColors[0].name;
+    showImage(serverColors[0].image || fallback, `${currentPhone.name} ${serverColors[0].name}`);
   }
 
   function showImage(url, alt) {
