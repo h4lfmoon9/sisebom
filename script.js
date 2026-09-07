@@ -15,6 +15,25 @@
   let currentPhone = null;
   let filters = { platform: "all", storage: "all", min: null, max: null, sort: "cheap" };
 
+
+  const LOCAL_MODEL_IMAGES = {
+    "iphone-original": "images/apple/classic-batch1/iphone-original.png",
+    "iphone-3g": "images/apple/classic-batch1/iphone-3g.png",
+    "iphone-3gs": "images/apple/classic-batch1/iphone-3gs.png",
+    "iphone-4": "images/apple/classic-batch1/iphone-4.png",
+    "iphone-5": "images/apple/classic-batch1/iphone-5.png",
+    "iphone-6": "images/apple/classic-batch1/iphone-6.png",
+    "iphone-7": "images/apple/classic-batch1/iphone-7.png",
+    "iphone-8": "images/apple/classic-batch1/iphone-8.png",
+    "iphone-x": "images/apple/classic-batch1/iphone-x.png",
+    "iphone-xr": "images/apple/classic-batch1/iphone-xr.png"
+  };
+
+  function localModelImage(phone) {
+    return phone?.id ? LOCAL_MODEL_IMAGES[phone.id] || null : null;
+  }
+
+
   async function api(path, options = {}) {
     const res = await fetch(`${API_BASE}${path}`, options);
     let data = null;
@@ -78,11 +97,18 @@
   function renderColors() {
     const box = $("#colorButtons");
     const colors = currentPhone?.colors ?? [];
+    const fallback = localModelImage(currentPhone);
+
     box.innerHTML = "";
 
     if (!colors.length) {
-      $("#colorName").textContent = currentPhone?.heroImage ? "대표 이미지" : "색상 정보 없음";
-      showImage(currentPhone?.heroImage ?? null, currentPhone?.name ?? "");
+      if (fallback) {
+        $("#colorName").textContent = "기본 색상";
+        showImage(fallback, currentPhone?.name || "");
+      } else {
+        $("#colorName").textContent = "색상 정보 없음";
+        showImage(null, "");
+      }
       return;
     }
 
@@ -92,31 +118,49 @@
       b.className = `color-dynamic${i === 0 ? " active" : ""}`;
       b.title = color.name;
       b.style.background = color.hex || "#ddd";
+
       b.addEventListener("click", () => {
         $$("#colorButtons .color-dynamic").forEach((x) => x.classList.remove("active"));
         b.classList.add("active");
         $("#colorName").textContent = color.name;
-        showImage(color.image || currentPhone?.heroImage || null, `${currentPhone.name} ${color.name}`);
+        showImage(
+          color.image || fallback,
+          `${currentPhone.name} ${color.name}`
+        );
       });
+
       box.appendChild(b);
     });
 
     $("#colorName").textContent = colors[0].name;
-    showImage(colors[0].image || currentPhone?.heroImage || null, `${currentPhone.name} ${colors[0].name}`);
+    showImage(
+      colors[0].image || fallback,
+      `${currentPhone.name} ${colors[0].name}`
+    );
   }
 
   function showImage(url, alt) {
     const img = $("#phoneImage");
     const none = $("#noImage");
+
     if (url) {
-      img.src = url;
+      const resolvedUrl = new URL(url, document.baseURI).href;
+      img.src = resolvedUrl;
       img.alt = alt;
       img.hidden = false;
       none.hidden = true;
+
+      img.onerror = () => {
+        img.hidden = true;
+        none.hidden = false;
+        none.textContent = "이미지 로딩 실패";
+      };
     } else {
       img.removeAttribute("src");
+      img.alt = "";
       img.hidden = true;
       none.hidden = false;
+      none.textContent = "예시 이미지 없음";
     }
   }
 
