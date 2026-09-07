@@ -149,3 +149,10 @@ AI API 키는 절대 `script.js`나 공개 GitHub 저장소에 넣지 말고 Ren
 원칙:
 공식 색상 이미지가 확인된 경우에만 `colors[].image`에 URL을 넣습니다.
 확인되지 않은 모델은 같은 사진을 억지로 색상별로 반복하지 않습니다.
+
+
+## iPhone 전체 검색 DB v1
+- 초대 iPhone부터 iPhone 17e까지 52개 모델 검색 지원
+- mini / Plus / Pro / Pro Max / Air / e / SE 포함
+- 확인되지 않은 세부 스펙·가격·이미지는 임의 생성하지 않고 비워둠
+- 기존 iPhone 15/최신 배치 누끼 이미지는 그대로 유지

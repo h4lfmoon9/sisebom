@@ -1,13 +1,13 @@
-시세봄 iPhone 15 색상 수정 덮어쓰기용 파일입니다.
+시세봄 iPhone 전체 검색 DB 덮어쓰기용
 
-포함된 수정:
-1) images/apple/iphone15-colors/iphone15-blue.png
-   - 사용자가 올린 레퍼런스 이미지를 기준으로 배경 제거(누끼)한 블루 이미지로 교체
-2) images/apple/iphone15-colors/iphone15-green.png
-   - 기존에 블루 슬롯에 들어가 있던 이미지를 그린 이미지로 배치
+등록 iPhone: 52개
 
-적용 방법:
-- ZIP 압축 해제
-- 안의 images 폴더를 기존 sisebom 폴더에 그대로 덮어쓰기
-- GitHub Desktop에서 Commit 후 Push
-- 사이트에서 Ctrl+F5로 새로고침
+적용 방법
+1. ZIP 압축 해제
+2. 내용 전체를 기존 sisebom 폴더에 덮어쓰기
+3. GitHub Desktop Summary: 아이폰 전체 시리즈 DB 적용
+4. Commit to main
+5. Push origin
+6. Render 자동 배포 후 사이트 Ctrl+F5
+
+이미지는 정확한 누끼가 준비된 모델만 표시하고, 나머지는 예시 이미지 없음으로 유지합니다.
