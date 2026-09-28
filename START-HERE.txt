@@ -1,0 +1,30 @@
+시세봄 전체 복구용 프로젝트
+
+이 ZIP은 기존 sisebom 폴더에 통째로 덮어쓰기할 수 있는 전체 프로젝트입니다.
+
+포함:
+- index.html
+- style.css
+- script.js
+- favicon.svg
+- images/
+- server/
+- 제조사별 스마트폰 DB
+- iPhone 클래식 누끼 이미지
+- iPhone 15 색상 이미지
+- iPhone 15~17 계열 이미지 자산
+
+새 컴퓨터에서 적용:
+1. 이 ZIP 압축 해제
+2. 안의 모든 파일/폴더를 Documents/GitHub/sisebom 안에 덮어쓰기
+3. .git 폴더는 삭제하지 말 것
+4. GitHub Desktop 열기
+5. Summary: 시세봄 전체 프로젝트 복구
+6. Commit to main
+7. Push origin
+8. 사이트에서 Ctrl+F5
+
+사이트:
+https://h4lfmoon9.github.io/sisebom/
+API:
+https://sisebom.onrender.com
