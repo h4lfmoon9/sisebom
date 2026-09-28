@@ -17,314 +17,65 @@
 
 
   const LOCAL_MODEL_IMAGES = {
-    "iphone-original": "images/apple/classic-batch1/iphone-original.png",
-    "iphone-3g": "images/apple/classic-batch1/iphone-3g.png",
-    "iphone-3gs": "images/apple/classic-batch1/iphone-3gs.png",
-    "iphone-4": "images/apple/classic-batch1/iphone-4.png",
-    "iphone-5": "images/apple/classic-batch1/iphone-5.png",
-    "iphone-6": "images/apple/classic-batch1/iphone-6.png",
-    "iphone-7": "images/apple/classic-batch1/iphone-7.png",
-    "iphone-8": "images/apple/classic-batch1/iphone-8.png",
-    "iphone-x": "images/apple/classic-batch1/iphone-x.png",
-    "iphone-xr": "images/apple/classic-batch1/iphone-xr.png"
-  };
+  "iphone-original": "images/apple/provided/iphone-original.png",
+  "iphone-3g": "images/apple/provided/iphone-3g.png",
+  "iphone-3gs": "images/apple/provided/iphone-3gs.png",
+  "iphone-4": "images/apple/provided/iphone-4.png",
+  "iphone-4s": "images/apple/provided/iphone-4s.png",
+  "iphone-5": "images/apple/provided/iphone-5.png",
+  "iphone-5c": "images/apple/provided/iphone-5c.png",
+  "iphone-5s": "images/apple/provided/iphone-5s.png",
+  "iphone-6": "images/apple/provided/iphone-6.png",
+  "iphone-6-plus": "images/apple/provided/iphone-6-plus.png",
+  "iphone-6s": "images/apple/provided/iphone-6s.png",
+  "iphone-6s-plus": "images/apple/provided/iphone-6s-plus.png",
+  "iphone-se-1": "images/apple/provided/iphone-se-1.png",
+  "iphone-7": "images/apple/provided/iphone-7.png",
+  "iphone-7-plus": "images/apple/provided/iphone-7-plus.png",
+  "iphone-8": "images/apple/provided/iphone-8.png",
+  "iphone-8-plus": "images/apple/provided/iphone-8-plus.png",
+  "iphone-x": "images/apple/provided/iphone-x.png",
+  "iphone-xr": "images/apple/provided/iphone-xr.png",
+  "iphone-xs": "images/apple/provided/iphone-xs.png",
+  "iphone-xs-max": "images/apple/provided/iphone-xs-max.png",
+  "iphone-11": "images/apple/provided/iphone-11.png",
+  "iphone-11-pro": "images/apple/provided/iphone-11-pro.png",
+  "iphone-11-pro-max": "images/apple/provided/iphone-11-pro-max.png",
+  "iphone-se-2": "images/apple/provided/iphone-se-2.png",
+  "iphone-12-mini": "images/apple/provided/iphone-12-mini.png",
+  "iphone-12": "images/apple/provided/iphone-12.png",
+  "iphone-12-pro": "images/apple/provided/iphone-12-pro.png",
+  "iphone-12-pro-max": "images/apple/provided/iphone-12-pro-max.png",
+  "iphone-13-mini": "images/apple/provided/iphone-13-mini.png",
+  "iphone-13": "images/apple/provided/iphone-13.png",
+  "iphone-13-pro": "images/apple/provided/iphone-13-pro.png",
+  "iphone-13-pro-max": "images/apple/provided/iphone-13-pro-max.png",
+  "iphone-se-3": "images/apple/provided/iphone-se-3.png",
+  "iphone-14": "images/apple/provided/iphone-14.png",
+  "iphone-14-plus": "images/apple/provided/iphone-14-plus.png",
+  "iphone-14-pro": "images/apple/provided/iphone-14-pro.png",
+  "iphone-14-pro-max": "images/apple/provided/iphone-14-pro-max.png",
+  "iphone15": "images/apple/provided/iphone15.png",
+  "iphone-15-plus": "images/apple/provided/iphone-15-plus.png",
+  "iphone-15-pro": "images/apple/provided/iphone-15-pro.png",
+  "iphone-15-pro-max": "images/apple/provided/iphone-15-pro-max.png",
+  "iphone-16": "images/apple/provided/iphone-16.png",
+  "iphone-16-plus": "images/apple/provided/iphone-16-plus.png",
+  "iphone-16-pro": "images/apple/provided/iphone-16-pro.png",
+  "iphone-16-pro-max": "images/apple/provided/iphone-16-pro-max.png",
+  "iphone-16e": "images/apple/provided/iphone-16e.png",
+  "iphone-17": "images/apple/provided/iphone-17.png",
+  "iphone-air": "images/apple/provided/iphone-air.png",
+  "iphone-17-pro": "images/apple/provided/iphone-17-pro.png",
+  "iphone-17-pro-max": "images/apple/provided/iphone-17-pro-max.png",
+  "iphone-17e": "images/apple/provided/iphone-17e.png",
+  "iphone-18-pro": "images/apple/provided/iphone-18-pro.png",
+  "iphone-18-pro-max": "images/apple/provided/iphone-18-pro-max.png"
+};
 
   function localModelImage(phone) {
     return phone?.id ? LOCAL_MODEL_IMAGES[phone.id] || null : null;
   }
-
-
-  const LOCAL_COLOR_SETS = {
-  "iphone-original": {
-    "base": "images/apple/classic-batch1/iphone-original.png",
-    "colors": [
-      {
-        "name": "실버",
-        "hex": "#c8c8c8"
-      }
-    ]
-  },
-  "iphone-3g": {
-    "base": "images/apple/classic-batch1/iphone-3g.png",
-    "colors": [
-      {
-        "name": "블랙",
-        "hex": "#171717"
-      },
-      {
-        "name": "화이트",
-        "hex": "#eeeeee"
-      }
-    ]
-  },
-  "iphone-3gs": {
-    "base": "images/apple/classic-batch1/iphone-3gs.png",
-    "colors": [
-      {
-        "name": "블랙",
-        "hex": "#171717"
-      },
-      {
-        "name": "화이트",
-        "hex": "#eeeeee"
-      }
-    ]
-  },
-  "iphone-4": {
-    "base": "images/apple/classic-batch1/iphone-4.png",
-    "colors": [
-      {
-        "name": "블랙",
-        "hex": "#171717"
-      },
-      {
-        "name": "화이트",
-        "hex": "#eeeeee"
-      }
-    ]
-  },
-  "iphone-5": {
-    "base": "images/apple/classic-batch1/iphone-5.png",
-    "colors": [
-      {
-        "name": "블랙 & 슬레이트",
-        "hex": "#34383c"
-      },
-      {
-        "name": "화이트 & 실버",
-        "hex": "#e6e6e6"
-      }
-    ]
-  },
-  "iphone-6": {
-    "base": "images/apple/classic-batch1/iphone-6.png",
-    "colors": [
-      {
-        "name": "스페이스 그레이",
-        "hex": "#767676"
-      },
-      {
-        "name": "실버",
-        "hex": "#c7c7c7"
-      },
-      {
-        "name": "골드",
-        "hex": "#d8c08d"
-      }
-    ]
-  },
-  "iphone-7": {
-    "base": "images/apple/classic-batch1/iphone-7.png",
-    "colors": [
-      {
-        "name": "블랙",
-        "hex": "#262626"
-      },
-      {
-        "name": "제트 블랙",
-        "hex": "#070707"
-      },
-      {
-        "name": "실버",
-        "hex": "#d9d9d9"
-      },
-      {
-        "name": "골드",
-        "hex": "#dcc38f"
-      },
-      {
-        "name": "로즈 골드",
-        "hex": "#d7a8a4"
-      },
-      {
-        "name": "레드",
-        "hex": "#c62828"
-      }
-    ]
-  },
-  "iphone-8": {
-    "base": "images/apple/classic-batch1/iphone-8.png",
-    "colors": [
-      {
-        "name": "스페이스 그레이",
-        "hex": "#5a5957"
-      },
-      {
-        "name": "실버",
-        "hex": "#d8d8d6"
-      },
-      {
-        "name": "골드",
-        "hex": "#d6bf98"
-      },
-      {
-        "name": "레드",
-        "hex": "#c62828"
-      }
-    ]
-  },
-  "iphone-x": {
-    "base": "images/apple/classic-batch1/iphone-x.png",
-    "colors": [
-      {
-        "name": "스페이스 그레이",
-        "hex": "#646464"
-      },
-      {
-        "name": "실버",
-        "hex": "#d7d7d5"
-      }
-    ]
-  },
-  "iphone-xr": {
-    "base": "images/apple/classic-batch1/iphone-xr.png",
-    "colors": [
-      {
-        "name": "블랙",
-        "hex": "#252525"
-      },
-      {
-        "name": "화이트",
-        "hex": "#ededeb"
-      },
-      {
-        "name": "블루",
-        "hex": "#5caaff"
-      },
-      {
-        "name": "옐로",
-        "hex": "#f0c94a"
-      },
-      {
-        "name": "코랄",
-        "hex": "#ff8476"
-      },
-      {
-        "name": "레드",
-        "hex": "#d83333"
-      }
-    ]
-  }
-};
-  const LOCAL_COLOR_CACHE = new Map();
-
-  function hexToRgb(hex) {
-    const raw = String(hex || "#888888").replace("#", "");
-    const v = raw.length === 3
-      ? raw.split("").map((x) => x + x).join("")
-      : raw.padEnd(6, "8").slice(0, 6);
-    return {
-      r: parseInt(v.slice(0, 2), 16),
-      g: parseInt(v.slice(2, 4), 16),
-      b: parseInt(v.slice(4, 6), 16)
-    };
-  }
-
-  function saturationOf(r, g, b) {
-    const max = Math.max(r, g, b);
-    const min = Math.min(r, g, b);
-    return max === 0 ? 0 : (max - min) / max;
-  }
-
-  async function makeLocalColorImage(basePath, hex) {
-    const key = `${basePath}|${hex}`;
-    if (LOCAL_COLOR_CACHE.has(key)) return LOCAL_COLOR_CACHE.get(key);
-
-    const target = hexToRgb(hex);
-    const src = new URL(basePath, document.baseURI).href;
-
-    const result = await new Promise((resolve) => {
-      const source = new Image();
-      source.onload = () => {
-        try {
-          const canvas = document.createElement("canvas");
-          canvas.width = source.naturalWidth;
-          canvas.height = source.naturalHeight;
-          const ctx = canvas.getContext("2d", { willReadFrequently: true });
-          ctx.drawImage(source, 0, 0);
-
-          const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
-          const d = img.data;
-          const xSolid = canvas.width * 0.38;
-          const xEnd = canvas.width * 0.56;
-          const targetAvg = (target.r + target.g + target.b) / 3;
-          const lightColor = targetAvg > 195;
-          const darkColor = targetAvg < 65;
-
-          for (let y = 0; y < canvas.height; y++) {
-            for (let x = 0; x < xEnd; x++) {
-              const idx = (y * canvas.width + x) * 4;
-              const a = d[idx + 3];
-              if (a === 0) continue;
-
-              const r = d[idx];
-              const g = d[idx + 1];
-              const b = d[idx + 2];
-              const sat = saturationOf(r, g, b);
-              const lum = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
-
-              // Keep saturated screen / wallpaper areas unchanged.
-              if (sat > 0.28 && lum > 0.08) continue;
-
-              const fade = x <= xSolid ? 1 : Math.max(0, Math.min(1, (xEnd - x) / (xEnd - xSolid)));
-              const baseMix = lightColor ? 0.84 : darkColor ? 0.80 : 0.88;
-              const mix = baseMix * fade;
-              const minBrightness = lightColor ? 0.58 : darkColor ? 0.08 : 0.27;
-              const brightness = minBrightness + (1 - minBrightness) * lum;
-
-              d[idx] = Math.max(0, Math.min(255, (1 - mix) * r + mix * target.r * brightness));
-              d[idx + 1] = Math.max(0, Math.min(255, (1 - mix) * g + mix * target.g * brightness));
-              d[idx + 2] = Math.max(0, Math.min(255, (1 - mix) * b + mix * target.b * brightness));
-            }
-          }
-
-          ctx.putImageData(img, 0, 0);
-          resolve(canvas.toDataURL("image/png"));
-        } catch (error) {
-          console.warn("색상 이미지 생성 실패", error);
-          resolve(src);
-        }
-      };
-      source.onerror = () => resolve(src);
-      source.src = src;
-    });
-
-    LOCAL_COLOR_CACHE.set(key, result);
-    return result;
-  }
-
-  async function showLocalColorImage(set, color, alt) {
-    const img = $("#phoneImage");
-    const none = $("#noImage");
-    if (!img || !none) return;
-
-    none.hidden = false;
-    none.textContent = "색상 이미지 준비 중...";
-    img.hidden = true;
-
-    try {
-      const url = await makeLocalColorImage(set.base, color.hex);
-      img.onload = () => {
-        img.hidden = false;
-        none.hidden = true;
-      };
-      img.onerror = () => {
-        const fallback = new URL(set.base, document.baseURI).href;
-        if (img.src !== fallback) {
-          img.src = fallback;
-        } else {
-          img.hidden = true;
-          none.hidden = false;
-          none.textContent = "이미지 로딩 실패";
-        }
-      };
-      img.alt = alt;
-      img.src = url;
-    } catch (error) {
-      showImage(set.base, alt);
-    }
-  }
-
 
   async function api(path, options = {}) {
     const res = await fetch(`${API_BASE}${path}`, options);
@@ -334,9 +85,18 @@
     return data;
   }
 
+  function formatStorage(value) {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return "-";
+    return n >= 1024 ? `${n / 1024}TB` : `${n}GB`;
+  }
+
   function extractStorage(text) {
-    const m = String(text).match(/(?:^|\s)(64|128|256|512|1024)\s*(?:gb|기가)?(?:\s|$)/i);
-    return m ? Number(m[1]) : null;
+    const raw = String(text || "");
+    const tb = raw.match(/(?:^|\s)(1|2)\s*tb(?:\s|$)/i);
+    if (tb) return Number(tb[1]) * 1024;
+    const gb = raw.match(/(?:^|\s)(4|8|16|32|64|128|256|512|1024|2048)\s*(?:gb|기가)?(?:\s|$)/i);
+    return gb ? Number(gb[1]) : null;
   }
 
   function resetFilters() {
@@ -356,7 +116,7 @@
     $("#specCamera").textContent = currentPhone.specs?.camera ?? "-";
     $("#specCharging").textContent = currentPhone.specs?.charging ?? "-";
     $("#specFrame").textContent = currentPhone.specs?.frame ?? "-";
-    $("#specStorage").textContent = (currentPhone.storage ?? []).map((x) => `${x}GB`).join(" · ") || "-";
+    $("#specStorage").textContent = (currentPhone.storage ?? []).map(formatStorage).join(" · ") || "-";
 
     const s = currentPhone.scores ?? {};
     $("#performanceScore").textContent = s.performance ?? "-";
@@ -367,7 +127,7 @@
     $("#gamingMeter").style.width = `${s.gaming ?? 0}%`;
     $("#cameraMeter").style.width = `${s.camera ?? 0}%`;
 
-    renderColors();
+    renderProductImage();
     renderStorageFilters();
     renderLaunchPrice();
     document.title = `시세봄 - ${currentPhone.name}`;
@@ -386,65 +146,9 @@
     }
   }
 
-  function renderColors() {
-    const box = $("#colorButtons");
-    const localSet = LOCAL_COLOR_SETS[currentPhone?.id];
-    const serverColors = currentPhone?.colors ?? [];
-    const fallback = localModelImage(currentPhone);
-
-    box.innerHTML = "";
-
-    // Classic batch: always use the local color set so Render cache/stale DB cannot break colors.
-    if (localSet) {
-      localSet.colors.forEach((color, i) => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = `color-dynamic${i === 0 ? " active" : ""}`;
-        b.title = color.name;
-        b.style.background = color.hex;
-        b.addEventListener("click", () => {
-          $$("#colorButtons .color-dynamic").forEach((x) => x.classList.remove("active"));
-          b.classList.add("active");
-          $("#colorName").textContent = color.name;
-          showLocalColorImage(localSet, color, `${currentPhone.name} ${color.name}`);
-        });
-        box.appendChild(b);
-      });
-
-      const first = localSet.colors[0];
-      $("#colorName").textContent = first.name;
-      showLocalColorImage(localSet, first, `${currentPhone.name} ${first.name}`);
-      return;
-    }
-
-    if (!serverColors.length) {
-      if (fallback) {
-        $("#colorName").textContent = "기본 색상";
-        showImage(fallback, currentPhone?.name || "");
-      } else {
-        $("#colorName").textContent = "색상 정보 없음";
-        showImage(null, "");
-      }
-      return;
-    }
-
-    serverColors.forEach((color, i) => {
-      const b = document.createElement("button");
-      b.type = "button";
-      b.className = `color-dynamic${i === 0 ? " active" : ""}`;
-      b.title = color.name;
-      b.style.background = color.hex || "#ddd";
-      b.addEventListener("click", () => {
-        $$("#colorButtons .color-dynamic").forEach((x) => x.classList.remove("active"));
-        b.classList.add("active");
-        $("#colorName").textContent = color.name;
-        showImage(color.image || fallback, `${currentPhone.name} ${color.name}`);
-      });
-      box.appendChild(b);
-    });
-
-    $("#colorName").textContent = serverColors[0].name;
-    showImage(serverColors[0].image || fallback, `${currentPhone.name} ${serverColors[0].name}`);
+  function renderProductImage() {
+    const image = currentPhone?.image || localModelImage(currentPhone) || currentPhone?.colors?.[0]?.image || null;
+    showImage(image, currentPhone?.name || "");
   }
 
   function showImage(url, alt) {
@@ -475,7 +179,7 @@
   function renderStorageFilters() {
     const box = $("#storageFilters");
     box.innerHTML = `<button class="chip ${filters.storage === "all" ? "active" : ""}" data-storage="all">전체</button>` +
-      (currentPhone.storage ?? []).map((x) => `<button class="chip ${String(filters.storage) === String(x) ? "active" : ""}" data-storage="${x}">${x}GB</button>`).join("");
+      (currentPhone.storage ?? []).map((x) => `<button class="chip ${String(filters.storage) === String(x) ? "active" : ""}" data-storage="${x}">${formatStorage(x)}</button>`).join("");
 
     $$("#storageFilters .chip").forEach((b) => {
       b.addEventListener("click", async () => {
@@ -493,8 +197,8 @@
     const price = currentPhone.launchPrices?.[String(selected)] ?? currentPhone.launchPrices?.[selected];
     $("#launchPrice").textContent = won(price);
     $("#launchPriceBasis").textContent = filters.storage === "all"
-      ? `${selected ?? "-"}GB 기준 · 용량 선택 시 변경`
-      : `${selected}GB 기준`;
+      ? `${formatStorage(selected)} 기준 · 용량 선택 시 변경`
+      : `${formatStorage(selected)} 기준`;
   }
 
   function queryString() {
@@ -520,7 +224,7 @@
     $("#scoreCircle").className = `score-circle ${score >= 70 ? "green" : score >= 40 ? "yellow" : "red"}`;
     $("#aiHeadline").textContent = j.title ?? "분석 결과 없음";
     $("#aiText").textContent = j.text ?? "조건을 바꿔보세요.";
-    $("#chartLabel").textContent = filters.storage === "all" ? "전체 용량" : `${filters.storage}GB`;
+    $("#chartLabel").textContent = filters.storage === "all" ? "전체 용량" : formatStorage(filters.storage);
   }
 
   function renderBars(items) {
@@ -554,7 +258,7 @@
           ${item.platform === "당근" && item.buyNow ? '<span class="buy-now">바로구매</span>' : ''}
         </div>
         <div class="listing-body">
-          <span class="listing-storage">${item.storage}GB</span>
+          <span class="listing-storage">${formatStorage(item.storage)}</span>
           <h3 class="listing-title">${item.title}</h3>
           <b class="listing-price">${won(item.price)}</b>
           <div class="deal ${cls}">${txt}</div>
