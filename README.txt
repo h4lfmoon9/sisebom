@@ -1,13 +1,10 @@
-시세봄 검색 수정 패치
+시세봄 STEP7 백엔드 전용 수정본
 
-변경 내용
-- 아이폰 9 / iPhone 9 검색 시 iPhone X 표시
-- 프로 -> Pro 검색 지원
-- 프로맥스 / 프로 맥스 -> Pro Max 검색 지원
-- 플러스 / 미니 / 에어 / 에스이 한글 검색 정규화
-- iPhone 18 Pro / 18 Pro Max 검색 보강
-- 아이폰 18처럼 시리즈명만 입력해도 18 계열을 찾도록 검색 우선순위 개선
-- 1TB / 2TB 검색 용량 인식
+1. 이 폴더 안의 server 폴더 내용을 기존 sisebom/server 폴더에 덮어쓰기
+2. server/data 폴더는 삭제하지 말 것
+3. GitHub Desktop에서 Commit + Push origin
+4. Render 재배포 후 확인:
+   https://sisebom.onrender.com/api/health
+   https://sisebom.onrender.com/api/live/status
 
-사용법
-이 ZIP의 phones.js, script.js를 기존 sisebom 폴더에 덮어쓰세요.
+/api/live/status 에서 당근/번개장터/중고나라 3개가 모두 loaded:true 로 보여야 정상입니다.
