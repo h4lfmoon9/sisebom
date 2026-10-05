@@ -139,6 +139,29 @@ async function collectVisibleCards(page, cfg) {
         anchor.querySelector('img') ||
         card.querySelector('img');
 
+      const srcset =
+        imageNode?.getAttribute('srcset') ||
+        anchor.querySelector('source[srcset]')?.getAttribute('srcset') ||
+        card.querySelector('source[srcset]')?.getAttribute('srcset') ||
+        '';
+
+      const srcsetImage = srcset
+        ? String(srcset).split(',').map(x => x.trim().split(/\s+/)[0]).filter(Boolean).pop() || ''
+        : '';
+
+      let backgroundImage = '';
+      if (!imageNode) {
+        const candidates = [anchor, card, ...card.querySelectorAll('[style*="background" i]')].slice(0, 24);
+        for (const el of candidates) {
+          const bg = getComputedStyle(el).backgroundImage || '';
+          const m = bg.match(/url\(["']?(.+?)["']?\)/i);
+          if (m?.[1]) {
+            backgroundImage = m[1];
+            break;
+          }
+        }
+      }
+
       return {
         url: anchor.href || anchor.getAttribute('href') || '',
         title:
@@ -152,6 +175,8 @@ async function collectVisibleCards(page, cfg) {
           imageNode?.src ||
           imageNode?.getAttribute('data-src') ||
           imageNode?.getAttribute('data-original') ||
+          srcsetImage ||
+          backgroundImage ||
           ''
       };
     });

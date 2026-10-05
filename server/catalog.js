@@ -15,7 +15,12 @@ let staticCache = null;
 let discoveredCache = [];
 let discoveryPromise = null;
 let lastScanAt = 0;
-let lastScanStatus = { scannedAt: null, discovered: 0, added: 0, perBrand: {} };
+let lastScanStatus = {
+  scannedAt: null,
+  discovered: 0,
+  added: 0,
+  perBrand: {}
+};
 
 function readStaticCatalog() {
   const files = fs.existsSync(DATA_DIR)
@@ -83,8 +88,21 @@ async function refreshDiscovery(force = false) {
   return discoveryPromise;
 }
 
-async function getLiveCatalog({ force = false } = {}) {
-  await refreshDiscovery(force);
+function startDiscovery(force = false) {
+  if (shouldRefresh(force) && !discoveryPromise) {
+    // 요청을 오래 붙잡지 않고 백그라운드에서 공식 카탈로그를 확인한다.
+    void refreshDiscovery(force);
+  }
+  return getCatalogStatus();
+}
+
+async function getLiveCatalog({ force = false, wait = false } = {}) {
+  if (wait) {
+    await refreshDiscovery(force);
+  } else {
+    startDiscovery(force);
+  }
+
   return mergeDiscovered(getStaticCatalog(), discoveredCache);
 }
 
@@ -103,5 +121,6 @@ module.exports = {
   getStaticCatalog,
   getLiveCatalog,
   getCatalogStatus,
-  refreshDiscovery
+  refreshDiscovery,
+  startDiscovery
 };

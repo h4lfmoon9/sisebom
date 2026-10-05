@@ -147,6 +147,10 @@ function parseRegion(source, text = '') {
     const line = s.match(/((?:[가-힣]{2,12}(?:시|군|구)\s*)?[가-힣A-Za-z0-9·.\-]{1,24}(?:동|읍|면|리))\s*[·|]\s*(?:방금|\d+\s*(?:분|시간|일|주)\s*전)/);
     if (line) return cleanText(line[1]);
 
+    // 카드에 시간 없이 "삼성2동 ·", "사당동 ·"처럼 표시되는 경우도 지역으로 사용.
+    const loose = s.match(/(?:^|\s)([가-힣A-Za-z0-9.\-]{1,24}(?:동|읍|면|리))\s*[·|](?:\s|$)/);
+    if (loose) return cleanText(loose[1]);
+
     const nearby = s.match(/([가-힣]{2,20}(?:시|군|구)(?:\s+[가-힣]{1,20}(?:시|군|구|동|읍|면)){0,3})\s*근처/);
     if (nearby) return cleanText(nearby[1]);
   }
