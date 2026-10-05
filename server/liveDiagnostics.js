@@ -1,4 +1,6 @@
 const REQUEST_TIMEOUT_MS = 9000;
+const BRAVE_TIMEOUT_MS = 9000;
+const BRAVE_ENDPOINT = "https://api.search.brave.com/res/v1/web/search";
 
 const SOURCES = {
   daangn: {
@@ -9,21 +11,43 @@ const SOURCES = {
       if (region) url.searchParams.set("in", region);
       return url.toString();
     },
-    linkPatterns: [/\/kr\/buy-sell\//gi, /\/articles\/\d+/gi]
+    linkPatterns: [/\/kr\/buy-sell\//gi, /\/articles\/\d+/gi],
+    searchSite: "www.daangn.com",
+    isListingUrl(url) {
+      try {
+        const u = new URL(url);
+        return /(^|\.)daangn\.com$/i.test(u.hostname) &&
+          (/\/kr\/buy-sell\/[^/?#]+/i.test(u.pathname) || /\/articles\/\d+/i.test(u.pathname));
+      } catch (_) { return false; }
+    }
   },
   bunjang: {
     name: "번개장터",
     makeUrl(q) {
       return `https://m.bunjang.co.kr/keywords/${encodeURIComponent(q)}`;
     },
-    linkPatterns: [/\/products\/\d+/gi]
+    linkPatterns: [/\/products\/\d+/gi],
+    searchSite: "m.bunjang.co.kr",
+    isListingUrl(url) {
+      try {
+        const u = new URL(url);
+        return /(^|\.)bunjang\.co\.kr$/i.test(u.hostname) && /\/products\/\d+/i.test(u.pathname);
+      } catch (_) { return false; }
+    }
   },
   joongna: {
     name: "중고나라",
     makeUrl(q) {
       return `https://web.joongna.com/search/${encodeURIComponent(q)}`;
     },
-    linkPatterns: [/\/product\/\d+/gi]
+    linkPatterns: [/\/product\/\d+/gi],
+    searchSite: "web.joongna.com",
+    isListingUrl(url) {
+      try {
+        const u = new URL(url);
+        return /(^|\.)joongna\.com$/i.test(u.hostname) && /\/product\/\d+/i.test(u.pathname);
+      } catch (_) { return false; }
+    }
   }
 };
 
@@ -113,25 +137,11 @@ function detectBlockPage(html = "", status = 0) {
 }
 
 function summarizeJsonValue(value) {
-  if (Array.isArray(value)) {
-    return {
-      topLevelType: "array",
-      topLevelLength: value.length,
-      topLevelKeys: []
-    };
-  }
+  if (Array.isArray(value)) return { topLevelType: "array", topLevelLength: value.length, topLevelKeys: [] };
   if (value && typeof value === "object") {
-    return {
-      topLevelType: "object",
-      topLevelLength: null,
-      topLevelKeys: Object.keys(value).slice(0, 40)
-    };
+    return { topLevelType: "object", topLevelLength: null, topLevelKeys: Object.keys(value).slice(0, 40) };
   }
-  return {
-    topLevelType: value === null ? "null" : typeof value,
-    topLevelLength: null,
-    topLevelKeys: []
-  };
+  return { topLevelType: value === null ? "null" : typeof value, topLevelLength: null, topLevelKeys: [] };
 }
 
 function countSourceListingPatterns(text = "", source) {
@@ -175,7 +185,6 @@ function getScriptSamples(html = "", source, query, max = 12) {
         item.jsonError = String(error.message || "JSON parse failed").slice(0, 160);
       }
     }
-
     samples.push(item);
   }
   return samples;
@@ -213,7 +222,7 @@ function getRenderingAssessment({ status, blockedHint, markers }) {
     return {
       mode: "shell-with-json",
       usableFromPublicHtml: "unknown",
-      reason: "공개 HTML에 JSON 스크립트는 있지만 매물 링크/가격 신호는 없습니다. JSON 구조 확인이 필요합니다."
+      reason: "공개 HTML에 JSON 스크립트는 있지만 매물 링크/가격 신호는 없습니다."
     };
   }
   return {
@@ -234,17 +243,7 @@ function summarizeHtml(html = "", source, query, status = 0) {
   const queryMentions = query ? countMatches(html.toLowerCase(), new RegExp(escapeRegExp(query.toLowerCase()), "g")) : 0;
   const listingPathMatches = countSourceListingPatterns(html, source);
   const blockedHint = detectBlockPage(html, status);
-  const markers = {
-    scriptTags,
-    jsonScripts,
-    nextData,
-    nextFlight,
-    anchorTags,
-    imgTags,
-    wonTexts,
-    queryMentions,
-    listingPathMatches
-  };
+  const markers = { scriptTags, jsonScripts, nextData, nextFlight, anchorTags, imgTags, wonTexts, queryMentions, listingPathMatches };
 
   return {
     title: getTitle(html),
@@ -264,7 +263,6 @@ function summarizeHtml(html = "", source, query, status = 0) {
 async function diagnoseOne(platform, query, { region = "" } = {}) {
   const source = SOURCES[platform];
   if (!source) return { platform, ok: false, error: "지원하지 않는 플랫폼" };
-
   const q = String(query || "").trim();
   if (!q) return { platform: source.name, ok: false, error: "검색어가 필요합니다." };
 
@@ -272,7 +270,6 @@ async function diagnoseOne(platform, query, { region = "" } = {}) {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   const startedAt = Date.now();
-
   try {
     const response = await fetch(sourceUrl, {
       redirect: "follow",
@@ -284,7 +281,6 @@ async function diagnoseOne(platform, query, { region = "" } = {}) {
         "user-agent": "Sisebom/1.0 (+public search aggregation; contact via project repository)"
       }
     });
-
     const html = await response.text();
     const blockedHint = detectBlockPage(html, response.status);
     const summary = summarizeHtml(html, source, q, response.status);
@@ -316,18 +312,197 @@ async function diagnoseOne(platform, query, { region = "" } = {}) {
   }
 }
 
+function parsePrice(text = "") {
+  const raw = String(text || "").replace(/\s+/g, " ");
+  let match = raw.match(/(\d{1,3}(?:,\d{3})+)\s*원/);
+  if (match) return Number(match[1].replace(/,/g, ""));
+  match = raw.match(/(?:^|\D)(\d+(?:\.\d+)?)\s*만원(?:\D|$)/);
+  if (match) return Math.round(Number(match[1]) * 10000);
+  match = raw.match(/(?:^|\D)(\d+(?:\.\d+)?)\s*천원(?:\D|$)/);
+  if (match) return Math.round(Number(match[1]) * 1000);
+  return null;
+}
+
+function parseStorage(text = "") {
+  const raw = String(text || "");
+  let match = raw.match(/(?:^|\D)(1|2)\s*(?:TB|테라)(?:\D|$)/i);
+  if (match) return Number(match[1]) * 1024;
+  match = raw.match(/(?:^|\D)(64|128|256|512|1024|2048)\s*(?:GB|G|기가)?(?:\D|$)/i);
+  return match ? Number(match[1]) : null;
+}
+
+function isUnavailable(text = "") {
+  return /(예약\s*중|판매\s*완료|거래\s*완료|판매종료|거래종료|sold\s*out|soldout|reserved)/i.test(String(text));
+}
+
+function isWanted(text = "") {
+  return /(^|\s)(삽니다|구매합니다|구해요|구합니다)(\s|$)|매입\s*(?:합니다|해요|중|문의|전문)|최고가\s*매입/i.test(String(text));
+}
+
+function isAccessory(text = "") {
+  return /(케이스|강화\s*유리|보호\s*필름|액정\s*필름|카메라\s*보호|렌즈\s*보호|맥세이프\s*(?:케이스|링|거치대)|휴대폰\s*스트랩|폰\s*케이스|충전\s*케이블|빈\s*박스|공박스)/i.test(String(text));
+}
+
+function normalizeSearchResult(item, source, query) {
+  const url = String(item?.url || "").trim();
+  const title = stripTags(item?.title || "");
+  const description = stripTags(item?.description || item?.snippet || "");
+  const combined = `${title} ${description}`.trim();
+  if (!url || !source.isListingUrl(url)) return { excluded: "notListing" };
+  if (isUnavailable(combined)) return { excluded: "unavailable" };
+  if (isWanted(combined)) return { excluded: "wanted" };
+  if (isAccessory(combined)) return { excluded: "accessory" };
+
+  return {
+    item: {
+      platform: source.name,
+      title: title || description || query,
+      description: description.slice(0, 280),
+      url,
+      price: parsePrice(combined),
+      storage: parseStorage(combined),
+      indexedResult: true
+    }
+  };
+}
+
+async function braveWebSearch(q, count = 20) {
+  const key = String(process.env.BRAVE_SEARCH_API_KEY || "").trim();
+  if (!key) {
+    const error = new Error("BRAVE_SEARCH_API_KEY 환경변수가 설정되지 않았습니다.");
+    error.code = "BRAVE_NOT_CONFIGURED";
+    throw error;
+  }
+
+  const url = new URL(BRAVE_ENDPOINT);
+  url.searchParams.set("q", q);
+  url.searchParams.set("count", String(Math.max(1, Math.min(20, Number(count) || 20))));
+  url.searchParams.set("country", "KR");
+  url.searchParams.set("search_lang", "ko");
+  url.searchParams.set("ui_lang", "ko-KR");
+  url.searchParams.set("safesearch", "moderate");
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), BRAVE_TIMEOUT_MS);
+  try {
+    const response = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        accept: "application/json",
+        "accept-encoding": "gzip",
+        "x-subscription-token": key
+      }
+    });
+    const body = await response.text();
+    let data = null;
+    try { data = JSON.parse(body); } catch (_) {}
+    if (!response.ok) {
+      const detail = data?.message || data?.error?.detail || `HTTP ${response.status}`;
+      const error = new Error(`Brave Search API 오류: ${detail}`);
+      error.status = response.status;
+      throw error;
+    }
+    return data || {};
+  } catch (error) {
+    if (error?.name === "AbortError") throw new Error("Brave Search API 응답 시간이 초과되었습니다.");
+    throw error;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function discoverIndexedListings(query, { perPlatform = 12 } = {}) {
+  const q = String(query || "").trim();
+  const configured = Boolean(String(process.env.BRAVE_SEARCH_API_KEY || "").trim());
+  if (!configured) {
+    return {
+      configured: false,
+      provider: "Brave Search API",
+      message: "Render 환경변수 BRAVE_SEARCH_API_KEY를 설정하면 공개 검색 색인에서 매물 URL 탐색을 시작합니다.",
+      results: []
+    };
+  }
+
+  const platformKeys = ["daangn", "bunjang", "joongna"];
+  const output = [];
+  for (let index = 0; index < platformKeys.length; index++) {
+    const key = platformKeys[index];
+    const source = SOURCES[key];
+    const searchQuery = `site:${source.searchSite} "${q}"`;
+    const excluded = { notListing: 0, unavailable: 0, wanted: 0, accessory: 0 };
+    try {
+      const data = await braveWebSearch(searchQuery, Math.min(20, Math.max(5, Number(perPlatform) || 12) * 2));
+      const raw = Array.isArray(data?.web?.results) ? data.web.results : [];
+      const items = [];
+      const seen = new Set();
+      for (const result of raw) {
+        const normalized = normalizeSearchResult(result, source, q);
+        if (normalized.excluded) {
+          excluded[normalized.excluded] = (excluded[normalized.excluded] || 0) + 1;
+          continue;
+        }
+        if (!normalized.item || seen.has(normalized.item.url)) continue;
+        seen.add(normalized.item.url);
+        items.push(normalized.item);
+        if (items.length >= perPlatform) break;
+      }
+      output.push({
+        platform: source.name,
+        key,
+        ok: true,
+        searchQuery,
+        rawCount: raw.length,
+        count: items.length,
+        pricedCount: items.filter((x) => Number.isFinite(x.price)).length,
+        excluded,
+        listings: items
+      });
+    } catch (error) {
+      output.push({
+        platform: source.name,
+        key,
+        ok: false,
+        searchQuery,
+        count: 0,
+        error: error?.message || "검색 실패",
+        listings: []
+      });
+    }
+    if (index < platformKeys.length - 1) await sleep(1100);
+  }
+
+  return {
+    configured: true,
+    provider: "Brave Search API",
+    mode: "public-index-discovery",
+    checkedAt: new Date().toISOString(),
+    query: q,
+    results: output,
+    total: output.reduce((sum, x) => sum + Number(x.count || 0), 0),
+    pricedTotal: output.reduce((sum, x) => sum + Number(x.pricedCount || 0), 0)
+  };
+}
+
 async function diagnosePublicSearch(query, options = {}) {
   const q = String(query || "").trim();
   const keys = ["daangn", "bunjang", "joongna"];
-  const results = await Promise.all(keys.map((key) => diagnoseOne(key, q, options)));
+  const [results, searchDiscovery] = await Promise.all([
+    Promise.all(keys.map((key) => diagnoseOne(key, q, options))),
+    discoverIndexedListings(q, { perPlatform: 10 })
+  ]);
   return {
     ok: true,
     query: q,
     checkedAt: new Date().toISOString(),
-    diagnosticsVersion: 2,
-    note: "공개 검색 HTML만 분석합니다. 로그인·차단 우회·비공개 API 분석은 하지 않습니다.",
+    diagnosticsVersion: 3,
+    note: "공개 검색 HTML과 공개 검색 색인만 분석합니다. 로그인·차단 우회·비공개 API 분석은 하지 않습니다.",
+    searchDiscovery,
     results
   };
 }
 
-module.exports = { diagnoseOne, diagnosePublicSearch };
+module.exports = { diagnoseOne, diagnosePublicSearch, discoverIndexedListings };
