@@ -9,6 +9,7 @@ const { fetchBunjangListings } = require("./providers/bunjang");
 const { fetchDaangnListings } = require("./providers/daangn");
 const { filterAndDedupeListings } = require("./listingQuality");
 const { makeKey, getFresh, getStale, setCache, withTimeout } = require("./liveCache");
+const { diagnoseOne, diagnosePublicSearch } = require("./liveDiagnostics");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -115,7 +116,8 @@ app.get("/api/health", (req, res) => res.json({
   message: "시세봄 서버 정상 작동",
   products: getPhones().length,
   liveProviders: ["당근", "번개장터", "중고나라"],
-  liveCombined: true
+  liveCombined: true,
+  diagnostics: true
 }));
 
 app.get("/api/live/status", (req, res) => res.json({
@@ -127,8 +129,37 @@ app.get("/api/live/status", (req, res) => res.json({
   },
   cache: { ttlMs: 90000, staleMs: 600000 },
   availableOnly: true,
-  exactModelOnly: true
+  exactModelOnly: true,
+  diagnostics: true
 }));
+
+app.get("/api/live/diagnose", async (req, res) => {
+  const q = String(req.query.q || "").trim();
+  if (!q) return res.status(400).json({ error: "검색어가 필요합니다." });
+  const region = String(req.query.in || "").trim();
+  try {
+    res.set("Cache-Control", "no-store");
+    return res.json(await diagnosePublicSearch(q, { region }));
+  } catch (error) {
+    return res.status(500).json({ error: "수집 진단 중 오류가 발생했습니다.", detail: error.message });
+  }
+});
+
+app.get("/api/live/diagnose/:platform", async (req, res) => {
+  const q = String(req.query.q || "").trim();
+  if (!q) return res.status(400).json({ error: "검색어가 필요합니다." });
+  const aliases = {
+    daangn: "daangn", "당근": "daangn",
+    bunjang: "bunjang", "번개장터": "bunjang",
+    joongna: "joongna", "중고나라": "joongna"
+  };
+  const platform = aliases[String(req.params.platform || "").toLowerCase()] || aliases[req.params.platform];
+  if (!platform) return res.status(400).json({ error: "지원 플랫폼: daangn, bunjang, joongna" });
+  const region = String(req.query.in || "").trim();
+  res.set("Cache-Control", "no-store");
+  return res.json(await diagnoseOne(platform, q, { region }));
+});
+
 app.get("/api/phones", (req, res) => res.json(getPhones()));
 
 app.get("/api/search", (req, res) => {
@@ -169,7 +200,6 @@ app.get("/api/live/bunjang", async (req, res) => {
     });
   }
 });
-
 
 app.get("/api/live/daangn", async (req, res) => {
   const q = String(req.query.q || "").trim();
@@ -226,9 +256,9 @@ app.get("/api/live/combined", async (req, res) => {
         excluded: data.excluded || {}
       };
       for (const item of data.listings || []) {
-        const key = item.url || `${item.source}:${item.id}`;
-        if (!key || seen.has(key)) continue;
-        seen.add(key);
+        const itemKey = item.url || `${item.source}:${item.id}`;
+        if (!itemKey || seen.has(itemKey)) continue;
+        seen.add(itemKey);
         listings.push(item);
       }
     } else {
