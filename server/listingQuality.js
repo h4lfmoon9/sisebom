@@ -127,7 +127,7 @@ function filterAndDedupeListings(listings = [], query = '') {
     const statusText = `${item?.status || ''} ${title}`;
     const price = Number(item?.price);
 
-    if (!title || !Number.isFinite(price) || price <= 0 || price > 5_000_000) {
+    if (!title || !Number.isFinite(price) || price < 10_000 || price > 5_000_000) {
       excluded.invalidPrice++;
       continue;
     }

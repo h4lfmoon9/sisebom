@@ -2,6 +2,8 @@
 
 const API = 'https://api.tavily.com/search';
 const TIMEOUT_MS = 10000;
+const MIN_PHONE_PRICE = 10000;
+const MAX_PHONE_PRICE = 5000000;
 
 const CONFIG = {
   daangn: {
@@ -44,20 +46,29 @@ function cleanText(value = '') {
     .trim();
 }
 
-function parsePrice(text = '') {
+function collectPriceCandidates(text = '') {
   const s = String(text);
+  const found = [];
 
-  let m = s.match(/(\d{1,3}(?:,\d{3})+)\s*원/);
-  if (m) return Number(m[1].replace(/,/g, ''));
+  function push(index, rawValue, multiplier = 1) {
+    const value = Math.round(Number(String(rawValue).replace(/,/g, '')) * multiplier);
+    if (!Number.isFinite(value)) return;
+    found.push({ index, value });
+  }
 
-  m = s.match(/(?:^|\D)(\d+(?:\.\d+)?)\s*만원(?:\D|$)/);
-  if (m) return Math.round(Number(m[1]) * 10000);
+  for (const m of s.matchAll(/(\d{1,3}(?:,\d{3})+)\s*원/g)) push(m.index, m[1]);
+  for (const m of s.matchAll(/(?:^|\D)(\d{4,9})\s*원(?:\D|$)/g)) push(m.index, m[1]);
+  for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*만원(?:\D|$)/g)) push(m.index, m[1], 10000);
+  for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*천원(?:\D|$)/g)) push(m.index, m[1], 1000);
 
-  m = s.match(/(?:^|\D)(\d+(?:\.\d+)?)\s*천원(?:\D|$)/);
-  if (m) return Math.round(Number(m[1]) * 1000);
+  return found
+    .filter(x => x.value >= MIN_PHONE_PRICE && x.value <= MAX_PHONE_PRICE)
+    .sort((a, b) => a.index - b.index);
+}
 
-  m = s.match(/(?:^|\D)(\d{4,9})\s*원(?:\D|$)/);
-  return m ? Number(m[1]) : null;
+function parsePrice(text = '') {
+  const candidates = collectPriceCandidates(text);
+  return candidates.length ? candidates[0].value : null;
 }
 
 function parseStorage(text = '') {
@@ -192,7 +203,7 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
     const combined = `${title} ${description}`.trim();
     const price = parsePrice(combined);
 
-    if (!Number.isFinite(price) || price <= 0) {
+    if (!Number.isFinite(price)) {
       excluded.noPrice++;
       continue;
     }
