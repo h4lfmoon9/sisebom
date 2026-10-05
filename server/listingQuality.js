@@ -17,6 +17,7 @@ function normalizeText(value = '') {
 function minimumPlausiblePrice(query = '') {
   const q = String(query).toLowerCase().replace(/\s+/g, '');
   const m = q.match(/(?:아이폰|iphone)(\d{1,2})/);
+
   if (m) {
     const g = +m[1];
     if (g >= 17) return 150000;
@@ -25,6 +26,7 @@ function minimumPlausiblePrice(query = '') {
     if (g >= 11) return 40000;
     if (g >= 8) return 20000;
   }
+
   if (/(아이폰x|iphonex|아이폰xr|iphonexr|아이폰xs|iphonexs)/i.test(q)) return 20000;
   return 10000;
 }
@@ -43,6 +45,7 @@ function isAccessory(v = '') {
 
 function isCatalogAd(v = '') {
   const t = String(v);
+
   return /(재고\s*정리|선착순|중고폰\s*전문|휴대폰\s*전문|전기종|전\s*기종|모든\s*기종|시리즈\s*다량|대량\s*판매)/i.test(t)
     || /\[(?:\s*\d{1,2}\s*,){2,}\s*\d{1,2}\s*\]/.test(t)
     || /\+(?:\s*\d{1,2}\s*,){2,}/.test(t);
@@ -58,7 +61,11 @@ function parseTarget(query = '') {
 
   if (/아이폰(?:xsmax|xs|xr|x)/.test(n)) {
     const m = n.match(/아이폰(xsmax|xs|xr|x)/);
-    return { family: m[1], generation: m[1], variant: m[1] === 'xsmax' ? 'max' : 'base' };
+    return {
+      family: m[1],
+      generation: m[1],
+      variant: m[1] === 'xsmax' ? 'max' : 'base'
+    };
   }
 
   const m = n.match(/아이폰(\d{1,2})(e)?/);
@@ -90,6 +97,7 @@ function titleGenerationInfo(title = '') {
 
   let variant = m[2] ? 'e' : 'base';
   const tail = n.slice(m.index + m[0].length);
+
   if (tail.includes('promax')) variant = 'promax';
   else if (tail.includes('pro')) variant = 'pro';
   else if (tail.includes('plus')) variant = 'plus';
@@ -144,7 +152,10 @@ function filterAndDedupeListings(listings = [], query = '') {
   for (const item of listings) {
     const title = String(item?.title || '').trim();
     const evidence = String(item?.modelText || item?.description || title).trim();
-    const statusText = `${item?.status || ''} ${title} ${evidence}`;
+
+    // 판매완료/예약중 판별은 현재 매물의 명시적 status와 제목만 본다.
+    // 본문에는 주변 추천 매물의 '예약중/판매완료' 문구가 섞일 수 있다.
+    const statusText = `${item?.status || ''} ${title}`;
     const price = Number(item?.price);
 
     if (!title || !Number.isFinite(price) || price <= 0 || price > 5000000) {
@@ -162,9 +173,7 @@ function filterAndDedupeListings(listings = [], query = '') {
       continue;
     }
 
-    // 핵심 수정:
-    // 휴대폰 판매글 본문에 '케이스/필름 같이 드려요'가 있어도
-    // 휴대폰 자체를 액세서리 매물로 버리지 않도록 제목 중심으로 판별한다.
+    // 구매글/액세서리/카탈로그 판별도 현재 매물 제목 중심.
     if (isWantedPost(title)) {
       excluded.wanted++;
       continue;
@@ -180,6 +189,7 @@ function filterAndDedupeListings(listings = [], query = '') {
       continue;
     }
 
+    // 모델 판별은 modelText/description의 현재 상품 모델 근거를 사용.
     if (!matchesRequestedModel(evidence, query)) {
       excluded.wrongModel++;
       continue;
