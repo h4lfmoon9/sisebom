@@ -15,3 +15,23 @@
 
 /* STEP28_AUTO_CATALOG */
 .model-card img[src=""]{visibility:hidden}
+
+/* STEP29_FINAL_UI */
+.analysis-badges{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+.confidence{padding:7px 10px;border-radius:999px;font-size:12px;font-weight:800}
+.confidence.high{background:#e8f7ef;color:#087642}
+.confidence.medium{background:#fff5d8;color:#8a5a00}
+.confidence.low{background:#f3f4f6;color:#6b7280}
+.brand-filters{margin:-4px 0 16px}
+.suggestions button{display:grid;grid-template-columns:1fr auto;align-items:center;gap:12px}
+.suggestions button b{font-size:13px}
+.suggestions button span{font-size:11px;color:var(--muted)}
+.suggestion-empty{padding:14px 16px;color:var(--muted);font-size:13px}
+.listing-state{grid-column:1/-1;background:#fff;border:1px solid var(--line);border-radius:18px;padding:28px;display:grid;gap:7px;text-align:center;color:var(--muted)}
+.listing-state b{color:var(--text)}
+.listing-state.error{background:#fff7f7;border-color:#fecaca}
+.model-image-placeholder{width:100%;height:150px;display:grid;place-items:center;background:linear-gradient(145deg,#f8faf9,#eef3f0);border-radius:12px;color:var(--muted);font-size:12px}
+@media(max-width:640px){
+  .analysis-badges{justify-content:flex-start}
+  .section-head{align-items:flex-start}
+}

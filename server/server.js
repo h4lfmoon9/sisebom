@@ -11,6 +11,7 @@ const { filterAndDedupeListings } = require("./listingQuality");
 const { makeKey, getFresh, getStale, setCache, withTimeout } = require("./liveCache");
 const { diagnoseOne, diagnosePublicSearch } = require("./liveDiagnostics");
 const { getStaticCatalog, getLiveCatalog, getCatalogStatus } = require("./catalog"); // STEP28_CATALOG
+const { analyzeMarket } = require("./marketAnalysis"); // STEP29_MARKET_ANALYSIS
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -106,7 +107,8 @@ app.get("/api/health", (req, res) => res.json({
   products: getPhones().length,
   liveProviders: ["당근", "번개장터", "중고나라"],
   liveCombined: true,
-  diagnostics: true
+  diagnostics: true,
+  marketAnalysis: "sisebom-market-v2"
 }));
 
 app.get("/api/live/status", (req, res) => res.json({
@@ -152,6 +154,7 @@ app.get("/api/live/diagnose/:platform", async (req, res) => {
 app.get("/api/phones", async (req, res) => {
   const live = String(req.query.live || "") === "1";
   const force = String(req.query.refresh || "") === "1";
+  const wait = String(req.query.wait || "") === "1";
 
   if (!live) {
     res.set("Cache-Control", "public, max-age=300");
@@ -159,7 +162,7 @@ app.get("/api/phones", async (req, res) => {
   }
 
   try {
-    const phones = await getLiveCatalog({ force });
+    const phones = await getLiveCatalog({ force, wait });
     res.set("Cache-Control", "public, max-age=300, stale-while-revalidate=3600");
     return res.json(phones);
   } catch (error) {
@@ -264,7 +267,12 @@ app.get("/api/live/combined", async (req, res) => {
         ok: true,
         count: data.listings?.length || 0,
         sourceUrl: data.sourceUrl,
-        excluded: data.excluded || {}
+        excluded: data.excluded || {},
+        collecting: Boolean(data.collecting),
+        collectionStatus: data.collectionStatus || (data.collecting ? "running" : "done"),
+        candidateCount: Number(data.candidateCount) || 0,
+        targetCount: Number(data.targetCount) || 0,
+        queriesTried: Array.isArray(data.queriesTried) ? data.queriesTried : []
       };
       for (const item of data.listings || []) {
         const itemKey = item.url || `${item.source}:${item.id}`;
@@ -303,6 +311,9 @@ app.get("/api/live/combined", async (req, res) => {
   const quality = filterAndDedupeListings(listings, q);
   quality.listings.sort((a, b) => Number(a.minutes ?? 999999) - Number(b.minutes ?? 999999));
 
+  const analysisPhone = findPhone(q);
+  const analysis = analyzeMarket(quality.listings, { phone: analysisPhone, query: q });
+
   const payload = {
     query: q,
     fetchedAt: new Date().toISOString(),
@@ -313,6 +324,7 @@ app.get("/api/live/combined", async (req, res) => {
     rawCount: listings.length,
     count: quality.listings.length,
     listings: quality.listings,
+    analysis,
     cache: "miss",
     stale: false
   };
@@ -351,12 +363,17 @@ app.get("/api/compare", (req, res) => {
 });
 
 app.post("/api/ai/judge", (req, res) => {
-  const { phoneId, storage = "all" } = req.body || {};
-  const phone = getPhones().find((item) => item.id === phoneId);
-  if (!phone) return res.status(404).json({ error: "제품을 찾을 수 없습니다." });
-  const listings = filterListings(phone, { storage });
-  const market = calculateMarket(listings);
-  res.json({ ai: false, mode: "rule-based", phone: phone.name, market, judgement: getBuyText(market.buyScore), message: "현재는 시세봄 계산식으로 판단합니다." });
+  const { phoneId, query = "", listings = [] } = req.body || {};
+  const phone = getPhones().find((item) => item.id === phoneId) || findPhone(query);
+  const safeListings = Array.isArray(listings) ? listings.slice(0, 500) : [];
+  const analysis = analyzeMarket(safeListings, { phone, query: query || phone?.name || "" });
+
+  res.json({
+    ai: true,
+    mode: "sisebom-market-v2",
+    phone: phone?.name || query || null,
+    analysis
+  });
 });
 
 app.use((req, res) => res.status(404).json({ error: "존재하지 않는 API입니다." }));
