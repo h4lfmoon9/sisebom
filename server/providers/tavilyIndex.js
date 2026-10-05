@@ -1,8 +1,20 @@
 'use strict';
 
 const API = 'https://api.tavily.com/search';
-const TIMEOUT_MS = 10000;
+const TIMEOUT_MS = 6500;
+const IMAGE_TIMEOUT_MS = 1400;
+const IMAGE_CACHE_TTL_MS = 30 * 60 * 1000;
 const MAX_PHONE_PRICE = 5_000_000;
+
+const {
+  matchesRequestedModel,
+  hasUnavailableStatus,
+  isWantedPost,
+  isAccessory,
+  isCatalogAd
+} = require('../listingQuality');
+
+const imageCache = new Map();
 
 const CONFIG = {
   daangn: {
@@ -192,6 +204,196 @@ function extractListingImage(source, listingUrl = '', rawContent = '') {
   }
 
   return '';
+}
+
+
+function decodeHtmlEntities(value = '') {
+  return String(value)
+    .replace(/&amp;/gi, '&')
+    .replace(/&quot;/gi, '"')
+    .replace(/&#39;|&apos;/gi, "'")
+    .replace(/&lt;/gi, '<')
+    .replace(/&gt;/gi, '>');
+}
+
+function readHtmlAttr(tag = '', name = '') {
+  const quoted = new RegExp(`\\b${name}\\s*=\\s*([\"'])([\\s\\S]*?)\\1`, 'i').exec(tag);
+  if (quoted) return decodeHtmlEntities(quoted[2]).trim();
+
+  const plain = new RegExp(`\\b${name}\\s*=\\s*([^\\s>]+)`, 'i').exec(tag);
+  return plain ? decodeHtmlEntities(plain[1]).trim() : '';
+}
+
+function absoluteImageUrl(candidate = '', pageUrl = '') {
+  const value = decodeHtmlEntities(candidate).trim();
+  if (!value) return '';
+
+  try {
+    const u = new URL(value, pageUrl);
+    if (!/^https?:$/.test(u.protocol)) return '';
+    return u.toString();
+  } catch {
+    return '';
+  }
+}
+
+function looksLikeSiteAsset(url = '') {
+  try {
+    const u = new URL(url);
+    const text = `${u.hostname}${u.pathname}`.toLowerCase();
+    return /(favicon|logo|sprite|placeholder|default[-_ ]?(?:image|og)|profile|avatar|site[-_]?icon|app[-_]?icon|share[-_]?image|og[-_]?image)/i.test(text);
+  } catch {
+    return true;
+  }
+}
+
+function validateListingImage(source, pageUrl = '', imageUrl = '') {
+  const image = absoluteImageUrl(imageUrl, pageUrl);
+  if (!image || looksLikeSiteAsset(image)) return '';
+
+  if (source === 'bunjang') {
+    const id = String(pageUrl).match(/\/products\/(\d+)/i)?.[1];
+    if (!id) return '';
+
+    try {
+      const u = new URL(image);
+      if (u.hostname !== 'media.bunjang.co.kr') return '';
+      if (!u.pathname.startsWith(`/product/${id}_`)) return '';
+    } catch {
+      return '';
+    }
+  }
+
+  return image;
+}
+
+function extractFirstImageFromHtml(source, pageUrl = '', html = '') {
+  const body = String(html || '');
+  if (!body) return '';
+
+  // 1) The page's own OG/Twitter first image is the strongest generic signal.
+  for (const tag of body.match(/<meta\b[^>]*>/gi) || []) {
+    const key = (readHtmlAttr(tag, 'property') || readHtmlAttr(tag, 'name')).toLowerCase();
+    if (!['og:image', 'og:image:url', 'twitter:image', 'twitter:image:src'].includes(key)) continue;
+
+    const content = readHtmlAttr(tag, 'content');
+    const valid = validateListingImage(source, pageUrl, content);
+    if (valid) return valid;
+  }
+
+  // 2) <link rel="image_src"> fallback.
+  for (const tag of body.match(/<link\b[^>]*>/gi) || []) {
+    const rel = readHtmlAttr(tag, 'rel').toLowerCase();
+    if (rel !== 'image_src') continue;
+
+    const valid = validateListingImage(source, pageUrl, readHtmlAttr(tag, 'href'));
+    if (valid) return valid;
+  }
+
+  // 3) JSON-LD/product data image fallback.
+  const jsonImagePatterns = [
+    /"image"\s*:\s*"(https?:\\?\/\\?\/[^"]+)"/ig,
+    /"imageUrl"\s*:\s*"(https?:\\?\/\\?\/[^"]+)"/ig,
+    /"thumbnailUrl"\s*:\s*"(https?:\\?\/\\?\/[^"]+)"/ig
+  ];
+
+  for (const re of jsonImagePatterns) {
+    let match;
+    while ((match = re.exec(body))) {
+      const candidate = String(match[1]).replace(/\\\//g, '/');
+      const valid = validateListingImage(source, pageUrl, candidate);
+      if (valid) return valid;
+    }
+  }
+
+  return '';
+}
+
+function getCachedImage(url = '') {
+  const cached = imageCache.get(url);
+  if (!cached) return null;
+  if (Date.now() - cached.at > IMAGE_CACHE_TTL_MS) {
+    imageCache.delete(url);
+    return null;
+  }
+  return cached.image;
+}
+
+function setCachedImage(url = '', image = '') {
+  if (!url) return;
+  imageCache.set(url, { image: String(image || ''), at: Date.now() });
+}
+
+async function fetchFirstListingImage(item = {}) {
+  const pageUrl = String(item?.url || '').trim();
+  const source = String(item?.source || '').trim();
+  if (!pageUrl || !source) return '';
+
+  const cached = getCachedImage(pageUrl);
+  if (cached !== null) return cached;
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), IMAGE_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(pageUrl, {
+      signal: controller.signal,
+      redirect: 'follow',
+      headers: {
+        'user-agent': 'Mozilla/5.0 (compatible; Sisebom/1.0; public-listing-preview)',
+        accept: 'text/html,application/xhtml+xml'
+      }
+    });
+
+    if (!response.ok) {
+      setCachedImage(pageUrl, '');
+      return '';
+    }
+
+    const type = String(response.headers.get('content-type') || '');
+    if (type && !/text\/html|application\/xhtml\+xml/i.test(type)) {
+      setCachedImage(pageUrl, '');
+      return '';
+    }
+
+    const html = await response.text();
+    const image = extractFirstImageFromHtml(source, pageUrl, html);
+    setCachedImage(pageUrl, image);
+    return image;
+  } catch {
+    // No bypass/retry tricks: if the public page blocks or times out, leave image empty.
+    setCachedImage(pageUrl, '');
+    return '';
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+function shouldFetchListingImage(item = {}, query = '') {
+  if (!item || item.image || !item.url) return false;
+
+  const title = String(item.title || '');
+  const evidence = String(item.modelText || item.description || title);
+
+  if (hasUnavailableStatus(`${item.status || ''} ${title}`)) return false;
+  if (isWantedPost(title) || isAccessory(title) || isCatalogAd(title)) return false;
+  if (!matchesRequestedModel(evidence, query)) return false;
+
+  return true;
+}
+
+async function enrichFirstListingImages(listings = [], query = '') {
+  const targets = listings.filter(item => shouldFetchListingImage(item, query));
+  if (!targets.length) return listings;
+
+  // All public page lookups run together, so this adds at most IMAGE_TIMEOUT_MS
+  // instead of multiplying the delay by the number of listings.
+  await Promise.all(targets.map(async item => {
+    const image = await fetchFirstListingImage(item);
+    if (image) item.image = image;
+  }));
+
+  return listings;
 }
 
 const MODEL_RE = /(?:애플\s*)?(?:아이폰|iphone)\s*(?:air|에어|se\s*(?:[123]|[123]\s*세대)?|xs\s*max|xs|xr|x|3gs|3g|4s|5c|5s|6s|\d{1,2}(?:e)?)(?:\s*(?:프로\s*맥스|pro\s*max|프로|pro|플러스|plus|미니|mini|에어|air))?/ig;
@@ -450,6 +652,8 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
     if (listings.length >= Math.max(1, Math.min(50, Number(limit) || 30))) break;
   }
 
+  await enrichFirstListingImages(listings, q);
+
   return {
     query: q,
     platform: cfg.name,
@@ -465,4 +669,12 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
   };
 }
 
-module.exports = { fetchIndexedListings, minimumPlausiblePrice, parseRegion, extractListingImage };
+module.exports = {
+  fetchIndexedListings,
+  minimumPlausiblePrice,
+  parseRegion,
+  extractListingImage,
+  extractFirstImageFromHtml,
+  validateListingImage,
+  shouldFetchListingImage
+};
