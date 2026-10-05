@@ -8,6 +8,7 @@ const { fetchJoongnaListings } = require("./providers/joongna");
 const { fetchBunjangListings } = require("./providers/bunjang");
 const { fetchDaangnListings } = require("./providers/daangn");
 const { filterAndDedupeListings } = require("./listingQuality");
+const { makeKey, getFresh, getStale, setCache, withTimeout } = require("./liveCache");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -171,12 +172,26 @@ app.get("/api/live/daangn", async (req, res) => {
 app.get("/api/live/combined", async (req, res) => {
   const q = String(req.query.q || "").trim();
   if (!q) return res.status(400).json({ error: "검색어가 필요합니다." });
+
   const limit = Math.max(1, Math.min(50, Number(req.query.limit) || 30));
+  const region = String(req.query.in || "").trim();
+  const forceRefresh = String(req.query.refresh || "") === "1";
+  const key = makeKey(q, region, limit);
+
+  if (!forceRefresh) {
+    const cached = getFresh(key);
+    if (cached) {
+      res.set("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+      return res.json({ ...cached, cache: "hit" });
+    }
+  }
+
   const providers = [
-    ["당근", () => fetchDaangnListings(q, { limit, region: req.query.in })],
-    ["중고나라", () => fetchJoongnaListings(q, { limit })],
-    ["번개장터", () => fetchBunjangListings(q, { limit })]
+    ["당근", () => withTimeout(fetchDaangnListings(q, { limit, region }), 9000, "당근")],
+    ["중고나라", () => withTimeout(fetchJoongnaListings(q, { limit }), 9000, "중고나라")],
+    ["번개장터", () => withTimeout(fetchBunjangListings(q, { limit }), 9000, "번개장터")]
   ];
+
   const settled = await Promise.allSettled(providers.map(([, run]) => run()));
   const listings = [];
   const providerStatus = {};
@@ -185,8 +200,13 @@ app.get("/api/live/combined", async (req, res) => {
   settled.forEach((result, index) => {
     const name = providers[index][0];
     if (result.status === "fulfilled") {
-      const data = result.value;
-      providerStatus[name] = { ok: true, count: data.listings?.length || 0, sourceUrl: data.sourceUrl, excluded: data.excluded || {} };
+      const data = result.value || {};
+      providerStatus[name] = {
+        ok: true,
+        count: data.listings?.length || 0,
+        sourceUrl: data.sourceUrl,
+        excluded: data.excluded || {}
+      };
       for (const item of data.listings || []) {
         const key = item.url || `${item.source}:${item.id}`;
         if (!key || seen.has(key)) continue;
@@ -194,11 +214,26 @@ app.get("/api/live/combined", async (req, res) => {
         listings.push(item);
       }
     } else {
-      providerStatus[name] = { ok: false, count: 0, error: result.reason?.message || "불러오기 실패" };
+      providerStatus[name] = {
+        ok: false,
+        count: 0,
+        error: result.reason?.message || "불러오기 실패"
+      };
     }
   });
 
   if (!Object.values(providerStatus).some((x) => x.ok)) {
+    const stale = getStale(key);
+    if (stale) {
+      res.set("Cache-Control", "no-cache");
+      return res.json({
+        ...stale,
+        cache: "stale",
+        stale: true,
+        warning: "플랫폼 연결이 일시적으로 실패해 최근 정상 결과를 표시합니다.",
+        providersNow: providerStatus
+      });
+    }
     return res.status(502).json({
       error: "실제 중고 매물을 불러오지 못했습니다.",
       providers: providerStatus,
@@ -209,8 +244,7 @@ app.get("/api/live/combined", async (req, res) => {
   const quality = filterAndDedupeListings(listings, q);
   quality.listings.sort((a, b) => Number(a.minutes ?? 999999) - Number(b.minutes ?? 999999));
 
-  res.set("Cache-Control", "public, max-age=30");
-  return res.json({
+  const payload = {
     query: q,
     fetchedAt: new Date().toISOString(),
     availableOnly: true,
@@ -219,8 +253,13 @@ app.get("/api/live/combined", async (req, res) => {
     excluded: quality.excluded,
     rawCount: listings.length,
     count: quality.listings.length,
-    listings: quality.listings
-  });
+    listings: quality.listings,
+    cache: "miss",
+    stale: false
+  };
+  setCache(key, payload);
+  res.set("Cache-Control", "public, max-age=30, stale-while-revalidate=60");
+  return res.json(payload);
 });
 
 app.get("/api/phones/:id", (req, res) => {
