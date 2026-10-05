@@ -10,6 +10,7 @@ const { fetchDaangnListings } = require("./providers/daangn");
 const { filterAndDedupeListings } = require("./listingQuality");
 const { makeKey, getFresh, getStale, setCache, withTimeout } = require("./liveCache");
 const { diagnoseOne, diagnosePublicSearch } = require("./liveDiagnostics");
+const { getStaticCatalog, getLiveCatalog, getCatalogStatus } = require("./catalog"); // STEP28_CATALOG
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -19,19 +20,7 @@ app.use(cors());
 app.use(express.json());
 
 function getPhones() {
-  try {
-    if (!fs.existsSync(DATA_DIR)) return [];
-    const files = fs.readdirSync(DATA_DIR).filter((name) => name.endsWith(".json")).sort();
-    const phones = [];
-    for (const file of files) {
-      const parsed = JSON.parse(fs.readFileSync(path.join(DATA_DIR, file), "utf-8"));
-      if (Array.isArray(parsed)) phones.push(...parsed);
-    }
-    return phones;
-  } catch (error) {
-    console.error("제품 DB 읽기 오류:", error.message);
-    return [];
-  }
+  return getStaticCatalog();
 }
 
 function normalize(text) {
@@ -160,7 +149,29 @@ app.get("/api/live/diagnose/:platform", async (req, res) => {
   return res.json(await diagnoseOne(platform, q, { region }));
 });
 
-app.get("/api/phones", (req, res) => res.json(getPhones()));
+app.get("/api/phones", async (req, res) => {
+  const live = String(req.query.live || "") === "1";
+  const force = String(req.query.refresh || "") === "1";
+
+  if (!live) {
+    res.set("Cache-Control", "public, max-age=300");
+    return res.json(getPhones());
+  }
+
+  try {
+    const phones = await getLiveCatalog({ force });
+    res.set("Cache-Control", "public, max-age=300, stale-while-revalidate=3600");
+    return res.json(phones);
+  } catch (error) {
+    console.error("자동 제품 카탈로그 갱신 오류:", error.message);
+    return res.json(getPhones());
+  }
+});
+
+app.get("/api/catalog/status", (req, res) => {
+  res.set("Cache-Control", "no-store");
+  res.json(getCatalogStatus());
+});
 
 app.get("/api/search", (req, res) => {
   if (!req.query.q) return res.status(400).json({ error: "검색어가 필요합니다." });

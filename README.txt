@@ -1,56 +1,50 @@
-시세봄 27단계 - 자체수집기 대량수집/백그라운드 수집
+시세봄 28단계 - 4대 제조사 공통 DB + 신제품 자동등록 기반
 
-이번 단계는 '4번 정도의 큰 단계로 완성' 계획 중 1/4입니다.
+큰 마무리 1/3.
 
-핵심 변경
-- Tavily 없음 유지
-- 플랫폼당 목표 후보 기본 200개
-- 한 번 검색하고 끝내지 않고:
-  아이폰 15
-  아이폰15
-  아이폰 15 128GB
-  아이폰 15 256GB
-  아이폰 15 512GB
-  아이폰 15 64GB
-  같은 공개 검색 변형을 자동으로 순회
-- URL 기준 중복 제거
-- 첫 응답은 server.js의 기존 9초 제한 안에 반환
-- 그 뒤 자체 Chromium이 최대 약 70초 동안 백그라운드에서 계속 수집
-- 12초 뒤 combined 캐시가 풀리므로 다시 검색/새로고침하면 더 많이 모인 결과를 받음
-- 동일 모델의 심층수집 결과는 메모리에 최대 30분 재사용
-- 공개 페이지가 403이면 우회하지 않음
-- 갤럭시도 같은 수집엔진을 사용하도록 검색 변형 로직 포함
+들어간 기능
+- Apple / Samsung / Xiaomi(REDMI·POCO 포함) / Motorola 공통 카탈로그
+- 기존 server/data의 모든 JSON을 한 카탈로그로 읽기
+- 공식 공개 스마트폰 페이지를 하루 1회 자동 확인
+- DB에 없는 제품명을 공식 페이지에서 발견하면 런타임 카탈로그에 자동 추가
+- phones.js에 아직 없는 새 모델도 /api/phones?live=1을 통해 프론트에 자동 합류
+- 새 모델도 기존 자체 중고매물 수집엔진을 그대로 사용
+- iPhone뿐 아니라 Galaxy / Xiaomi / Redmi / POCO / Motorola 모델 정확 필터 추가
+- 칩셋/카메라/프레임처럼 확실하지 않은 스펙은 추측하지 않고 '정보 확인 중'
+- 신제품 이미지도 자동 임의 추가하지 않음
+- 공식 페이지 스캔 실패 시 기존 DB로 자동 폴백
+- Tavily/유료 AI API 필요 없음
 
-사용 방법
-1. ZIP 풀기
-2. server 폴더를 sisebom/server에 덮어쓰기
-3. GitHub Desktop Summary:
-   자체수집기 대량수집 27단계
-4. Commit to main -> Push origin
-5. Render 배포 완료 후 테스트
+적용
+1. ZIP을 sisebom 저장소 루트에 풉니다.
+2. server 폴더는 기존 server 폴더에 덮어씁니다.
+3. apply-step28.js가 sisebom 루트에 있게 합니다.
+4. PowerShell에서 sisebom 폴더로 들어가:
+   node apply-step28.js
+5. 성공 메시지 확인
+6. GitHub Desktop Summary:
+   4대 제조사 자동 제품DB 28단계
+7. Commit to main -> Push origin
 
-테스트 방법
-첫 번째:
-https://sisebom.onrender.com/api/live/combined?q=아이폰%2015&refresh=1
+확인
+https://sisebom.onrender.com/api/catalog/status
+https://sisebom.onrender.com/api/phones?live=1
 
-약 15~30초 후 다시:
-https://sisebom.onrender.com/api/live/combined?q=아이폰%2015&refresh=1
+catalog/status에서 staticCount / discoveredCount / totalCount / perBrand 확인.
 
-처음보다 rawCount/count가 늘어나면 백그라운드 심층수집이 정상입니다.
-매물에는 browserCollected:true가 유지됩니다.
+새 모델은:
+공식 제조사 페이지에서 제품명 감지
+→ 기존 DB와 중복검사
+→ 런타임 카탈로그 추가
+→ 사이트 검색에 자동 추가
+→ 같은 자체 중고매물 수집기 사용
+순서로 동작합니다.
 
-설정 가능
-SISEBOM_COLLECT_LIMIT=200   기본 추천
-SISEBOM_COLLECT_LIMIT=500   더 많이 시도 가능하지만 무료 Render 부담 큼
-SISEBOM_DEEP_JOB_MAX_MS=70000
-SISEBOM_BROWSER_CONCURRENCY=2
+Render 재시작 시 런타임 발견 목록은 초기화되지만,
+다음 /api/phones?live=1 요청 때 공식 페이지를 다시 스캔해 복구합니다.
 
-남은 큰 단계 계획
-28단계: Apple/갤럭시/샤오미/모토롤라 공통 제품 DB + 신제품 자동등록 기반
-29단계: AI 구매판단/시세 계산/검색 UI 완성
-30단계: 전체 QA·모바일·속도·오류복구·배포 최종판
+다음
+29단계: AI 구매판단 + 시세 계산 + 검색/UI 최종 통합
+30단계: 전체 QA + 모바일 + 속도 + Render 안정화 + 출시판
 
-즉 27~30, 총 4개의 큰 단계로 끝내는 걸 목표로 합니다.
-플랫폼 자체 차단이나 구조 변경이 있으면 해당 플랫폼 수정이 추가로 필요할 수는 있습니다.
-
-GitHub Summary: 자체수집기 대량수집 27단계
+GitHub Summary: 4대 제조사 자동 제품DB 28단계

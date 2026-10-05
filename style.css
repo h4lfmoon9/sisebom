@@ -12,3 +12,6 @@
 .listing-meta a:hover{text-decoration:underline}
 @media(max-width:640px){.listing-image{height:180px}.listing-meta{align-items:flex-start;flex-direction:column;gap:8px}}
 
+
+/* STEP28_AUTO_CATALOG */
+.model-card img[src=""]{visibility:hidden}

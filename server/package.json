@@ -1,13 +1,13 @@
 {
   "name": "sisebom-server",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "private": true,
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "postinstall": "node installPlaywright.js",
-    "test": "node --test qa/*.test.js",
-    "check": "node --check server.js && node --check listingQuality.js && node --check providers/browserCollectorCore.js && node --check providers/browserCollector.js && node --check providers/joongna.js && npm test"
+    "test": "node --test qa/browserCollectorCore.test.js qa/collectorVariants.test.js qa/catalogRules.test.js qa/modelMatching.test.js",
+    "check": "node --check server.js && node --check listingQuality.js && node --check catalog.js && node --check catalogRules.js && node --check catalogDiscovery.js && node --check providers/browserCollector.js && npm test"
   },
   "engines": {
     "node": ">=20"

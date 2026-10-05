@@ -4,6 +4,12 @@ function normalizeText(value = '') {
   return String(value)
     .toLowerCase()
     .replace(/iphone/g, '아이폰')
+    .replace(/galaxy/g, '갤럭시')
+    .replace(/motorola/g, '모토로라')
+    .replace(/울트라/g, 'ultra')
+    .replace(/폴드/g, 'fold')
+    .replace(/플립/g, 'flip')
+    .replace(/\+/g, 'plus')
     .replace(/프로\s*맥스/g, 'promax')
     .replace(/pro\s*max/g, 'promax')
     .replace(/프로/g, 'pro')
@@ -11,7 +17,7 @@ function normalizeText(value = '') {
     .replace(/미니/g, 'mini')
     .replace(/에어/g, 'air')
     .replace(/에스\s*이/g, 'se')
-    .replace(/[\s_\-\/()\[\]{}.,:;|'" +]/g, '');
+    .replace(/[^\p{L}\p{N}]/gu, '');
 }
 
 function minimumPlausiblePrice(query = '') {
@@ -28,6 +34,7 @@ function minimumPlausiblePrice(query = '') {
   }
 
   if (/(아이폰x|iphonex|아이폰xr|iphonexr|아이폰xs|iphonexs)/i.test(q)) return 20000;
+  if (/(갤럭시|galaxy|xiaomi|redmi|poco|motorola|moto|모토로라)/i.test(q)) return 10000;
   return 10000;
 }
 
@@ -45,76 +52,27 @@ function isAccessory(v = '') {
 
 function isCatalogAd(v = '') {
   const t = String(v);
-
   return /(재고\s*정리|선착순|중고폰\s*전문|휴대폰\s*전문|전기종|전\s*기종|모든\s*기종|시리즈\s*다량|대량\s*판매)/i.test(t)
     || /\[(?:\s*\d{1,2}\s*,){2,}\s*\d{1,2}\s*\]/.test(t)
     || /\+(?:\s*\d{1,2}\s*,){2,}/.test(t);
 }
 
-function parseTarget(query = '') {
-  const n = normalizeText(query);
+function iphoneKey(text = '') {
+  const n = normalizeText(text);
 
-  if (/아이폰air/.test(n)) {
-    return { family: 'air', generation: 'air', variant: 'air' };
-  }
-
-  if (/아이폰se(?:1|2|3|1세대|2세대|3세대)?/.test(n)) {
-    const s = n.match(/아이폰se([123])/);
-    return { family: 'se', generation: s ? `se${s[1]}` : 'se', variant: 'se' };
-  }
-
-  if (/아이폰(?:xsmax|xs|xr|x)/.test(n)) {
-    const m = n.match(/아이폰(xsmax|xs|xr|x)/);
-    return {
-      family: m[1],
-      generation: m[1],
-      variant: m[1] === 'xsmax' ? 'max' : 'base'
-    };
-  }
+  if (/아이폰duo/.test(n)) return 'apple:duo';
+  if (/아이폰air/.test(n)) return 'apple:air';
+  if (/아이폰se3(?:세대)?/.test(n)) return 'apple:se3';
+  if (/아이폰se2(?:세대)?/.test(n)) return 'apple:se2';
+  if (/아이폰se1(?:세대)?/.test(n)) return 'apple:se1';
+  if (/아이폰se/.test(n)) return 'apple:se';
+  if (/아이폰xsmax/.test(n)) return 'apple:xsmax';
+  if (/아이폰xs/.test(n)) return 'apple:xs';
+  if (/아이폰xr/.test(n)) return 'apple:xr';
+  if (/아이폰x(?!s|r)/.test(n)) return 'apple:x';
 
   const legacy = n.match(/아이폰(3gs|3g|4s|5c|5s|6s)(plus)?/);
-  if (legacy) {
-    return {
-      family: 'legacy',
-      generation: legacy[1],
-      variant: legacy[2] ? 'plus' : 'base'
-    };
-  }
-
-  const m = n.match(/아이폰(\d{1,2})(e)?/);
-  if (!m) return null;
-
-  let variant = m[2] ? 'e' : 'base';
-  if (n.includes('promax')) variant = 'promax';
-  else if (n.includes('pro')) variant = 'pro';
-  else if (n.includes('plus')) variant = 'plus';
-  else if (n.includes('mini')) variant = 'mini';
-  else if (n.includes('air')) variant = 'air';
-
-  return { family: 'number', generation: m[1], variant };
-}
-
-function titleGenerationInfo(title = '') {
-  const n = normalizeText(title);
-
-  if (/아이폰air/.test(n)) return { generation: 'air', variant: 'air' };
-
-  if (/아이폰se3/.test(n) || /아이폰se3세대/.test(n)) return { generation: 'se3', variant: 'se' };
-  if (/아이폰se2/.test(n) || /아이폰se2세대/.test(n)) return { generation: 'se2', variant: 'se' };
-  if (/아이폰se1/.test(n) || /아이폰se1세대/.test(n)) return { generation: 'se1', variant: 'se' };
-
-  if (/아이폰xsmax/.test(n)) return { generation: 'xsmax', variant: 'max' };
-  if (/아이폰xs/.test(n)) return { generation: 'xs', variant: 'base' };
-  if (/아이폰xr/.test(n)) return { generation: 'xr', variant: 'base' };
-  if (/아이폰x(?!s|r)/.test(n)) return { generation: 'x', variant: 'base' };
-
-  const legacy = n.match(/아이폰(3gs|3g|4s|5c|5s|6s)(plus)?/);
-  if (legacy) {
-    return {
-      generation: legacy[1],
-      variant: legacy[2] ? 'plus' : 'base'
-    };
-  }
+  if (legacy) return `apple:${legacy[1]}:${legacy[2] ? 'plus' : 'base'}`;
 
   const m = n.match(/아이폰(\d{1,2})(e)?/);
   if (!m) return null;
@@ -128,34 +86,86 @@ function titleGenerationInfo(title = '') {
   else if (tail.includes('mini')) variant = 'mini';
   else if (tail.includes('air')) variant = 'air';
 
-  return { generation: m[1], variant };
+  return `apple:${m[1]}:${variant}`;
+}
+
+function samsungKey(text = '') {
+  const n = normalizeText(text);
+
+  let m = n.match(/갤럭시s(\d{1,2})(ultra|fe|plus)?/);
+  if (m) return `samsung:s${m[1]}:${m[2] || 'base'}`;
+
+  m = n.match(/갤럭시a(\d{1,2})(5g)?/);
+  if (m) return `samsung:a${m[1]}`;
+
+  m = n.match(/갤럭시m(\d{1,2})(5g)?/);
+  if (m) return `samsung:m${m[1]}`;
+
+  m = n.match(/갤럭시zfold(\d{1,2}?)(ultra|fe)?(?=(?:32|64|128|256|512|1024|2048|gb|$))/);
+  if (m) return `samsung:zfold${m[1]}:${m[2] || 'base'}`;
+
+  m = n.match(/갤럭시zflip(\d{1,2}?)(ultra|fe)?(?=(?:32|64|128|256|512|1024|2048|gb|$))/);
+  if (m) return `samsung:zflip${m[1]}:${m[2] || 'base'}`;
+
+  return null;
+}
+
+function xiaomiKey(text = '') {
+  const n = normalizeText(text);
+
+  let m = n.match(/xiaomi(\d{1,2}[a-z]?)(ultra|pro|lite)?/);
+  if (m) return `xiaomi:${m[1]}:${m[2] || 'base'}`;
+
+  m = n.match(/redminote(\d{1,2})(proplus|pro|plus)?(5g)?/);
+  if (m) return `redmi:note${m[1]}:${m[2] || 'base'}`;
+
+  m = n.match(/redmi(\d{1,2}[a-z]?)(pro|plus)?(5g)?/);
+  if (m) return `redmi:${m[1]}:${m[2] || 'base'}`;
+
+  m = n.match(/poco([a-z]\d{1,2})(pro)?(5g)?/);
+  if (m) return `poco:${m[1]}:${m[2] || 'base'}`;
+
+  return null;
+}
+
+function motorolaKey(text = '') {
+  const n = normalizeText(text);
+
+  let m = n.match(/motog(\d{1,3}?)(5g)?(?=(?:32|64|128|256|512|1024|2048|gb|$))/);
+  if (m) return `motorola:g${m[1]}`;
+
+  m = n.match(/(?:모토로라|moto)edge(\d{1,3}?)(pro|ultra|fusion|neo)?(?=(?:32|64|128|256|512|1024|2048|gb|$))/);
+  if (m) return `motorola:edge${m[1]}:${m[2] || 'base'}`;
+
+  m = n.match(/(?:모토로라)?razr(\d{1,3}?)(ultra)?(?=(?:32|64|128|256|512|1024|2048|gb|$))/);
+  if (m) return `motorola:razr${m[1]}:${m[2] || 'base'}`;
+
+  return null;
+}
+
+function canonicalModelKey(text = '') {
+  return iphoneKey(text) || samsungKey(text) || xiaomiKey(text) || motorolaKey(text);
+}
+
+function parseTarget(query = '') {
+  const key = canonicalModelKey(query);
+  return key ? { key } : null;
+}
+
+function titleGenerationInfo(title = '') {
+  const key = canonicalModelKey(title);
+  return key ? { key } : null;
 }
 
 function matchesRequestedModel(text = '', query = '') {
-  const target = parseTarget(query);
+  const target = canonicalModelKey(query);
   if (!target) return true;
 
-  const actual = titleGenerationInfo(text);
+  const actual = canonicalModelKey(text);
   if (!actual) return false;
 
-  if (target.family === 'air') {
-    return actual.generation === 'air';
-  }
-
-  if (target.family === 'se') {
-    return String(actual.generation).startsWith('se')
-      && (target.generation === 'se' || actual.generation === target.generation);
-  }
-
-  if (target.family === 'legacy') {
-    return actual.generation === target.generation && actual.variant === target.variant;
-  }
-
-  if (['x', 'xr', 'xs', 'xsmax'].includes(target.family)) {
-    return actual.generation === target.generation;
-  }
-
-  return actual.generation === target.generation && actual.variant === target.variant;
+  if (target === 'apple:se') return /^apple:se\d*$/.test(actual);
+  return actual === target;
 }
 
 function normalizeTitleKey(t = '') {
@@ -184,9 +194,6 @@ function filterAndDedupeListings(listings = [], query = '') {
   for (const item of listings) {
     const title = String(item?.title || '').trim();
     const evidence = String(item?.modelText || item?.description || title).trim();
-
-    // 판매완료/예약중 판별은 현재 매물의 명시적 status와 제목만 본다.
-    // 본문에는 주변 추천 매물의 '예약중/판매완료' 문구가 섞일 수 있다.
     const statusText = `${item?.status || ''} ${title}`;
     const price = Number(item?.price);
 
@@ -205,7 +212,6 @@ function filterAndDedupeListings(listings = [], query = '') {
       continue;
     }
 
-    // 구매글/액세서리/카탈로그 판별도 현재 매물 제목 중심.
     if (isWantedPost(title)) {
       excluded.wanted++;
       continue;
@@ -221,7 +227,6 @@ function filterAndDedupeListings(listings = [], query = '') {
       continue;
     }
 
-    // 모델 판별은 modelText/description의 현재 상품 모델 근거를 사용.
     if (!matchesRequestedModel(evidence, query)) {
       excluded.wrongModel++;
       continue;
@@ -245,6 +250,7 @@ function filterAndDedupeListings(listings = [], query = '') {
 
 module.exports = {
   normalizeText,
+  canonicalModelKey,
   parseTarget,
   titleGenerationInfo,
   matchesRequestedModel,

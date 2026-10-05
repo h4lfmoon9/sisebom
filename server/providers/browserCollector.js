@@ -451,5 +451,6 @@ process.once('SIGINT', () => {
 module.exports = {
   fetchBrowserListings,
   closeBrowser,
-  buildSearchVariants
+  buildSearchVariants,
+  getBrowser
 };

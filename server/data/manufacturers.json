@@ -1,0 +1,35 @@
+{
+  "version": 1,
+  "mode": "official-public-catalog-auto-discovery",
+  "brands": {
+    "Apple": {
+      "enabled": true,
+      "autoDiscover": true,
+      "imagePolicy": "no-auto-image",
+      "officialCatalog": "https://www.apple.com/kr/iphone/"
+    },
+    "Samsung": {
+      "enabled": true,
+      "autoDiscover": true,
+      "imagePolicy": "no-auto-image",
+      "officialCatalog": "https://www.samsung.com/sec/smartphones/"
+    },
+    "Xiaomi": {
+      "enabled": true,
+      "autoDiscover": true,
+      "includes": [
+        "Xiaomi",
+        "Redmi",
+        "POCO"
+      ],
+      "imagePolicy": "no-auto-image",
+      "officialCatalog": "https://www.mi.com/kr/product-list/phone/"
+    },
+    "Motorola": {
+      "enabled": true,
+      "autoDiscover": true,
+      "imagePolicy": "no-auto-image",
+      "officialCatalog": "https://www.motorola.com/kr/ko/motorola"
+    }
+  }
+}
