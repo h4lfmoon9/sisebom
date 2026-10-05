@@ -1,6 +1,6 @@
 const REQUEST_TIMEOUT_MS = 9000;
-const BRAVE_TIMEOUT_MS = 9000;
-const BRAVE_ENDPOINT = "https://api.search.brave.com/res/v1/web/search";
+const TAVILY_TIMEOUT_MS = 10000;
+const TAVILY_ENDPOINT = "https://api.tavily.com/search";
 
 const SOURCES = {
   daangn: {
@@ -12,7 +12,7 @@ const SOURCES = {
       return url.toString();
     },
     linkPatterns: [/\/kr\/buy-sell\//gi, /\/articles\/\d+/gi],
-    searchSite: "www.daangn.com",
+    domain: "daangn.com",
     isListingUrl(url) {
       try {
         const u = new URL(url);
@@ -27,7 +27,7 @@ const SOURCES = {
       return `https://m.bunjang.co.kr/keywords/${encodeURIComponent(q)}`;
     },
     linkPatterns: [/\/products\/\d+/gi],
-    searchSite: "m.bunjang.co.kr",
+    domain: "bunjang.co.kr",
     isListingUrl(url) {
       try {
         const u = new URL(url);
@@ -41,7 +41,7 @@ const SOURCES = {
       return `https://web.joongna.com/search/${encodeURIComponent(q)}`;
     },
     linkPatterns: [/\/product\/\d+/gi],
-    searchSite: "web.joongna.com",
+    domain: "joongna.com",
     isListingUrl(url) {
       try {
         const u = new URL(url);
@@ -346,7 +346,7 @@ function isAccessory(text = "") {
 function normalizeSearchResult(item, source, query) {
   const url = String(item?.url || "").trim();
   const title = stripTags(item?.title || "");
-  const description = stripTags(item?.description || item?.snippet || "");
+  const description = stripTags(item?.content || item?.description || item?.snippet || "");
   const combined = `${title} ${description}`.trim();
   if (!url || !source.isListingUrl(url)) return { excluded: "notListing" };
   if (isUnavailable(combined)) return { excluded: "unavailable" };
@@ -361,130 +361,148 @@ function normalizeSearchResult(item, source, query) {
       url,
       price: parsePrice(combined),
       storage: parseStorage(combined),
-      indexedResult: true
+      indexedResult: true,
+      relevance: Number.isFinite(Number(item?.score)) ? Number(item.score) : null
     }
   };
 }
 
-async function braveWebSearch(q, count = 20) {
-  const key = String(process.env.BRAVE_SEARCH_API_KEY || "").trim();
+async function tavilyWebSearch(query, maxResults = 20) {
+  const key = String(process.env.TAVILY_API_KEY || "").trim();
   if (!key) {
-    const error = new Error("BRAVE_SEARCH_API_KEY 환경변수가 설정되지 않았습니다.");
-    error.code = "BRAVE_NOT_CONFIGURED";
+    const error = new Error("TAVILY_API_KEY 환경변수가 설정되지 않았습니다.");
+    error.code = "TAVILY_NOT_CONFIGURED";
     throw error;
   }
 
-  const url = new URL(BRAVE_ENDPOINT);
-  url.searchParams.set("q", q);
-  url.searchParams.set("count", String(Math.max(1, Math.min(20, Number(count) || 20))));
-  url.searchParams.set("country", "KR");
-  url.searchParams.set("search_lang", "ko");
-  url.searchParams.set("ui_lang", "ko-KR");
-  url.searchParams.set("safesearch", "moderate");
-
   const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), BRAVE_TIMEOUT_MS);
+  const timer = setTimeout(() => controller.abort(), TAVILY_TIMEOUT_MS);
   try {
-    const response = await fetch(url, {
+    const response = await fetch(TAVILY_ENDPOINT, {
+      method: "POST",
       signal: controller.signal,
       headers: {
-        accept: "application/json",
-        "accept-encoding": "gzip",
-        "x-subscription-token": key
-      }
+        "content-type": "application/json",
+        "authorization": `Bearer ${key}`
+      },
+      body: JSON.stringify({
+        query,
+        search_depth: "basic",
+        max_results: Math.max(1, Math.min(20, Number(maxResults) || 20)),
+        include_answer: false,
+        include_raw_content: false,
+        include_images: false,
+        include_domains: Object.values(SOURCES).map((source) => source.domain)
+      })
     });
+
     const body = await response.text();
     let data = null;
     try { data = JSON.parse(body); } catch (_) {}
     if (!response.ok) {
-      const detail = data?.message || data?.error?.detail || `HTTP ${response.status}`;
-      const error = new Error(`Brave Search API 오류: ${detail}`);
+      const detail = data?.detail || data?.message || data?.error || `HTTP ${response.status}`;
+      const error = new Error(`Tavily Search API 오류: ${typeof detail === "string" ? detail : JSON.stringify(detail)}`);
       error.status = response.status;
       throw error;
     }
     return data || {};
   } catch (error) {
-    if (error?.name === "AbortError") throw new Error("Brave Search API 응답 시간이 초과되었습니다.");
+    if (error?.name === "AbortError") throw new Error("Tavily Search API 응답 시간이 초과되었습니다.");
     throw error;
   } finally {
     clearTimeout(timer);
   }
 }
 
-function sleep(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+function sourceForUrl(url) {
+  for (const [key, source] of Object.entries(SOURCES)) {
+    if (source.isListingUrl(url)) return { key, source };
+  }
+  return null;
 }
 
-async function discoverIndexedListings(query, { perPlatform = 12 } = {}) {
+async function discoverIndexedListings(query, { perPlatform = 10 } = {}) {
   const q = String(query || "").trim();
-  const configured = Boolean(String(process.env.BRAVE_SEARCH_API_KEY || "").trim());
+  const configured = Boolean(String(process.env.TAVILY_API_KEY || "").trim());
   if (!configured) {
     return {
       configured: false,
-      provider: "Brave Search API",
-      message: "Render 환경변수 BRAVE_SEARCH_API_KEY를 설정하면 공개 검색 색인에서 매물 URL 탐색을 시작합니다.",
+      provider: "Tavily Search API",
+      message: "Render 환경변수 TAVILY_API_KEY를 설정하면 공개 검색 색인에서 매물 URL 탐색을 시작합니다.",
       results: []
     };
   }
 
-  const platformKeys = ["daangn", "bunjang", "joongna"];
-  const output = [];
-  for (let index = 0; index < platformKeys.length; index++) {
-    const key = platformKeys[index];
-    const source = SOURCES[key];
-    const searchQuery = `site:${source.searchSite} "${q}"`;
-    const excluded = { notListing: 0, unavailable: 0, wanted: 0, accessory: 0 };
-    try {
-      const data = await braveWebSearch(searchQuery, Math.min(20, Math.max(5, Number(perPlatform) || 12) * 2));
-      const raw = Array.isArray(data?.web?.results) ? data.web.results : [];
-      const items = [];
-      const seen = new Set();
-      for (const result of raw) {
-        const normalized = normalizeSearchResult(result, source, q);
-        if (normalized.excluded) {
-          excluded[normalized.excluded] = (excluded[normalized.excluded] || 0) + 1;
-          continue;
-        }
-        if (!normalized.item || seen.has(normalized.item.url)) continue;
-        seen.add(normalized.item.url);
-        items.push(normalized.item);
-        if (items.length >= perPlatform) break;
+  const keys = ["daangn", "bunjang", "joongna"];
+  const grouped = Object.fromEntries(keys.map((key) => [key, []]));
+  const excluded = Object.fromEntries(keys.map((key) => [key, { notListing: 0, unavailable: 0, wanted: 0, accessory: 0 }]));
+  const seen = new Set();
+  const searchQuery = `${q} 중고거래`;
+
+  try {
+    const data = await tavilyWebSearch(searchQuery, 20);
+    const raw = Array.isArray(data?.results) ? data.results : [];
+
+    for (const result of raw) {
+      const match = sourceForUrl(String(result?.url || ""));
+      if (!match) continue;
+      const { key, source } = match;
+      const normalized = normalizeSearchResult(result, source, q);
+      if (normalized.excluded) {
+        excluded[key][normalized.excluded] = (excluded[key][normalized.excluded] || 0) + 1;
+        continue;
       }
-      output.push({
+      if (!normalized.item || seen.has(normalized.item.url)) continue;
+      seen.add(normalized.item.url);
+      if (grouped[key].length < perPlatform) grouped[key].push(normalized.item);
+    }
+
+    const output = keys.map((key) => {
+      const source = SOURCES[key];
+      const items = grouped[key];
+      return {
         platform: source.name,
         key,
         ok: true,
-        searchQuery,
-        rawCount: raw.length,
         count: items.length,
         pricedCount: items.filter((x) => Number.isFinite(x.price)).length,
-        excluded,
+        excluded: excluded[key],
         listings: items
-      });
-    } catch (error) {
-      output.push({
-        platform: source.name,
+      };
+    });
+
+    return {
+      configured: true,
+      provider: "Tavily Search API",
+      mode: "public-index-discovery",
+      searchDepth: "basic",
+      checkedAt: new Date().toISOString(),
+      query: q,
+      searchQuery,
+      rawCount: raw.length,
+      results: output,
+      total: output.reduce((sum, x) => sum + Number(x.count || 0), 0),
+      pricedTotal: output.reduce((sum, x) => sum + Number(x.pricedCount || 0), 0)
+    };
+  } catch (error) {
+    return {
+      configured: true,
+      provider: "Tavily Search API",
+      mode: "public-index-discovery",
+      checkedAt: new Date().toISOString(),
+      query: q,
+      error: error?.message || "검색 실패",
+      results: keys.map((key) => ({
+        platform: SOURCES[key].name,
         key,
         ok: false,
-        searchQuery,
         count: 0,
-        error: error?.message || "검색 실패",
         listings: []
-      });
-    }
-    if (index < platformKeys.length - 1) await sleep(1100);
+      })),
+      total: 0,
+      pricedTotal: 0
+    };
   }
-
-  return {
-    configured: true,
-    provider: "Brave Search API",
-    mode: "public-index-discovery",
-    checkedAt: new Date().toISOString(),
-    query: q,
-    results: output,
-    total: output.reduce((sum, x) => sum + Number(x.count || 0), 0),
-    pricedTotal: output.reduce((sum, x) => sum + Number(x.pricedCount || 0), 0)
-  };
 }
 
 async function diagnosePublicSearch(query, options = {}) {
@@ -494,12 +512,13 @@ async function diagnosePublicSearch(query, options = {}) {
     Promise.all(keys.map((key) => diagnoseOne(key, q, options))),
     discoverIndexedListings(q, { perPlatform: 10 })
   ]);
+
   return {
     ok: true,
     query: q,
     checkedAt: new Date().toISOString(),
-    diagnosticsVersion: 3,
-    note: "공개 검색 HTML과 공개 검색 색인만 분석합니다. 로그인·차단 우회·비공개 API 분석은 하지 않습니다.",
+    diagnosticsVersion: 4,
+    note: "공개 검색 HTML과 Tavily의 공개 웹 검색 결과만 분석합니다. 로그인·차단 우회·비공개 API 분석은 하지 않습니다.",
     searchDiscovery,
     results
   };
