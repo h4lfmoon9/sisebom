@@ -1,22 +1,17 @@
-시세봄 11단계 - Tavily 플랫폼별 검색
+시세봄 12단계 - 원클릭 적용 + GitHub Push
 
-사용법
-1. 이 ZIP 안의 apply-step11.js, apply-step11.bat 파일을 sisebom 폴더 최상단에 넣습니다.
-   (server 폴더와 같은 위치)
-2. apply-step11.bat를 더블클릭합니다.
-3. '시세봄 11단계 적용 완료'가 뜨면 성공입니다.
-4. GitHub Desktop에서 커밋 후 Push origin 합니다.
-5. Render 배포가 끝나면 아래 주소를 다시 확인합니다.
-   https://sisebom.onrender.com/api/live/diagnose?q=아이폰%2015
+1) ZIP을 풉니다.
+2) 안의 모든 파일/폴더를 sisebom 폴더 최상단에 넣습니다.
+   즉 .git 폴더, server 폴더와 같은 위치입니다.
+3) apply-and-push-step12.bat 더블클릭
+4) 완료 문구가 뜨면 GitHub Push까지 끝난 상태입니다.
+5) Render Auto-Deploy가 켜져 있으면 자동 배포됩니다.
 
-정상 적용 확인
-- diagnosticsVersion: 5
-- searchMode: "per-platform-domain"
-- 각 플랫폼 결과에 rawCount / sampleUrls 표시
+이 단계는 기존 당근/번개장터/중고나라 직접 HTML 파서를
+Tavily 공개 검색 색인 기반 공급자로 교체합니다.
 
-GitHub Summary:
-Tavily 플랫폼별 매물 탐색 11단계
+환경변수:
+TAVILY_API_KEY 는 Render에 이미 설정되어 있어야 합니다.
 
-참고
-- server/liveDiagnostics.js.step10-backup 파일은 자동 백업본입니다.
-- API 키는 이 ZIP이나 GitHub에 들어가지 않습니다.
+커밋:
+Tavily 실제 매물 공급자 12단계
