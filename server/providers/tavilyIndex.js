@@ -63,42 +63,32 @@ function collectPriceCandidates(text = '') {
 
   const push = (index, raw, multiplier = 1, extra = 0) => {
     const value = Math.round(Number(String(raw).replace(/,/g, '')) * multiplier + extra);
-    if (Number.isFinite(value) && value > 0 && value <= MAX_PHONE_PRICE) {
-      out.push({ index, value });
-    }
+    if (Number.isFinite(value) && value > 0 && value <= MAX_PHONE_PRICE) out.push({ index, value });
   };
 
-  // 57만9천 / 57만 9천
   for (const m of s.matchAll(/(?:^|\D)(\d{1,3})\s*만\s*(\d{1,3})\s*천(?:원)?(?:\D|$)/g)) {
     push(m.index, m[1], 10000, Number(m[2]) * 1000);
   }
-
-  // 57만원 / 57만
   for (const m of s.matchAll(/(?:^|\D)(\d{1,3}(?:\.\d+)?)\s*만(?:원)?(?:\D|$)/g)) {
     push(m.index, m[1], 10000);
   }
-
   for (const m of s.matchAll(/(\d{1,3}(?:,\d{3})+)\s*원/g)) push(m.index, m[1]);
   for (const m of s.matchAll(/(?:^|\D)(\d{4,9})\s*원(?:\D|$)/g)) push(m.index, m[1]);
   for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*천원(?:\D|$)/g)) push(m.index, m[1], 1000);
 
-  // 같은 위치에서 중복 매칭된 값 제거
   const seen = new Set();
-  return out
-    .sort((a, b) => a.index - b.index)
-    .filter(x => {
-      const key = `${x.index}:${x.value}`;
-      if (seen.has(key)) return false;
-      seen.add(key);
-      return true;
-    });
+  return out.sort((a, b) => a.index - b.index).filter(x => {
+    const key = `${x.index}:${x.value}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function parsePrice(title = '', description = '', query = '') {
   const min = minimumPlausiblePrice(query);
   const a = collectPriceCandidates(title).filter(x => x.value >= min);
   if (a.length) return a[0].value;
-
   const b = collectPriceCandidates(description).filter(x => x.value >= min);
   return b.length ? b[0].value : null;
 }
@@ -164,10 +154,47 @@ function modelSnippet(text = '', query = '') {
   const start = Math.max(0, chosen.index || 0);
   const end = Math.min(s.length, start + 150);
   let snippet = s.slice(start, end);
-
-  // 다음 추천 카드/이미지로 넘어가기 전까지만 사용
   snippet = snippet.split(/\s*(?:-\s*\d+번째\s*이미지|Image\s*\d+\s*:|Image\s*\d+\b)/i)[0];
+
   return snippet.replace(/^[|·,.;:\-\s]+|[|·,.;:\-\s]+$/g, '').trim();
+}
+
+function queryModel(query = '') {
+  const n = String(query).toLowerCase().replace(/\s+/g, '');
+  const m = n.match(/(?:아이폰|iphone)(\d{1,2})(e)?/);
+  if (!m) return null;
+
+  let variant = m[2] ? 'e' : 'base';
+  if (/프로맥스|promax/.test(n)) variant = 'promax';
+  else if (/프로|pro/.test(n)) variant = 'pro';
+  else if (/플러스|plus/.test(n)) variant = 'plus';
+  else if (/미니|mini/.test(n)) variant = 'mini';
+  else if (/에어|air/.test(n)) variant = 'air';
+
+  return { generation: m[1], variant };
+}
+
+function variantEvidenceForBunjang(description = '', query = '') {
+  const target = queryModel(query);
+  if (!target) return '';
+
+  const early = cleanText(description).slice(0, 650);
+  const gen = target.generation;
+
+  const patterns = [
+    ['promax', new RegExp(`(?:아이폰|iphone)\\s*${gen}\\s*(?:프로\\s*맥스|pro\\s*max)`, 'i')],
+    ['pro', new RegExp(`(?:아이폰|iphone)\\s*${gen}\\s*(?:프로|pro)`, 'i')],
+    ['plus', new RegExp(`(?:아이폰|iphone)\\s*${gen}\\s*(?:플러스|plus)`, 'i')],
+    ['mini', new RegExp(`(?:아이폰|iphone)\\s*${gen}\\s*(?:미니|mini)`, 'i')],
+    ['air', new RegExp(`(?:아이폰|iphone)\\s*${gen}\\s*(?:에어|air)`, 'i')]
+  ];
+
+  for (const [variant, re] of patterns) {
+    const m = early.match(re);
+    if (m) return `아이폰${gen}${variant === 'promax' ? 'promax' : variant}`;
+  }
+
+  return '';
 }
 
 function isGenericPlatformTitle(rawTitle = '', platform = '') {
@@ -181,16 +208,12 @@ function earlySnippetContamination(source, rawTitle = '', description = '') {
 
   const early = cleanText(description).slice(0, 220);
 
-  // 현재 상품 내용 없이 추천상품 묶음만 검색 스니펫에 잡힌 경우
   if (/가장\s*비슷한\s*상품|비슷한\s*상품을\s*앱에서|추천\s*상품/i.test(early)) {
     return 'related-products-only';
   }
-
-  // 현재 상품 자체가 이미 판매완료인데 아래 추천상품 iPhone 때문에 잡힌 경우
   if (/판매\s*완료|거래\s*완료|sold\s*out/i.test(early)) {
     return 'current-item-unavailable';
   }
-
   return null;
 }
 
@@ -300,7 +323,14 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
     }
 
     const title = displayTitle(rawTitle, description, q, cfg.name);
-    const evidence = modelSnippet(`${rawTitle} ${description}`, q);
+    let evidence = modelSnippet(`${rawTitle} ${description}`, q);
+
+    // 번개장터에서 현재 상품 정보에 Pro/Pro Max 등이 명확히 나오면
+    // 짧은 앞부분의 '아이폰15'보다 실제 변형 정보를 우선한다.
+    if (source === 'bunjang') {
+      const variantEvidence = variantEvidenceForBunjang(description, q);
+      if (variantEvidence) evidence = variantEvidence;
+    }
 
     if (!evidence) {
       excluded.contaminatedSnippet++;

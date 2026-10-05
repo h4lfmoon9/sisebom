@@ -32,12 +32,15 @@ function minimumPlausiblePrice(query = '') {
 function hasUnavailableStatus(v = '') {
   return /(예약\s*중|예약중|판매\s*완료|판매완료|거래\s*완료|거래완료|판매\s*종료|거래\s*종료|sold\s*out|soldout|reserved)/i.test(String(v));
 }
+
 function isWantedPost(v = '') {
   return /(삽니다|사요|구해요|구합니다|구매\s*(?:원해|희망|합니다)|매입\s*(?:합니다|해요|중|문의|전문|가능)?|최고가\s*매입|폰\s*매입)/i.test(String(v));
 }
+
 function isAccessory(v = '') {
   return /(케이스|범퍼|강화\s*유리|보호\s*필름|액정\s*필름|카메라\s*보호|렌즈\s*보호|맥세이프\s*(?:케이스|링|거치대|충전기)|휴대폰\s*스트랩|폰\s*스트랩|공\s*박스|빈\s*박스|박스\s*만|충전\s*케이블|라이트닝\s*케이블|usb[- ]?c\s*케이블|충전기\s*만|어댑터\s*만|액정\s*만|디스플레이\s*만|배터리\s*만|부품\s*만|부품용|파손폰|고장폰)/i.test(String(v));
 }
+
 function isCatalogAd(v = '') {
   const t = String(v);
   return /(재고\s*정리|선착순|중고폰\s*전문|휴대폰\s*전문|전기종|전\s*기종|모든\s*기종|시리즈\s*다량|대량\s*판매)/i.test(t)
@@ -141,34 +144,42 @@ function filterAndDedupeListings(listings = [], query = '') {
   for (const item of listings) {
     const title = String(item?.title || '').trim();
     const evidence = String(item?.modelText || item?.description || title).trim();
-    const allText = `${title} ${evidence}`;
-    const statusText = `${item?.status || ''} ${allText}`;
+    const statusText = `${item?.status || ''} ${title} ${evidence}`;
     const price = Number(item?.price);
 
     if (!title || !Number.isFinite(price) || price <= 0 || price > 5000000) {
       excluded.invalidPrice++;
       continue;
     }
+
     if (price < minPrice) {
       excluded.suspiciousPrice++;
       continue;
     }
+
     if (hasUnavailableStatus(statusText)) {
       excluded.unavailable++;
       continue;
     }
-    if (isWantedPost(allText)) {
+
+    // 핵심 수정:
+    // 휴대폰 판매글 본문에 '케이스/필름 같이 드려요'가 있어도
+    // 휴대폰 자체를 액세서리 매물로 버리지 않도록 제목 중심으로 판별한다.
+    if (isWantedPost(title)) {
       excluded.wanted++;
       continue;
     }
-    if (isAccessory(allText)) {
+
+    if (isAccessory(title)) {
       excluded.accessory++;
       continue;
     }
-    if (isCatalogAd(allText)) {
+
+    if (isCatalogAd(title)) {
       excluded.catalog++;
       continue;
     }
+
     if (!matchesRequestedModel(evidence, query)) {
       excluded.wrongModel++;
       continue;
