@@ -1,248 +1,42 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="시세봄 - 중고 매물부터 시세까지 한 번에" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="시세봄 - 중고 매물부터 시세까지 한 번에">
+  <meta name="theme-color" content="#22a566">
   <title>시세봄</title>
-  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="style.css" />
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 <header class="topbar">
-  <a class="brand" href="#">
-    <span class="brand-mark">봄</span>
-    <b>시세봄</b>
-  </a>
-  <nav>
-    <a href="#overview">분석</a>
-    <a href="#listings">통합매물</a>
-    <a class="nav-ai" href="#compare">AI로 비교하기</a>
-  </nav>
+  <a class="brand" href="#top"><span class="brand-mark">봄</span><strong>시세봄</strong></a>
+  <nav><a href="#market">시세분석</a><a href="#product">제품정보</a><a href="#listings">통합매물</a><a href="#compare">비교하기</a></nav>
 </header>
-
-<main>
-  <section class="hero">
-    <div class="hero-title">
-      <div class="line">
-        <span class="ai">AI</span>로
-        <span class="analysis-letter"><i></i>분</span><span class="analysis-letter"><i></i>석</span>
-      </div>
-      <div class="line">중고 매물부터</div>
-      <div class="line">시세까지 한 번에</div>
-    </div>
-
-    <p>당근 · 번개장터 · 중고나라의 공개 매물을 모아 가격과 시세를 비교합니다.</p>
-
-    <div class="search-shell">
-      <input id="searchInput" type="text" value="아이폰 15" placeholder="예: 아이폰 15 256GB" />
-      <button id="searchBtn">검색</button>
-    </div>
-    <p id="searchMessage" class="search-message"></p>
-  </section>
-
-  <section class="section overview-section" id="overview">
-    <div class="overview-grid">
-
-      <div class="overview-column market-column">
-        <div class="stats-grid stats-compact">
-          <article class="stat-card">
-            <span>최저가</span>
-            <strong id="minPrice">-</strong>
-          </article>
-          <article class="stat-card">
-            <span>평균가</span>
-            <strong id="avgPrice">-</strong>
-          </article>
-          <article class="stat-card">
-            <span>최고가</span>
-            <strong id="maxPrice">-</strong>
-          </article>
-        </div>
-
-        <article class="panel chart-panel">
-          <div class="panel-head">
-            <div>
-              <h3>가격 분포</h3>
-              <p>현재 필터에 해당하는 매물 기준</p>
-            </div>
-            <span id="chartLabel">전체 용량</span>
-          </div>
-          <div class="bars" id="bars"></div>
-        </article>
-
-        <article class="panel ai-panel ai-market-card">
-          <div class="panel-head">
-            <div>
-              <h3>AI 구매 판단</h3>
-              <p>시세봄이 계산한 가격 데이터를 쉽게 설명합니다.</p>
-            </div>
-            <span class="beta">BETA</span>
-          </div>
-
-          <div class="score-wrap">
-            <div id="scoreCircle" class="score-circle green">
-              <b id="buyScore">0</b>
-              <small>/100</small>
-            </div>
-            <div>
-              <h4 id="aiHeadline">매물을 분석하는 중이에요.</h4>
-              <p id="aiText">검색한 제품의 매물 데이터를 기준으로 분석합니다.</p>
-            </div>
-          </div>
-
-          <div class="score-guide">
-            <span><i class="dot green-dot"></i>70~100 구매하기 좋은 편</span>
-            <span><i class="dot yellow-dot"></i>40~69 조금 더 비교</span>
-            <span><i class="dot red-dot"></i>0~39 구매 비추천</span>
-          </div>
-        </article>
-      </div>
-
-      <div class="overview-column product-column">
-        <article class="phone-card product-visual-card">
-          <span id="productNameBadge" class="product-name-badge">아이폰 15</span>
-
-          <div class="official-image-area">
-            <img id="phoneImage" alt="" />
-            <div id="noImage" class="no-image">예시 이미지 없음</div>
-          </div>
-
-          <a id="officialSourceLink" class="official-source-link" href="#" target="_blank" rel="noopener noreferrer" hidden>공식 이미지 출처 보기 →</a>
-        </article>
-
-        <article class="panel specs product-spec-card">
-          <div class="spec-row"><span>제조사</span><b id="specBrand">-</b></div>
-          <div class="spec-row"><span>칩셋</span><b id="specChipset">-</b></div>
-          <div class="spec-row"><span>화면</span><b id="specDisplay">-</b></div>
-          <div class="spec-row"><span>카메라</span><b id="specCamera">-</b></div>
-          <div class="spec-row"><span>충전</span><b id="specCharging">-</b></div>
-          <div class="spec-row"><span>프레임</span><b id="specFrame">-</b></div>
-          <div class="spec-row"><span>지원 용량</span><b id="specStorage">-</b></div>
-        </article>
-      </div>
-
-      <article class="panel performance product-performance-card performance-span-card">
-        <div class="performance-span-head">
-          <div class="performance-score-area">
-            <span class="summary-label">성능점수</span>
-            <div class="performance-score"><span id="performanceScore">-</span><span class="score-denominator">/100</span></div>
-            <small>종합 성능 기준</small>
-          </div>
-
-          <div class="launch-price-area">
-            <span class="summary-label">공식 출시가</span>
-            <strong id="launchPrice" class="launch-price">-</strong>
-            <small id="launchPriceBasis">용량을 선택하면 변경됩니다.</small>
-          </div>
-
-          <button class="ai-compare-btn" id="goCompareBtn">AI로 비교하기</button>
-        </div>
-
-        <div class="meter-group performance-span-meters">
-          <div class="meter"><span>일상 성능</span><i><em id="dailyMeter"></em></i><b id="dailyScore">-</b></div>
-          <div class="meter"><span>게임 성능</span><i><em id="gamingMeter"></em></i><b id="gamingScore">-</b></div>
-          <div class="meter"><span>카메라</span><i><em id="cameraMeter"></em></i><b id="cameraScore">-</b></div>
-        </div>
-
-        <button class="info-btn" id="infoBtn">ⓘ 성능점수 기준</button>
-        <div class="info-box" id="infoBox">현재는 테스트 점수입니다. 실제 공개 시에는 검증된 벤치마크와 제품 정보를 바탕으로 계산하도록 서버에서 관리하는 것이 좋습니다.</div>
-      </article>
-
-    </div>
-  </section>
-
-  <section class="section" id="listings">
-    <div class="section-heading">
-      <div>
-        <p class="eyebrow">USED LISTINGS</p>
-        <h2>통합 매물</h2>
-        <p class="muted">현재는 테스트 매물입니다. 실제 서비스에서는 허용되는 방식으로 가져온 공개 매물을 연결합니다.</p>
-      </div>
-    </div>
-
-    <div class="filter-box">
-      <div class="filter-group">
-        <span>플랫폼</span>
-        <div class="chips" id="platformFilters">
-          <button class="chip active" data-platform="all">전체</button>
-          <button class="chip" data-platform="당근">당근</button>
-          <button class="chip" data-platform="번개장터">번개장터</button>
-          <button class="chip" data-platform="중고나라">중고나라</button>
-        </div>
-      </div>
-
-      <div class="filter-group">
-        <span>용량</span>
-        <div class="chips" id="storageFilters"></div>
-      </div>
-
-      <div class="filter-group price-filter">
-        <span>가격</span>
-        <div class="price-inputs">
-          <input id="minInput" type="number" placeholder="최소 가격" />
-          <b>~</b>
-          <input id="maxInput" type="number" placeholder="최대 가격" />
-          <button id="priceApply">적용</button>
-        </div>
-      </div>
-
-      <div class="filter-group">
-        <span>정렬</span>
-        <select id="sortSelect">
-          <option value="cheap">최저가순</option>
-          <option value="high">최고가순</option>
-          <option value="new">최신순</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="listing-toolbar">
-      <b><span id="visibleCount">0</span>개 매물</b>
-      <button id="resetBtn">필터 초기화</button>
-    </div>
-
-    <div class="listing-grid" id="listingGrid"></div>
-  </section>
-
-  <section class="section" id="compare">
-    <div class="section-heading">
-      <div>
-        <p class="eyebrow">COMPARE</p>
-        <h2>비교하기</h2>
-        <p class="muted">등록된 제품끼리 기본 정보를 비교합니다.</p>
-      </div>
-    </div>
-
-    <div class="compare-controls">
-      <select id="compareA"></select>
-      <span>VS</span>
-      <select id="compareB"></select>
-      <button id="compareBtn">비교</button>
-    </div>
-
-    <div class="compare-box">
-      <div class="compare-head">
-        <div><small>제품 A</small><b id="compareNameA">-</b></div>
-        <span>VS</span>
-        <div><small>제품 B</small><b id="compareNameB">-</b></div>
-      </div>
-      <div class="compare-row"><span>성능점수</span><b id="comparePerformanceA">-</b><b id="comparePerformanceB">-</b></div>
-      <div class="compare-row"><span>카메라 점수</span><b id="compareCameraA">-</b><b id="compareCameraB">-</b></div>
-      <div class="compare-row"><span>기본 공식 출시가</span><b id="comparePriceA">-</b><b id="comparePriceB">-</b></div>
-      <div class="compare-ai">
-        <b>AI 비교 준비</b>
-        <p id="compareText">실제 AI API를 연결하기 전에는 등록된 수치로 기본 비교 문구를 보여줍니다.</p>
-      </div>
-    </div>
-  </section>
+<main id="top">
+<section class="hero">
+  <div class="hero-title"><div><span class="ai">AI</span>로 <span class="dot-letter">분<i></i></span><span class="dot-letter">석<i></i></span></div><div>중고 매물부터</div><div>시세까지 한 번에</div></div>
+  <p>제품 정보, 성능 비교, 중고 시세를 한 화면에서 확인하세요.</p>
+  <div class="search-wrap"><input id="searchInput" value="아이폰 15" autocomplete="off" placeholder="예: 아이폰 15 256"><button id="searchBtn">검색</button><div id="suggestions" class="suggestions" hidden></div></div>
+  <div class="quick-row"><span>빠른 검색</span><button data-quick="아이폰 18 프로">iPhone 18 Pro</button><button data-quick="아이폰 17 프로 맥스">iPhone 17 Pro Max</button><button data-quick="아이폰 16 프로">iPhone 16 Pro</button><button data-quick="아이폰 15">iPhone 15</button></div>
+</section>
+<section class="section" id="market">
+  <div class="section-head"><div><p class="eyebrow">MARKET ANALYSIS</p><h1 id="resultName">iPhone 15</h1><p class="muted"><span id="resultCount">0</span>개 샘플 매물 기준</p></div><div id="buyBadge" class="buy-badge green">구매하기 좋은 편</div></div>
+  <div class="stats-grid"><article class="stat-card"><span>최저가</span><strong id="minPrice">-</strong></article><article class="stat-card"><span>평균가</span><strong id="avgPrice">-</strong></article><article class="stat-card"><span>최고가</span><strong id="maxPrice">-</strong></article><article class="stat-card"><span>새제품 가격</span><strong id="newPrice">-</strong></article></div>
+  <div class="analysis-grid"><article class="panel"><div class="panel-head"><div><h3>가격 분포</h3><p>현재 필터에 해당하는 매물 기준</p></div><span id="chartLabel" class="pill">전체 용량</span></div><div id="bars" class="bars"></div></article><article class="panel ai-panel"><div class="panel-head"><div><h3>AI 구매 판단</h3><p>가격 데이터를 먼저 계산한 뒤 쉽게 설명합니다.</p></div><span class="beta">BETA</span></div><div class="score-wrap"><div id="scoreCircle" class="score-circle green"><b id="buyScore">0</b><small>/100</small></div><div><h4 id="aiHeadline">분석 준비 중</h4><p id="aiText" class="muted">검색한 제품의 시세를 계산합니다.</p></div></div></article></div>
+</section>
+<section class="section" id="product">
+  <div class="section-head"><div><p class="eyebrow">PRODUCT INFO</p><h2 id="productHeading">iPhone 15 제품 정보</h2><p class="muted">색상 버튼 없이 모델별 대표 이미지 한 장만 표시합니다.</p></div></div>
+  <div class="product-grid"><article class="product-image-card"><div class="image-stage"><img id="productImage" alt="iPhone 제품 이미지"><div id="imageFallback" class="image-fallback" hidden><strong>이미지 준비중</strong><span>등록된 대표 이미지가 없습니다.</span></div></div><div class="image-note">사용자가 제공한 제품 이미지만 사용</div></article>
+  <article class="panel specs-panel"><div class="spec-row"><span>제조사</span><b id="specManufacturer">Apple</b></div><div class="spec-row"><span>칩셋</span><b id="specChipset">-</b></div><div class="spec-row"><span>화면</span><b id="specDisplay">-</b></div><div class="spec-row"><span>카메라</span><b id="specCamera">-</b></div><div class="spec-row"><span>충전</span><b id="specCharging">-</b></div><div class="spec-row"><span>프레임</span><b id="specFrame">-</b></div><div class="spec-row"><span>지원 용량</span><b id="specStorage">-</b></div></article>
+  <article class="panel performance-panel"><div class="panel-head compact"><div><h3>성능점수</h3><p>시세봄 내부 비교용 점수</p></div><strong id="perfScore" class="big-score">0</strong></div><div class="meter"><span>일상</span><i><em id="dailyBar"></em></i><b id="dailyScore">0</b></div><div class="meter"><span>게임</span><i><em id="gameBar"></em></i><b id="gameScore">0</b></div><div class="meter"><span>카메라</span><i><em id="cameraBar"></em></i><b id="cameraScore">0</b></div><p class="score-disclaimer">공식 벤치마크가 아니라 세대·칩·기능을 한눈에 비교하기 위한 내부 지표입니다.</p></article></div>
+</section>
+<section class="section" id="listings"><div class="section-head"><div><p class="eyebrow">USED LISTINGS</p><h2>통합 매물</h2><p class="muted">이 복구본은 화면 오류를 막기 위해 샘플 매물로 동작합니다.</p></div></div>
+<div class="filter-box"><div class="filter-group"><span>플랫폼</span><div id="platformFilters" class="chips"><button class="chip active" data-platform="all">전체</button><button class="chip" data-platform="당근">당근</button><button class="chip" data-platform="번개장터">번개장터</button><button class="chip" data-platform="중고나라">중고나라</button></div></div><div class="filter-group"><span>용량</span><div id="storageFilters" class="chips"></div></div><div class="filter-group"><span>가격</span><div class="price-inputs"><input id="minInput" type="number" placeholder="최소 가격"><span>~</span><input id="maxInput" type="number" placeholder="최대 가격"><button id="priceApply">적용</button></div></div><div class="filter-group"><span>정렬</span><select id="sortSelect"><option value="cheap">최저가순</option><option value="high">최고가순</option><option value="new">최신순</option></select></div></div><div class="listing-toolbar"><b><span id="visibleCount">0</span>개 매물</b><button id="resetBtn" class="text-btn">필터 초기화</button></div><div id="listingGrid" class="listing-grid"></div></section>
+<section class="section" id="compare"><div class="section-head"><div><p class="eyebrow">COMPARE</p><h2>iPhone 비교</h2><p class="muted">현재 모델과 다른 iPhone을 빠르게 비교합니다.</p></div></div><div class="compare-controls"><div class="compare-current"><small>제품 A</small><strong id="compareAName">iPhone 15</strong></div><span class="vs">VS</span><label><small>제품 B</small><select id="compareSelect"></select></label></div><div class="compare-table"><div><span>칩셋</span><b id="compareAChip">-</b><b id="compareBChip">-</b></div><div><span>화면</span><b id="compareADisplay">-</b><b id="compareBDisplay">-</b></div><div><span>성능점수</span><b id="compareAPerf">-</b><b id="compareBPerf">-</b></div><div><span>지원 용량</span><b id="compareAStorage">-</b><b id="compareBStorage">-</b></div></div><div id="compareText" class="compare-ai"></div></section>
+<section class="section models-section"><div class="section-head"><div><p class="eyebrow">IPHONE DATABASE</p><h2>등록된 iPhone 모델</h2><p class="muted"><span id="modelCount">0</span>개 모델 등록</p></div></div><div id="modelGrid" class="model-grid"></div></section>
 </main>
-
-<footer>
-  <div class="footer-brand"><span class="brand-mark small">봄</span><b>시세봄</b></div>
-  <span>중고 매물부터 시세까지 한 번에.</span>
-</footer>
-
-<script src="script.js"></script>
-</body>
-</html>
+<footer><div class="footer-brand"><span class="brand-mark small">봄</span><strong>시세봄</strong></div><span>중고 매물부터 시세까지 한 번에.</span></footer>
+<script src="phones.js"></script><script src="script.js"></script>
+</body></html>
