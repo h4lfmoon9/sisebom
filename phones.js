@@ -418,7 +418,11 @@ window.SISEBOM_PHONES = [
       "iphone x",
       "iphonex",
       "아이폰 x",
-      "아이폰x"
+      "아이폰x",
+      "iphone 9",
+      "iphone9",
+      "아이폰 9",
+      "아이폰9"
     ],
     "image": "images/apple/iphone-x.png",
     "brand": "Apple",
