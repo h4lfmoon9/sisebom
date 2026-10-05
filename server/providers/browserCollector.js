@@ -9,6 +9,7 @@ const {
   canonicalUrl,
   normalizeBrowserCard
 } = require('./browserCollectorCore');
+const { enrichRawListingImages } = require('./listingImageEnricher');
 
 const DEFAULT_TARGET = Math.max(40, Math.min(500, Number(process.env.SISEBOM_COLLECT_LIMIT) || 200));
 const MAX_SCROLL_ROUNDS = Math.max(5, Math.min(30, Number(process.env.SISEBOM_SCROLL_ROUNDS) || 12));
@@ -20,6 +21,7 @@ const MAX_BROWSER_CONCURRENCY = Math.max(1, Math.min(3, Number(process.env.SISEB
 const FIRST_RESPONSE_WAIT_MS = Math.max(2500, Math.min(7800, Number(process.env.SISEBOM_FIRST_RESPONSE_WAIT_MS) || 6200));
 const DEEP_JOB_MAX_MS = Math.max(15000, Math.min(180000, Number(process.env.SISEBOM_DEEP_JOB_MAX_MS) || 70000));
 const JOB_TTL_MS = Math.max(60000, Math.min(3600000, Number(process.env.SISEBOM_JOB_TTL_MS) || 30 * 60 * 1000));
+const IMAGE_ENRICH_LIMIT = Math.max(4, Math.min(24, Number(process.env.SISEBOM_IMAGE_ENRICH_LIMIT) || 12));
 
 let browserPromise = null;
 let activeSlots = 0;
@@ -236,6 +238,7 @@ function makeJob(source, query, options = {}) {
       duplicate: 0
     },
     responseStatus: null,
+    imageEnrichedCount: 0,
     error: '',
     promise: null
   };
@@ -268,6 +271,7 @@ function snapshotJob(job) {
     via: 'sisebom-public-browser-deep',
     fetchedAt: new Date().toISOString(),
     responseStatus: job.responseStatus,
+    imageEnrichedCount: Number(job.imageEnrichedCount) || 0,
     candidateCount: job.seen.size,
     targetCount: job.target,
     count: listings.length,
@@ -388,6 +392,21 @@ async function runDeepJob(job) {
       }
     });
 
+    // Search cards sometimes hide the real listing photo (notably Daangn).
+    // For a small number of missing-photo results, read only the public
+    // listing page's own og:image/twitter:image. No login or blocking bypass.
+    if (job.seen.size && ['daangn', 'joongna'].includes(job.source)) {
+      try {
+        const imageResult = await enrichRawListingImages(
+          job.source,
+          [...job.seen.values()],
+          { limit: IMAGE_ENRICH_LIMIT, concurrency: 3, timeoutMs: 2400 }
+        );
+        job.imageEnrichedCount += imageResult.enriched;
+        job.updatedAt = Date.now();
+      } catch {}
+    }
+
     job.status = 'done';
   } catch (error) {
     job.status = job.seen.size ? 'partial' : 'failed';
@@ -405,6 +424,13 @@ function startOrGetJob(source, query, options = {}) {
 
   const key = jobKey(source, query);
   let job = jobs.get(key);
+
+  // refresh=1 should actually collect again after a completed/failed job.
+  // Never start a duplicate browser job while the same query is still running.
+  if (job && options.force && job.status !== 'running') {
+    jobs.delete(key);
+    job = null;
+  }
 
   if (job) return job;
 

@@ -354,10 +354,9 @@ function renderMarket(){
   $('#avgPrice').textContent=won(stats.average);
   $('#maxPrice').textContent=won(stats.max);
 
-  let newPrice=Number(current?.newPrice)||0;
-  if(!newPrice&&filters.storage!=='all'){
-    newPrice=Number(current?.launchPrices?.[String(filters.storage)]||0);
-  }
+  let newPrice=filters.storage!=='all'
+    ?Number(current?.launchPrices?.[String(filters.storage)]||0)
+    :Number(current?.newPrice)||0;
   $('#newPrice').textContent=newPrice?won(newPrice):'정보 없음';
 
   const note=$('#marketDataNote');
@@ -430,6 +429,33 @@ function platformCountText(items){
   return ['당근','번개장터','중고나라'].map(name=>`${name} ${items.filter(x=>x.platform===name).length}개`).join(' · ');
 }
 
+function providerIssueSummary(providers){
+  const blocked=[];
+  const failed=[];
+
+  for(const [name,status] of Object.entries(providers||{})){
+    if(status?.blocked)blocked.push(name);
+    else if(status?.ok===false)failed.push(name);
+  }
+
+  const parts=[];
+  if(blocked.length)parts.push(`${blocked.join('·')} 공개 페이지 접근 제한`);
+  if(failed.length)parts.push(`${failed.join('·')} 일시 오류`);
+
+  return {blocked,failed,text:parts.join(' · ')};
+}
+
+function bindListingImageFallbacks(grid){
+  grid.querySelectorAll('img[data-listing-image]').forEach(img=>{
+    img.addEventListener('error',()=>{
+      const fallback=document.createElement('div');
+      fallback.className='listing-image placeholder';
+      fallback.innerHTML='<b>사진 없음</b><span>원본 매물에서 확인</span>';
+      img.replaceWith(fallback);
+    },{once:true});
+  });
+}
+
 function renderListings(a,marketStats=robustMarketStats(a)){
   const grid=$('#listingGrid');
 
@@ -458,11 +484,13 @@ function renderListings(a,marketStats=robustMarketStats(a)){
     const title=cleanListingTitle(x);
     const meta=listingMetaText(x);
     const img=x.image
-      ?`<img class="listing-image" src="${htmlEscape(x.image)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
+      ?`<img class="listing-image" data-listing-image="1" src="${htmlEscape(x.image)}" alt="" loading="lazy" referrerpolicy="no-referrer">`
       :'<div class="listing-image placeholder"><b>사진 없음</b><span>원본 매물에서 확인</span></div>';
 
     return `<article class="listing">${img}<div class="listing-body"><div class="listing-top"><span class="platform-badge">${htmlEscape(x.platform)}</span><span>${storage}</span></div><h3 title="${htmlEscape(title)}">${htmlEscape(title)}</h3><b class="listing-price">${won(x.price)}</b><div class="deal ${dc}">${dt}</div><div class="listing-meta"><span>${htmlEscape(meta)}</span><a href="${htmlEscape(x.url)}" target="_blank" rel="noopener noreferrer">원본 매물 보기 ↗</a></div></div></article>`;
   }).join('');
+
+  bindListingImageFallbacks(grid);
 }
 
 function renderCompare(){
@@ -525,10 +553,13 @@ function scheduleDeepRefresh(){
 async function loadLiveListings(force=false,background=false){
   if(!current)return;
 
+  const previousListings=[...liveListings];
   const seq=++requestSeq;
   const q=liveSearchQuery();
   const sourceText=$('#listingSourceText');
   const refreshBtn=$('#refreshListingsBtn');
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),15000);
 
   if(!background){
     liveListings=[];
@@ -542,7 +573,10 @@ async function loadLiveListings(force=false,background=false){
 
   try{
     const refresh=force?'&refresh=1':'';
-    const r=await fetch(`${API_BASE}/api/live/combined?q=${encodeURIComponent(q)}&limit=50${refresh}`,{headers:{accept:'application/json'}});
+    const r=await fetch(`${API_BASE}/api/live/combined?q=${encodeURIComponent(q)}&limit=50${refresh}`,{
+      headers:{accept:'application/json'},
+      signal:controller.signal
+    });
     const data=await r.json().catch(()=>({}));
 
     if(seq!==requestSeq)return;
@@ -554,7 +588,7 @@ async function loadLiveListings(force=false,background=false){
     if(!background||next.length>=liveListings.length)liveListings=next;
 
     const providers=data.providers||{};
-    const failed=Object.entries(providers).filter(([,v])=>!v?.ok).map(([k])=>k);
+    const issues=providerIssueSummary(providers);
     const excluded=data.excluded||{};
     const excludedCount=Object.values(excluded).reduce((s,v)=>s+(Number(v)||0),0);
     const fresh=data.fetchedAt?new Date(data.fetchedAt).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'}):'';
@@ -562,7 +596,7 @@ async function loadLiveListings(force=false,background=false){
 
     liveState={
       loading:false,
-      error:failed.length?`${failed.join('·')}은 현재 불러오지 못했습니다.`:'',
+      error:issues.text,
       fetchedAt:data.fetchedAt||'',
       providers,
       excluded,
@@ -572,23 +606,34 @@ async function loadLiveListings(force=false,background=false){
     };
 
     if(sourceText){
-      sourceText.textContent=`실제 판매중 ${liveListings.length}개 · ${platformCountText(liveListings)}${collecting?' · 추가 매물 수집 중':''}${failed.length?` · ${failed.join('·')} 일시 오류`:''}${excludedCount?` · 관련없는 매물 ${excludedCount}개 제외`:''}${fresh?` · ${fresh} 기준`:''}`;
+      sourceText.textContent=`실제 판매중 ${liveListings.length}개 · ${platformCountText(liveListings)}${collecting?' · 추가 매물 수집 중':''}${issues.text?` · ${issues.text}`:''}${excludedCount?` · 관련없는 매물 ${excludedCount}개 제외`:''}${fresh?` · ${fresh} 기준`:''}`;
     }
 
     scheduleDeepRefresh();
   }catch(e){
     if(seq!==requestSeq)return;
 
-    if(!background)liveListings=[];
+    const keepExisting=previousListings.length>0;
+    if(keepExisting)liveListings=previousListings;
+    else if(!background)liveListings=[];
+
+    const detail=e?.name==='AbortError'?'응답 시간이 길어 요청을 종료했습니다.':(e.message||'알 수 없는 오류');
     liveState={
       ...liveState,
       loading:false,
-      error:`${e.message||'알 수 없는 오류'} · 공개 페이지 차단은 우회하지 않습니다.`,
+      error:`${detail} · 공개 페이지 차단은 우회하지 않습니다.`,
       collecting:false
     };
 
-    if(sourceText)sourceText.textContent=background?'추가 수집 확인 중 오류가 발생했지만 기존 매물은 유지합니다.':'실제 매물을 불러오지 못했습니다.';
+    if(sourceText){
+      sourceText.textContent=keepExisting
+        ?`새로고침에 실패해 기존 매물 ${liveListings.length}개를 유지합니다.`
+        :background
+          ?'추가 수집 확인 중 오류가 발생했지만 기존 매물은 유지합니다.'
+          :'실제 매물을 불러오지 못했습니다.';
+    }
   }finally{
+    clearTimeout(timer);
     if(refreshBtn){refreshBtn.disabled=false;refreshBtn.textContent='매물 새로고침'}
   }
 

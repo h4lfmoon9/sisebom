@@ -12,6 +12,7 @@ const { makeKey, getFresh, getStale, setCache, withTimeout } = require("./liveCa
 const { diagnoseOne, diagnosePublicSearch } = require("./liveDiagnostics");
 const { getStaticCatalog, getLiveCatalog, getCatalogStatus } = require("./catalog"); // STEP28_CATALOG
 const { analyzeMarket } = require("./marketAnalysis"); // STEP29_MARKET_ANALYSIS
+const { fromProviderData, fromProviderError } = require("./providerHealth"); // STEP30_FINAL_RELEASE
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -108,7 +109,8 @@ app.get("/api/health", (req, res) => res.json({
   liveProviders: ["당근", "번개장터", "중고나라"],
   liveCombined: true,
   diagnostics: true,
-  marketAnalysis: "sisebom-market-v2"
+  marketAnalysis: "sisebom-market-v2",
+  release: "30-final"
 }));
 
 app.get("/api/live/status", (req, res) => res.json({
@@ -187,7 +189,7 @@ app.get("/api/live/joongna", async (req, res) => {
   const q = String(req.query.q || "").trim();
   if (!q) return res.status(400).json({ error: "검색어가 필요합니다." });
   try {
-    const result = await fetchJoongnaListings(q, { limit: req.query.limit });
+    const result = await fetchJoongnaListings(q, { limit: req.query.limit, force: String(req.query.refresh || "") === "1" });
     res.set("Cache-Control", "public, max-age=30");
     return res.json(result);
   } catch (error) {
@@ -203,7 +205,7 @@ app.get("/api/live/bunjang", async (req, res) => {
   const q = String(req.query.q || "").trim();
   if (!q) return res.status(400).json({ error: "검색어가 필요합니다." });
   try {
-    const result = await fetchBunjangListings(q, { limit: req.query.limit });
+    const result = await fetchBunjangListings(q, { limit: req.query.limit, force: String(req.query.refresh || "") === "1" });
     res.set("Cache-Control", "public, max-age=30");
     return res.json(result);
   } catch (error) {
@@ -219,7 +221,7 @@ app.get("/api/live/daangn", async (req, res) => {
   const q = String(req.query.q || "").trim();
   if (!q) return res.status(400).json({ error: "검색어가 필요합니다." });
   try {
-    const result = await fetchDaangnListings(q, { limit: req.query.limit, region: req.query.in });
+    const result = await fetchDaangnListings(q, { limit: req.query.limit, region: req.query.in, force: String(req.query.refresh || "") === "1" });
     res.set("Cache-Control", "public, max-age=30");
     return res.json(result);
   } catch (error) {
@@ -249,9 +251,9 @@ app.get("/api/live/combined", async (req, res) => {
   }
 
   const providers = [
-    ["당근", () => withTimeout(fetchDaangnListings(q, { limit, region }), 9000, "당근")],
-    ["중고나라", () => withTimeout(fetchJoongnaListings(q, { limit }), 9000, "중고나라")],
-    ["번개장터", () => withTimeout(fetchBunjangListings(q, { limit }), 9000, "번개장터")]
+    ["당근", () => withTimeout(fetchDaangnListings(q, { limit, region, force: forceRefresh }), 9000, "당근")],
+    ["중고나라", () => withTimeout(fetchJoongnaListings(q, { limit, force: forceRefresh }), 9000, "중고나라")],
+    ["번개장터", () => withTimeout(fetchBunjangListings(q, { limit, force: forceRefresh }), 9000, "번개장터")]
   ];
 
   const settled = await Promise.allSettled(providers.map(([, run]) => run()));
@@ -263,17 +265,7 @@ app.get("/api/live/combined", async (req, res) => {
     const name = providers[index][0];
     if (result.status === "fulfilled") {
       const data = result.value || {};
-      providerStatus[name] = {
-        ok: true,
-        count: data.listings?.length || 0,
-        sourceUrl: data.sourceUrl,
-        excluded: data.excluded || {},
-        collecting: Boolean(data.collecting),
-        collectionStatus: data.collectionStatus || (data.collecting ? "running" : "done"),
-        candidateCount: Number(data.candidateCount) || 0,
-        targetCount: Number(data.targetCount) || 0,
-        queriesTried: Array.isArray(data.queriesTried) ? data.queriesTried : []
-      };
+      providerStatus[name] = fromProviderData(data);
       for (const item of data.listings || []) {
         const itemKey = item.url || `${item.source}:${item.id}`;
         if (!itemKey || seen.has(itemKey)) continue;
@@ -281,11 +273,7 @@ app.get("/api/live/combined", async (req, res) => {
         listings.push(item);
       }
     } else {
-      providerStatus[name] = {
-        ok: false,
-        count: 0,
-        error: result.reason?.message || "불러오기 실패"
-      };
+      providerStatus[name] = fromProviderError(result.reason);
     }
   });
 
@@ -319,6 +307,7 @@ app.get("/api/live/combined", async (req, res) => {
     fetchedAt: new Date().toISOString(),
     availableOnly: true,
     exactModelOnly: true,
+    release: "30-final",
     providers: providerStatus,
     excluded: quality.excluded,
     rawCount: listings.length,
