@@ -1,8 +1,8 @@
 'use strict';
-const { fetchIndexedListings } = require('./tavilyIndex');
+const { fetchBrowserListings } = require('./browserCollector');
 
 async function fetchDaangnListings(query, options = {}) {
-  return fetchIndexedListings('daangn', query, options);
+  return fetchBrowserListings('daangn', query, options);
 }
 
 module.exports = { fetchDaangnListings };
