@@ -4,19 +4,14 @@ const { spawnSync } = require('child_process');
 
 process.env.PLAYWRIGHT_BROWSERS_PATH = '0';
 
-let cli;
-try {
-  cli = require.resolve('playwright/cli');
-} catch (error) {
-  console.error('Playwright CLI를 찾지 못했습니다:', error.message);
-  process.exit(1);
-}
+const npx = process.platform === 'win32' ? 'npx.cmd' : 'npx';
 
-console.log('[시세봄] Playwright Chromium을 node_modules 내부에 설치합니다...');
+console.log('[시세봄] Playwright Chromium 설치 시작...');
+console.log('[시세봄] PLAYWRIGHT_BROWSERS_PATH=0');
 
 const result = spawnSync(
-  process.execPath,
-  [cli, 'install', 'chromium'],
+  npx,
+  ['playwright', 'install', 'chromium'],
   {
     stdio: 'inherit',
     env: {
