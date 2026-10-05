@@ -1,7 +1,10 @@
 "use strict";
 
 const cache = new Map();
-const TTL_MS = 10 * 60 * 1000;
+
+// 첫 검색은 빠른 부분 결과를 반환하고 자체수집기는 뒤에서 계속 모은다.
+// 따라서 12초 뒤에는 combined API가 provider의 더 풍부한 스냅샷을 다시 읽도록 한다.
+const TTL_MS = 12 * 1000;
 const STALE_MS = 2 * 60 * 60 * 1000;
 
 function now() { return Date.now(); }
@@ -32,7 +35,7 @@ function getStale(key) {
 function setCache(key, value) {
   cache.set(key, { savedAt: now(), value });
 
-  if (cache.size > 120) {
+  if (cache.size > 150) {
     const first = cache.keys().next().value;
     if (first) cache.delete(first);
   }

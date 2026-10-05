@@ -1,7 +1,6 @@
 'use strict';
 
-// Render의 build 캐시는 runtime에 그대로 보존되지 않을 수 있으므로
-// Chromium을 node_modules 내부에 설치하고 같은 위치에서 찾게 한다.
+// Render build/runtime에서 같은 Chromium 경로를 사용.
 process.env.PLAYWRIGHT_BROWSERS_PATH = process.env.PLAYWRIGHT_BROWSERS_PATH || '0';
 
 const { chromium } = require('playwright');
@@ -12,13 +11,24 @@ const {
 } = require('./browserCollectorCore');
 
 const DEFAULT_TARGET = Math.max(40, Math.min(500, Number(process.env.SISEBOM_COLLECT_LIMIT) || 200));
-const MAX_SCROLL_ROUNDS = Math.max(6, Math.min(40, Number(process.env.SISEBOM_SCROLL_ROUNDS) || 22));
-const PAGE_TIMEOUT_MS = Math.max(6000, Math.min(30000, Number(process.env.SISEBOM_PAGE_TIMEOUT_MS) || 14000));
+const MAX_SCROLL_ROUNDS = Math.max(5, Math.min(30, Number(process.env.SISEBOM_SCROLL_ROUNDS) || 12));
+const PAGE_TIMEOUT_MS = Math.max(6000, Math.min(30000, Number(process.env.SISEBOM_PAGE_TIMEOUT_MS) || 12000));
 const MAX_BROWSER_CONCURRENCY = Math.max(1, Math.min(3, Number(process.env.SISEBOM_BROWSER_CONCURRENCY) || 2));
+
+// server.js의 기존 9초 provider timeout 안에서 첫 응답을 돌려주기 위한 제한.
+// 실제 심층 수집은 뒤에서 계속 진행한다.
+const FIRST_RESPONSE_WAIT_MS = Math.max(2500, Math.min(7800, Number(process.env.SISEBOM_FIRST_RESPONSE_WAIT_MS) || 6200));
+const DEEP_JOB_MAX_MS = Math.max(15000, Math.min(180000, Number(process.env.SISEBOM_DEEP_JOB_MAX_MS) || 70000));
+const JOB_TTL_MS = Math.max(60000, Math.min(3600000, Number(process.env.SISEBOM_JOB_TTL_MS) || 30 * 60 * 1000));
 
 let browserPromise = null;
 let activeSlots = 0;
 const slotWaiters = [];
+const jobs = new Map();
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function acquireSlot() {
   if (activeSlots < MAX_BROWSER_CONCURRENCY) {
@@ -50,7 +60,11 @@ async function getBrowser() {
   if (!browserPromise) {
     browserPromise = chromium.launch({
       headless: true,
-      args: ['--disable-dev-shm-usage']
+      args: [
+        '--disable-dev-shm-usage',
+        '--no-first-run',
+        '--no-default-browser-check'
+      ]
     }).then(browser => {
       browser.on('disconnected', () => {
         browserPromise = null;
@@ -64,6 +78,42 @@ async function getBrowser() {
   return browserPromise;
 }
 
+function hasStorageToken(query = '') {
+  return /(?:32|64|128|256|512|1024|2048)\s*(?:gb|g|기가)?\b|(?:1|2)\s*(?:tb|테라)\b/i.test(String(query));
+}
+
+function compactPhoneQuery(query = '') {
+  return String(query)
+    .trim()
+    .replace(/아이폰\s+(\d|x|se|air)/ig, '아이폰$1')
+    .replace(/iphone\s+(\d|x|se|air)/ig, 'iphone$1')
+    .replace(/갤럭시\s+([a-z]\d)/ig, '갤럭시$1')
+    .replace(/galaxy\s+([a-z]\d)/ig, 'galaxy$1')
+    .replace(/\s{2,}/g, ' ');
+}
+
+function buildSearchVariants(query = '') {
+  const q = String(query).trim();
+  const variants = [];
+  const add = value => {
+    const v = String(value || '').trim();
+    if (v && !variants.some(x => x.toLowerCase() === v.toLowerCase())) variants.push(v);
+  };
+
+  add(q);
+  add(compactPhoneQuery(q));
+
+  if (!hasStorageToken(q)) {
+    // 인기 스마트폰에서 자주 쓰이는 용량 검색을 섞어서
+    // 한 검색 페이지가 일부 결과만 보여주는 문제를 줄인다.
+    for (const storage of ['128GB', '256GB', '512GB', '64GB']) {
+      add(`${q} ${storage}`);
+    }
+  }
+
+  return variants.slice(0, 6);
+}
+
 async function collectVisibleCards(page, cfg) {
   return page.evaluate(({ selector }) => {
     const pickText = el => String(el?.innerText || el?.textContent || '').trim();
@@ -75,6 +125,8 @@ async function collectVisibleCards(page, cfg) {
         anchor.closest('li') ||
         anchor.closest('[data-testid*="card" i]') ||
         anchor.closest('[data-testid*="item" i]') ||
+        anchor.closest('[class*="card" i]') ||
+        anchor.closest('[class*="item" i]') ||
         anchor;
 
       const titleNode =
@@ -115,7 +167,7 @@ async function clickPublicMoreButton(page) {
     };
 
     const button = [...document.querySelectorAll('button,a')]
-      .find(el => visible(el) && /^(더\s*보기|more)$/i.test(String(el.innerText || '').trim()));
+      .find(el => visible(el) && /^(더\s*보기|more|매물\s*더\s*보기)$/i.test(String(el.innerText || '').trim()));
 
     if (!button) return false;
     button.click();
@@ -123,7 +175,241 @@ async function clickPublicMoreButton(page) {
   }).catch(() => false);
 }
 
-async function collectOnePlatform(source, query, options = {}) {
+function jobKey(source, query) {
+  return `${source}|${String(query).trim().toLowerCase()}`;
+}
+
+function pruneJobs() {
+  const now = Date.now();
+  for (const [key, job] of jobs) {
+    if (job.status !== 'running' && now - job.updatedAt > JOB_TTL_MS) {
+      jobs.delete(key);
+    }
+  }
+}
+
+function makeJob(source, query, options = {}) {
+  const cfg = CONFIG[source];
+  const target = Math.max(DEFAULT_TARGET, Number(options.limit) || 0);
+
+  return {
+    key: jobKey(source, query),
+    source,
+    platform: cfg.name,
+    query,
+    target,
+    sourceUrl: cfg.searchUrl(query),
+    status: 'running',
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    finishedAt: null,
+    queriesTried: [],
+    seen: new Map(),
+    excluded: {
+      notListing: 0,
+      noPrice: 0,
+      duplicate: 0
+    },
+    responseStatus: null,
+    error: '',
+    promise: null
+  };
+}
+
+function snapshotJob(job) {
+  const listings = [];
+  let index = 0;
+  let noPrice = 0;
+  let notListing = 0;
+
+  for (const raw of job.seen.values()) {
+    const item = normalizeBrowserCard(job.source, raw, job.query, index++);
+    if (!item) {
+      notListing++;
+      continue;
+    }
+    if (item.excluded === 'noPrice') {
+      noPrice++;
+      continue;
+    }
+    listings.push(item);
+  }
+
+  return {
+    query: job.query,
+    platform: job.platform,
+    source: job.source,
+    sourceUrl: job.sourceUrl,
+    via: 'sisebom-public-browser-deep',
+    fetchedAt: new Date().toISOString(),
+    responseStatus: job.responseStatus,
+    candidateCount: job.seen.size,
+    targetCount: job.target,
+    count: listings.length,
+    listings,
+    excluded: {
+      ...job.excluded,
+      notListing: job.excluded.notListing + notListing,
+      noPrice: job.excluded.noPrice + noPrice
+    },
+    collecting: job.status === 'running',
+    collectionStatus: job.status,
+    queriesTried: [...job.queriesTried],
+    elapsedMs: Date.now() - job.createdAt,
+    error: job.error || undefined
+  };
+}
+
+async function collectVariant(page, cfg, searchQuery, job, deadline) {
+  const url = cfg.searchUrl(searchQuery);
+  const response = await page.goto(url, {
+    waitUntil: 'domcontentloaded',
+    timeout: PAGE_TIMEOUT_MS
+  });
+
+  const status = response?.status?.() ?? null;
+  job.responseStatus = status;
+  job.updatedAt = Date.now();
+
+  if (status && status >= 400) {
+    const e = new Error(`${cfg.name} 공개 검색 페이지 HTTP ${status}`);
+    e.statusCode = status === 403 ? 503 : 502;
+    throw e;
+  }
+
+  await page.waitForTimeout(500);
+
+  let unchangedRounds = 0;
+
+  for (let round = 0; round < MAX_SCROLL_ROUNDS; round++) {
+    if (Date.now() >= deadline || job.seen.size >= job.target) break;
+
+    const cards = await collectVisibleCards(page, cfg);
+    const before = job.seen.size;
+
+    for (const card of cards) {
+      const urlKey = canonicalUrl(card.url || '');
+
+      if (!urlKey || !cfg.isListing(urlKey)) {
+        job.excluded.notListing++;
+        continue;
+      }
+
+      if (job.seen.has(urlKey)) {
+        job.excluded.duplicate++;
+        continue;
+      }
+
+      job.seen.set(urlKey, { ...card, url: urlKey, searchQuery });
+      job.updatedAt = Date.now();
+
+      if (job.seen.size >= job.target) break;
+    }
+
+    if (job.seen.size === before) unchangedRounds++;
+    else unchangedRounds = 0;
+
+    if (job.seen.size >= job.target || unchangedRounds >= 3) break;
+
+    const clicked = await clickPublicMoreButton(page);
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
+    await page.waitForTimeout(clicked ? 520 : 320);
+  }
+}
+
+async function runDeepJob(job) {
+  const cfg = CONFIG[job.source];
+  const variants = buildSearchVariants(job.query);
+  const deadline = Date.now() + DEEP_JOB_MAX_MS;
+
+  try {
+    await withBrowserSlot(async () => {
+      const browser = await getBrowser();
+      const context = await browser.newContext({
+        locale: 'ko-KR',
+        viewport: { width: 1365, height: 900 }
+      });
+      const page = await context.newPage();
+      page.setDefaultTimeout(PAGE_TIMEOUT_MS);
+
+      try {
+        let emptyVariantStreak = 0;
+
+        for (const variant of variants) {
+          if (Date.now() >= deadline || job.seen.size >= job.target) break;
+
+          const before = job.seen.size;
+          job.queriesTried.push(variant);
+          job.updatedAt = Date.now();
+
+          try {
+            await collectVariant(page, cfg, variant, job, deadline);
+          } catch (error) {
+            // 공개 페이지가 명시적으로 403/차단되면 그 플랫폼 작업을 끝낸다.
+            if (error?.statusCode === 503 || /HTTP\s*403/i.test(error?.message || '')) {
+              throw error;
+            }
+            // 다른 일시 오류는 다음 공개 검색 변형으로 넘어간다.
+            job.error = error?.message || '수집 중 일부 오류';
+          }
+
+          if (job.seen.size === before) emptyVariantStreak++;
+          else emptyVariantStreak = 0;
+
+          if (emptyVariantStreak >= 3) break;
+        }
+      } finally {
+        await context.close().catch(() => {});
+      }
+    });
+
+    job.status = 'done';
+  } catch (error) {
+    job.status = job.seen.size ? 'partial' : 'failed';
+    job.error = error?.message || '수집 실패';
+  } finally {
+    job.updatedAt = Date.now();
+    job.finishedAt = Date.now();
+  }
+
+  return snapshotJob(job);
+}
+
+function startOrGetJob(source, query, options = {}) {
+  pruneJobs();
+
+  const key = jobKey(source, query);
+  let job = jobs.get(key);
+
+  if (job) return job;
+
+  job = makeJob(source, query, options);
+  jobs.set(key, job);
+
+  job.promise = runDeepJob(job).catch(error => {
+    job.status = job.seen.size ? 'partial' : 'failed';
+    job.error = error?.message || '수집 실패';
+    job.updatedAt = Date.now();
+    job.finishedAt = Date.now();
+    return snapshotJob(job);
+  });
+
+  return job;
+}
+
+async function waitForUsefulSnapshot(job) {
+  const started = Date.now();
+
+  while (Date.now() - started < FIRST_RESPONSE_WAIT_MS) {
+    // 후보가 어느 정도 모이면 서버의 9초 timeout 전에 먼저 보여준다.
+    if (job.seen.size >= 12 || job.status !== 'running') break;
+    await sleep(220);
+  }
+
+  return snapshotJob(job);
+}
+
+async function fetchBrowserListings(source, query, options = {}) {
   const cfg = CONFIG[source];
   if (!cfg) throw new Error(`지원하지 않는 플랫폼: ${source}`);
 
@@ -134,118 +420,13 @@ async function collectOnePlatform(source, query, options = {}) {
     throw e;
   }
 
-  const requested = Number(options.limit) || 0;
-  const target = Math.max(DEFAULT_TARGET, requested);
-  const sourceUrl = cfg.searchUrl(q);
+  const job = startOrGetJob(source, q, options);
 
-  return withBrowserSlot(async () => {
-    const browser = await getBrowser();
-    const context = await browser.newContext({
-      locale: 'ko-KR',
-      viewport: { width: 1365, height: 900 }
-    });
-    const page = await context.newPage();
-    page.setDefaultTimeout(PAGE_TIMEOUT_MS);
+  // 완료된 작업은 즉시 반환.
+  if (job.status !== 'running') return snapshotJob(job);
 
-    const found = new Map();
-    const excluded = {
-      notListing: 0,
-      noPrice: 0,
-      duplicate: 0
-    };
-
-    let responseStatus = null;
-
-    try {
-      const response = await page.goto(sourceUrl, {
-        waitUntil: 'domcontentloaded',
-        timeout: PAGE_TIMEOUT_MS
-      });
-
-      responseStatus = response?.status?.() ?? null;
-
-      if (responseStatus && responseStatus >= 400) {
-        const e = new Error(`${cfg.name} 공개 검색 페이지 HTTP ${responseStatus}`);
-        e.statusCode = responseStatus === 403 ? 503 : 502;
-        throw e;
-      }
-
-      await page.waitForTimeout(900);
-
-      let unchangedRounds = 0;
-
-      for (let round = 0; round < MAX_SCROLL_ROUNDS && found.size < target; round++) {
-        const cards = await collectVisibleCards(page, cfg);
-
-        const before = found.size;
-
-        for (const card of cards) {
-          const url = canonicalUrl(card.url || '');
-
-          if (!url || !cfg.isListing(url)) {
-            excluded.notListing++;
-            continue;
-          }
-
-          if (found.has(url)) {
-            excluded.duplicate++;
-            continue;
-          }
-
-          found.set(url, { ...card, url });
-          if (found.size >= target) break;
-        }
-
-        if (found.size === before) unchangedRounds++;
-        else unchangedRounds = 0;
-
-        if (found.size >= target || unchangedRounds >= 4) break;
-
-        const clicked = await clickPublicMoreButton(page);
-        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
-        await page.waitForTimeout(clicked ? 650 : 420);
-      }
-
-      const listings = [];
-      let index = 0;
-
-      for (const raw of found.values()) {
-        const item = normalizeBrowserCard(source, raw, q, index++);
-
-        if (!item) {
-          excluded.notListing++;
-          continue;
-        }
-
-        if (item.excluded === 'noPrice') {
-          excluded.noPrice++;
-          continue;
-        }
-
-        listings.push(item);
-      }
-
-      return {
-        query: q,
-        platform: cfg.name,
-        source,
-        sourceUrl,
-        via: 'sisebom-public-browser',
-        fetchedAt: new Date().toISOString(),
-        responseStatus,
-        candidateCount: found.size,
-        count: listings.length,
-        listings,
-        excluded
-      };
-    } finally {
-      await context.close().catch(() => {});
-    }
-  });
-}
-
-async function fetchBrowserListings(source, query, options = {}) {
-  return collectOnePlatform(source, query, options);
+  // 첫 검색은 최대 약 6.2초만 기다리고, 심층수집은 뒤에서 계속한다.
+  return waitForUsefulSnapshot(job);
 }
 
 async function closeBrowser() {
@@ -269,5 +450,6 @@ process.once('SIGINT', () => {
 
 module.exports = {
   fetchBrowserListings,
-  closeBrowser
+  closeBrowser,
+  buildSearchVariants
 };
