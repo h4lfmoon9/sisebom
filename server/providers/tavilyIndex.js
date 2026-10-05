@@ -48,6 +48,7 @@ function cleanText(value = '') {
 function minimumPlausiblePrice(query = '') {
   const q = String(query).toLowerCase().replace(/\s+/g, '');
   const numeric = q.match(/(?:아이폰|iphone)(\d{1,2})/);
+
   if (numeric) {
     const gen = Number(numeric[1]);
     if (gen >= 17) return 150_000;
@@ -56,6 +57,7 @@ function minimumPlausiblePrice(query = '') {
     if (gen >= 11) return 40_000;
     if (gen >= 8) return 20_000;
   }
+
   if (/(아이폰x|iphonex|아이폰xr|iphonexr|아이폰xs|iphonexs)/i.test(q)) return 20_000;
   return 10_000;
 }
@@ -66,7 +68,7 @@ function collectPriceCandidates(text = '') {
 
   function push(index, rawValue, multiplier = 1) {
     const value = Math.round(Number(String(rawValue).replace(/,/g, '')) * multiplier);
-    if (!Number.isFinite(value)) return;
+    if (!Number.isFinite(value) || value <= 0 || value > MAX_PHONE_PRICE) return;
     found.push({ index, value });
   }
 
@@ -75,28 +77,30 @@ function collectPriceCandidates(text = '') {
   for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*만원(?:\D|$)/g)) push(m.index, m[1], 10_000);
   for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*천원(?:\D|$)/g)) push(m.index, m[1], 1_000);
 
-  return found.filter(x => x.value > 0 && x.value <= MAX_PHONE_PRICE);
+  return found.sort((a, b) => a.index - b.index);
 }
 
 function parsePrice(title = '', description = '', query = '') {
   const minPrice = minimumPlausiblePrice(query);
 
-  // 제목에 가격이 있으면 가장 우선한다.
+  // 검색 결과 제목에 가격이 있으면 제목의 첫 현실가를 사용.
   const titleCandidates = collectPriceCandidates(title)
-    .filter(x => x.value >= minPrice)
-    .sort((a, b) => a.index - b.index);
+    .filter(x => x.value >= minPrice);
   if (titleCandidates.length) return titleCandidates[0].value;
 
-  // 설명에는 배송비/수수료 같은 낮은 금액이 섞일 수 있어,
-  // 모델별 최소 현실가 이상인 후보 중 가장 큰 값을 사용한다.
+  // 핵심 수정:
+  // 설명에서 "가장 큰 가격"을 고르면 다른 추천 매물 가격이 섞여
+  // 130만/230만처럼 튈 수 있다.
+  // 검색 스니펫에 나타난 순서대로 첫 번째 현실적인 가격만 사용한다.
   const descriptionCandidates = collectPriceCandidates(description)
-    .filter(x => x.value >= minPrice)
-    .sort((a, b) => b.value - a.value);
+    .filter(x => x.value >= minPrice);
+
   return descriptionCandidates.length ? descriptionCandidates[0].value : null;
 }
 
 function parseStorage(text = '') {
   const s = String(text);
+
   let m = s.match(/(?:^|\D)(1|2)\s*(?:TB|테라)(?:\D|$)/i);
   if (m) return Number(m[1]) * 1024;
 
@@ -112,14 +116,19 @@ function parseTimeText(text = '') {
 function parseMinutes(text = '') {
   const s = String(text);
   if (/방금/.test(s)) return 0;
+
   let m = s.match(/(\d+)\s*분\s*전/);
   if (m) return Number(m[1]);
+
   m = s.match(/(\d+)\s*시간\s*전/);
   if (m) return Number(m[1]) * 60;
+
   m = s.match(/(\d+)\s*일\s*전/);
   if (m) return Number(m[1]) * 1440;
+
   m = s.match(/(\d+)\s*(?:달|개월)\s*전/);
   if (m) return Number(m[1]) * 43200;
+
   return 999999;
 }
 
@@ -136,6 +145,7 @@ function canonicalUrl(value = '') {
 
 async function tavilySearch(query, domain) {
   const key = String(process.env.TAVILY_API_KEY || '').trim();
+
   if (!key) {
     const error = new Error('TAVILY_API_KEY 환경변수가 설정되지 않았습니다.');
     error.statusCode = 503;
@@ -170,10 +180,13 @@ async function tavilySearch(query, domain) {
 
     if (!response.ok) {
       const detail = data?.detail || data?.message || data?.error || `HTTP ${response.status}`;
-      const error = new Error(`Tavily Search API 오류: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`);
+      const error = new Error(
+        `Tavily Search API 오류: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`
+      );
       error.statusCode = response.status === 401 || response.status === 403 ? 502 : response.status;
       throw error;
     }
+
     return data;
   } catch (error) {
     if (error?.name === 'AbortError') {
@@ -189,6 +202,7 @@ async function tavilySearch(query, domain) {
 
 async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
   const cfg = CONFIG[source];
+
   if (!cfg) {
     const error = new Error(`지원하지 않는 플랫폼: ${source}`);
     error.statusCode = 400;
@@ -196,6 +210,7 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
   }
 
   const q = String(query || '').trim();
+
   if (!q) {
     const error = new Error('검색어가 필요합니다.');
     error.statusCode = 400;
@@ -206,17 +221,25 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
   const raw = Array.isArray(data?.results) ? data.results : [];
   const listings = [];
   const seen = new Set();
-  const excluded = { notListing: 0, noPrice: 0, suspiciousPrice: 0 };
+  const excluded = {
+    notListing: 0,
+    noPrice: 0,
+    suspiciousPrice: 0
+  };
 
   for (const result of raw) {
     const url = canonicalUrl(result?.url || '');
+
     if (!url || !cfg.isListing(url)) {
       excluded.notListing++;
       continue;
     }
 
     const title = cleanText(result?.title || '');
-    const description = cleanText(result?.content || result?.description || result?.snippet || '');
+    const description = cleanText(
+      result?.content || result?.description || result?.snippet || ''
+    );
+
     const price = parsePrice(title, description, q);
 
     if (!Number.isFinite(price)) {
@@ -246,10 +269,14 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
       minutes: parseMinutes(timeText),
       status: '판매중',
       indexedResult: true,
-      relevance: Number.isFinite(Number(result?.score)) ? Number(result.score) : null
+      relevance: Number.isFinite(Number(result?.score))
+        ? Number(result.score)
+        : null
     });
 
-    if (listings.length >= Math.max(1, Math.min(50, Number(limit) || 30))) break;
+    if (
+      listings.length >= Math.max(1, Math.min(50, Number(limit) || 30))
+    ) break;
   }
 
   return {
@@ -263,8 +290,14 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
     count: listings.length,
     listings,
     excluded,
-    sampleUrls: raw.slice(0, 8).map(item => String(item?.url || '')).filter(Boolean)
+    sampleUrls: raw
+      .slice(0, 8)
+      .map(item => String(item?.url || ''))
+      .filter(Boolean)
   };
 }
 
-module.exports = { fetchIndexedListings, minimumPlausiblePrice };
+module.exports = {
+  fetchIndexedListings,
+  minimumPlausiblePrice
+};
