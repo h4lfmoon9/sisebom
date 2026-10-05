@@ -1,4 +1,5 @@
 'use strict';
+// FINAL_V3_MULTIBRAND
 
 const MANUFACTURERS = {
   apple: {
@@ -46,6 +47,9 @@ function normalizedKey(value = '') {
     .replace(/iphone/g, '아이폰')
     .replace(/galaxy/g, '갤럭시')
     .replace(/motorola/g, '모토로라')
+    .replace(/샤오미/g, 'xiaomi')
+    .replace(/레드미/g, 'redmi')
+    .replace(/포코/g, 'poco')
     .replace(/\+/g, 'plus')
     .replace(/프로\s*맥스/g, 'promax')
     .replace(/pro\s*max/g, 'promax')
@@ -208,6 +212,9 @@ function aliasesFor(manufacturer, name = '') {
     out.push(n.replace(/^갤럭시/i, 'Galaxy').replace(/\s+/g, ''));
   } else if (manufacturer === 'xiaomi') {
     out.push(n.toLowerCase());
+    if (/^Xiaomi/i.test(n)) { out.push(n.replace(/^Xiaomi/i, '샤오미')); out.push(n.replace(/^Xiaomi/i, '샤오미').replace(/\s+/g, '')); }
+    if (/^Redmi/i.test(n)) { out.push(n.replace(/^Redmi/i, '레드미')); out.push(n.replace(/^Redmi/i, '레드미').replace(/\s+/g, '')); }
+    if (/^POCO/i.test(n)) { out.push(n.replace(/^POCO/i, '포코')); out.push(n.replace(/^POCO/i, '포코').replace(/\s+/g, '')); }
   } else if (manufacturer === 'motorola') {
     out.push(n.toLowerCase());
     out.push(n.replace(/^motorola/i, '모토로라'));
@@ -235,12 +242,15 @@ function officialUrl(manufacturer, href = '', fallback = '') {
   }
 }
 
-function buildDiscoveredRecord(manufacturer, name, sourceUrl, discoveredAt = new Date().toISOString()) {
+function buildDiscoveredRecord(manufacturer, name, sourceUrl, details = {}, discoveredAt = new Date().toISOString()) {
   const cfg = MANUFACTURERS[manufacturer];
   if (!cfg) return null;
 
   const cleanName = clean(name);
   if (!cleanName) return null;
+
+  const detailsSpecs = details.specs || {};
+  const image = String(details.image || '').trim();
 
   return {
     id: idFor(manufacturer, cleanName),
@@ -249,20 +259,26 @@ function buildDiscoveredRecord(manufacturer, name, sourceUrl, discoveredAt = new
     series: seriesFor(manufacturer, cleanName),
     aliases: aliasesFor(manufacturer, cleanName),
     releaseYear: null,
-    verified: false,
+    verified: Boolean(details.verified),
     autoDiscovered: true,
-    discoveryStatus: 'official-catalog-name-detected',
+    discoveryStatus: 'official-catalog-detected',
     discoveredAt,
-    storage: [],
+    storage: Array.isArray(details.storage) ? details.storage : [],
     launchPrices: {},
-    specs: { chipset: null, display: null, camera: null, charging: null, frame: null },
+    specs: {
+      chipset: detailsSpecs.chipset || null,
+      display: detailsSpecs.display || null,
+      camera: detailsSpecs.camera || null,
+      charging: detailsSpecs.charging || null,
+      frame: detailsSpecs.frame || null
+    },
     scores: { performance: null, daily: null, gaming: null, camera: null },
     colors: [],
     officialSource: sourceUrl || cfg.urls[0],
     listings: [],
-    imageMode: 'no-image-until-approved',
-    image: '',
-    imageVerified: false
+    imageMode: image ? 'official-catalog' : 'official-catalog-no-image',
+    image,
+    imageVerified: Boolean(image)
   };
 }
 
@@ -270,22 +286,63 @@ function recordKeys(phone = {}) {
   return [phone.name, ...(phone.aliases || [])].map(normalizedKey).filter(Boolean);
 }
 
-function mergeDiscovered(staticPhones = [], discoveredPhones = []) {
-  const result = [...staticPhones];
-  const known = new Set();
+function useful(v) {
+  return !(v == null || v === '' || v === '정보 확인 중');
+}
 
-  for (const phone of staticPhones) {
-    if (phone.id) known.add(`id:${phone.id}`);
-    for (const key of recordKeys(phone)) known.add(key);
+function mergeObjectMissing(existing = {}, incoming = {}) {
+  const out = { ...existing };
+  for (const [key, value] of Object.entries(incoming || {})) {
+    if (!useful(out[key]) && useful(value)) out[key] = value;
   }
+  return out;
+}
 
-  for (const phone of discoveredPhones) {
-    const keys = recordKeys(phone);
-    if ((phone.id && known.has(`id:${phone.id}`)) || keys.some(k => known.has(k))) continue;
+function mergeDiscovered(staticPhones = [], discoveredPhones = []) {
+  const result = staticPhones.map(phone => ({ ...phone }));
+  const indexByKey = new Map();
 
-    result.push(phone);
-    if (phone.id) known.add(`id:${phone.id}`);
-    for (const key of keys) known.add(key);
+  const register = (phone, index) => {
+    if (phone.id) indexByKey.set(`id:${phone.id}`, index);
+    for (const key of recordKeys(phone)) indexByKey.set(key, index);
+  };
+
+  result.forEach(register);
+
+  for (const incoming of discoveredPhones) {
+    const keys = recordKeys(incoming);
+    let index = incoming.id ? indexByKey.get(`id:${incoming.id}`) : undefined;
+
+    if (index == null) {
+      for (const key of keys) {
+        if (indexByKey.has(key)) { index = indexByKey.get(key); break; }
+      }
+    }
+
+    if (index == null) {
+      result.push({ ...incoming });
+      register(incoming, result.length - 1);
+      continue;
+    }
+
+    const old = result[index];
+    const merged = {
+      ...old,
+      aliases: [...new Set([...(old.aliases || []), ...(incoming.aliases || [])])],
+      storage: old.storage?.length ? old.storage : (incoming.storage || []),
+      launchPrices: Object.keys(old.launchPrices || {}).length ? old.launchPrices : (incoming.launchPrices || {}),
+      specs: mergeObjectMissing(old.specs || {}, incoming.specs || {}),
+      scores: mergeObjectMissing(old.scores || {}, incoming.scores || {}),
+      officialSource: old.officialSource || incoming.officialSource || '',
+      image: old.image || incoming.image || '',
+      imageMode: old.imageMode || incoming.imageMode || '',
+      imageVerified: Boolean(old.imageVerified || incoming.imageVerified),
+      autoDiscovered: Boolean(old.autoDiscovered || incoming.autoDiscovered),
+      discoveredAt: old.discoveredAt || incoming.discoveredAt || null
+    };
+
+    result[index] = merged;
+    register(merged, index);
   }
 
   return result;

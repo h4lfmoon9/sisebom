@@ -23,6 +23,12 @@ function norm(s){
     .toLowerCase()
     .replace(/iphone/g,'아이폰')
     .replace(/galaxy/g,'갤럭시')
+    .replace(/xiaomi/g,'xiaomi')
+    .replace(/샤오미/g,'xiaomi')
+    .replace(/redmi/g,'redmi')
+    .replace(/레드미/g,'redmi')
+    .replace(/poco/g,'poco')
+    .replace(/포코/g,'poco')
     .replace(/motorola/g,'모토로라')
     .replace(/울트라/g,'ultra')
     .replace(/폴드/g,'fold')
@@ -83,6 +89,9 @@ function apiPhoneToUi(p){
     aliases:Array.isArray(p.aliases)?p.aliases:[],
     image:p.image||'',
     imageCandidates:Array.isArray(p.imageCandidates)?p.imageCandidates:[],
+    imageMode:p.imageMode||'',
+    imageVerified:!!p.imageVerified,
+    scoreSource:p.scoreSource||'',
     brand:p.brand||'',
     series:p.series||'',
     chipset:p.chipset??specs.chipset??'정보 확인 중',
@@ -125,7 +134,22 @@ function mergeCatalogPhones(apiPhones){
       officialSource:old.officialSource||incoming.officialSource
     };
 
+    const missing=v=>v==null||v===''||v==='정보 확인 중';
+    for(const field of ['chipset','display','camera','charging','frame']){
+      if(missing(old[field])&&!missing(incoming[field]))merged[field]=incoming[field];
+    }
+    if(!Number.isFinite(Number(old.performance))&&Number.isFinite(Number(incoming.performance))){
+      merged.performance=incoming.performance;
+    }
+    merged.scores={...(incoming.scores||{}),...(old.scores||{})};
+    for(const [k,v] of Object.entries(incoming.scores||{})){
+      if(!Number.isFinite(Number(old.scores?.[k]))&&Number.isFinite(Number(v)))merged.scores[k]=v;
+    }
+
     merged.image=old.image||incoming.image||appleImageCandidates(merged)[0]||'';
+    merged.imageMode=old.imageMode||incoming.imageMode||'';
+    merged.imageVerified=old.imageVerified||incoming.imageVerified;
+    merged.scoreSource=old.scoreSource||incoming.scoreSource||'';
     merged.imageCandidates=[...new Set([
       ...(old.imageCandidates||[]),
       ...(incoming.imageCandidates||[]),
@@ -189,6 +213,15 @@ function storageText(p){
   return (p?.storage||[]).map(x=>x>=1024?(x/1024)+'TB':x+'GB').join(' · ')||'-';
 }
 
+function updateImageNote(p,src=''){
+  const note=$('#imageNote');
+  if(!note)return;
+  if(p?.imageMode==='live-listing')note.textContent='실제 중고 매물의 첫 사진';
+  else if(p?.imageVerified)note.textContent='공식 제조사 공개 이미지';
+  else if(/^images\//.test(src||p?.image||''))note.textContent='등록된 대표 이미지';
+  else note.textContent='공식 제조사 이미지 우선 · 없으면 실제 매물 사진';
+}
+
 function setImage(p){
   const im=$('#productImage'),fb=$('#imageFallback');
   const candidates=productImageCandidates(p);
@@ -208,6 +241,7 @@ function setImage(p){
       im.hidden=false;
       fb.hidden=true;
       if(p&&!p.image)p.image=src;
+      updateImageNote(p,src);
     };
     im.src=src;
     im.hidden=false;
@@ -479,6 +513,19 @@ function platformCountText(items){
   return ['당근','번개장터','중고나라'].map(name=>`${name} ${items.filter(x=>x.platform===name).length}개`).join(' · ');
 }
 
+function maybeAdoptLiveRepresentativeImage(){
+  if(!current||current.image)return false;
+  const listing=liveListings.find(x=>x?.image&&/^https?:\/\//i.test(x.image));
+  if(!listing)return false;
+
+  current.image=listing.image;
+  current.imageMode='live-listing';
+  current.imageVerified=false;
+  setImage(current);
+  renderModels();
+  return true;
+}
+
 function providerIssueSummary(providers){
   const blocked=[];
   const failed=[];
@@ -636,6 +683,7 @@ async function loadLiveListings(force=false,background=false){
 
     // 심층수집 재확인에서 더 적은 임시 결과가 오면 기존 결과를 유지한다.
     if(!background||next.length>=liveListings.length)liveListings=next;
+    maybeAdoptLiveRepresentativeImage();
 
     const providers=data.providers||{};
     const issues=providerIssueSummary(providers);

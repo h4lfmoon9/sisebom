@@ -1,7 +1,9 @@
 'use strict';
+// FINAL_V3_OFFICIAL_ENRICH
 
 const { getBrowser } = require('./providers/browserCollector');
 const { MANUFACTURERS, extractNames, officialUrl, buildDiscoveredRecord } = require('./catalogRules');
+const { extractQuickSpecsFromText } = require('./catalogAutoProfile');
 
 const PAGE_TIMEOUT_MS = Math.max(6000, Math.min(30000, Number(process.env.SISEBOM_CATALOG_PAGE_TIMEOUT_MS) || 12000));
 const PER_BRAND_MAX_MS = Math.max(8000, Math.min(45000, Number(process.env.SISEBOM_CATALOG_BRAND_MAX_MS) || 22000));
@@ -9,10 +11,30 @@ const PER_BRAND_MAX_MS = Math.max(8000, Math.min(45000, Number(process.env.SISEB
 async function collectTextNodes(page) {
   return page.evaluate(() => {
     const nodes = [...document.querySelectorAll('h1,h2,h3,h4,a,[data-testid*="product" i],[class*="product" i]')];
-    return nodes.slice(0, 3500).map(el => ({
-      text: String(el.innerText || el.textContent || '').replace(/\s+/g, ' ').trim(),
-      href: el.href || el.getAttribute?.('href') || ''
-    })).filter(x => x.text);
+
+    return nodes.slice(0, 3500).map(el => {
+      const anchor = el.closest('a') || el.querySelector?.('a') || el;
+      const card =
+        el.closest('article') ||
+        el.closest('li') ||
+        el.closest('[class*="product" i]') ||
+        el.closest('[data-testid*="product" i]') ||
+        el.parentElement ||
+        el;
+
+      const img = card?.querySelector?.('img') || el.querySelector?.('img');
+      const srcset = img?.getAttribute?.('srcset') || '';
+      const srcsetImage = srcset
+        ? String(srcset).split(',').map(x => x.trim().split(/\s+/)[0]).filter(Boolean).pop() || ''
+        : '';
+
+      return {
+        text: String(el.innerText || el.textContent || '').replace(/\s+/g, ' ').trim(),
+        contextText: String(card?.innerText || card?.textContent || '').replace(/\s+/g, ' ').trim().slice(0, 1200),
+        href: anchor?.href || anchor?.getAttribute?.('href') || '',
+        image: img?.currentSrc || img?.src || img?.getAttribute?.('data-src') || img?.getAttribute?.('data-original') || srcsetImage || ''
+      };
+    }).filter(x => x.text);
   });
 }
 
@@ -41,7 +63,7 @@ async function scanUrl(browser, manufacturer, url, deadline) {
         const key = name.toLowerCase().replace(/\s+/g, '');
         if (seen.has(key)) continue;
         seen.add(key);
-        candidates.push({ name, sourceUrl: officialUrl(manufacturer, node.href, url) });
+        candidates.push({ name, sourceUrl: officialUrl(manufacturer, node.href, url), image: node.image || '', contextText: node.contextText || node.text });
       }
     }
 
@@ -75,11 +97,11 @@ async function scanManufacturer(manufacturer) {
       if (seen.has(key)) continue;
       seen.add(key);
 
-      const record = buildDiscoveredRecord(manufacturer, candidate.name, candidate.sourceUrl);
+      const record = buildDiscoveredRecord(manufacturer, candidate.name, candidate.sourceUrl, { image: candidate.image, imageVerified: Boolean(candidate.image), specs: extractQuickSpecsFromText(candidate.contextText) });
       if (record) records.push(record);
     }
 
-    if (records.length >= 4) break;
+    if (records.length >= 24) break;
   }
 
   return {

@@ -75,3 +75,7 @@ button,.chip,.text-btn,.search-wrap button{min-height:42px}
   .stats-grid{grid-template-columns:1fr}
   .model-grid{grid-template-columns:1fr 1fr}
 }
+
+/* FINAL_V3_MULTIBRAND */
+.model-card img,.product-image-card img{object-position:center}
+.image-note{min-height:18px}

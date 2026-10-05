@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { discoverOfficialCatalog } = require('./catalogDiscovery');
 const { mergeDiscovered } = require('./catalogRules');
+const { applyAutoProfileCatalog } = require('./catalogAutoProfile');
 
 const DATA_DIR = path.join(__dirname, 'data');
 const DISCOVERY_TTL_MS = Math.max(
@@ -12,13 +13,15 @@ const DISCOVERY_TTL_MS = Math.max(
 );
 
 let staticCache = null;
-let discoveredCache = [];
+let discoveryRecordsCache = [];
 let discoveryPromise = null;
 let lastScanAt = 0;
+let lastMergedCount = 0;
 let lastScanStatus = {
   scannedAt: null,
   discovered: 0,
   added: 0,
+  enriched: 0,
   perBrand: {}
 };
 
@@ -40,7 +43,7 @@ function readStaticCatalog() {
     }
   }
 
-  return phones;
+  return applyAutoProfileCatalog(phones);
 }
 
 function getStaticCatalog() {
@@ -53,34 +56,38 @@ function shouldRefresh(force = false) {
 }
 
 async function refreshDiscovery(force = false) {
-  if (!shouldRefresh(force)) return discoveredCache;
+  if (!shouldRefresh(force)) return discoveryRecordsCache;
   if (discoveryPromise) return discoveryPromise;
 
   discoveryPromise = (async () => {
     const staticPhones = getStaticCatalog();
     const result = await discoverOfficialCatalog();
-    const merged = mergeDiscovered(staticPhones, result.records || []);
 
-    discoveredCache = merged.slice(staticPhones.length);
+    discoveryRecordsCache = applyAutoProfileCatalog(result.records || []);
+    const merged = mergeDiscovered(staticPhones, discoveryRecordsCache);
+
+    lastMergedCount = merged.length;
     lastScanAt = Date.now();
     lastScanStatus = {
       scannedAt: result.scannedAt,
-      discovered: (result.records || []).length,
-      added: discoveredCache.length,
+      discovered: discoveryRecordsCache.length,
+      added: Math.max(0, merged.length - staticPhones.length),
+      enriched: Math.max(0, discoveryRecordsCache.length - Math.max(0, merged.length - staticPhones.length)),
       perBrand: result.perBrand || {}
     };
 
-    return discoveredCache;
+    return discoveryRecordsCache;
   })().catch(error => {
     lastScanAt = Date.now();
     lastScanStatus = {
       scannedAt: new Date().toISOString(),
-      discovered: 0,
-      added: discoveredCache.length,
+      discovered: discoveryRecordsCache.length,
+      added: 0,
+      enriched: 0,
       perBrand: {},
       error: error?.message || 'catalog discovery failed'
     };
-    return discoveredCache;
+    return discoveryRecordsCache;
   }).finally(() => {
     discoveryPromise = null;
   });
@@ -90,27 +97,28 @@ async function refreshDiscovery(force = false) {
 
 function startDiscovery(force = false) {
   if (shouldRefresh(force) && !discoveryPromise) {
-    // 요청을 오래 붙잡지 않고 백그라운드에서 공식 카탈로그를 확인한다.
     void refreshDiscovery(force);
   }
   return getCatalogStatus();
 }
 
 async function getLiveCatalog({ force = false, wait = false } = {}) {
-  if (wait) {
-    await refreshDiscovery(force);
-  } else {
-    startDiscovery(force);
-  }
+  if (wait) await refreshDiscovery(force);
+  else startDiscovery(force);
 
-  return mergeDiscovered(getStaticCatalog(), discoveredCache);
+  return applyAutoProfileCatalog(
+    mergeDiscovered(getStaticCatalog(), discoveryRecordsCache)
+  );
 }
 
 function getCatalogStatus() {
+  const staticCount = getStaticCatalog().length;
+  const mergedCount = lastMergedCount || mergeDiscovered(getStaticCatalog(), discoveryRecordsCache).length;
+
   return {
-    staticCount: getStaticCatalog().length,
-    discoveredCount: discoveredCache.length,
-    totalCount: getStaticCatalog().length + discoveredCache.length,
+    staticCount,
+    discoveryRecordCount: discoveryRecordsCache.length,
+    totalCount: mergedCount,
     ttlMs: DISCOVERY_TTL_MS,
     scanning: Boolean(discoveryPromise),
     ...lastScanStatus

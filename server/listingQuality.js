@@ -1,4 +1,5 @@
 'use strict';
+// FINAL_V3_MULTIBRAND_MATCH
 
 function normalizeText(value = '') {
   return String(value)
@@ -6,6 +7,9 @@ function normalizeText(value = '') {
     .replace(/iphone/g, '아이폰')
     .replace(/galaxy/g, '갤럭시')
     .replace(/motorola/g, '모토로라')
+    .replace(/샤오미/g, 'xiaomi')
+    .replace(/레드미/g, 'redmi')
+    .replace(/포코/g, 'poco')
     .replace(/울트라/g, 'ultra')
     .replace(/폴드/g, 'fold')
     .replace(/플립/g, 'flip')
