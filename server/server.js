@@ -7,6 +7,7 @@ require("dotenv").config();
 const { fetchJoongnaListings } = require("./providers/joongna");
 const { fetchBunjangListings } = require("./providers/bunjang");
 const { fetchDaangnListings } = require("./providers/daangn");
+const { filterAndDedupeListings } = require("./listingQuality");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -205,15 +206,20 @@ app.get("/api/live/combined", async (req, res) => {
     });
   }
 
-  listings.sort((a, b) => Number(a.minutes ?? 999999) - Number(b.minutes ?? 999999));
+  const quality = filterAndDedupeListings(listings, q);
+  quality.listings.sort((a, b) => Number(a.minutes ?? 999999) - Number(b.minutes ?? 999999));
+
   res.set("Cache-Control", "public, max-age=30");
   return res.json({
     query: q,
     fetchedAt: new Date().toISOString(),
     availableOnly: true,
+    exactModelOnly: true,
     providers: providerStatus,
-    count: listings.length,
-    listings
+    excluded: quality.excluded,
+    rawCount: listings.length,
+    count: quality.listings.length,
+    listings: quality.listings
   });
 });
 
