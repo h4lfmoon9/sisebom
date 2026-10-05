@@ -5,6 +5,7 @@ const path = require("path");
 require("dotenv").config();
 
 const { fetchJoongnaListings } = require("./providers/joongna");
+const { fetchBunjangListings } = require("./providers/bunjang");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -130,6 +131,71 @@ app.get("/api/live/joongna", async (req, res) => {
       detail: error.message
     });
   }
+});
+
+app.get("/api/live/bunjang", async (req, res) => {
+  const q = String(req.query.q || "").trim();
+  if (!q) return res.status(400).json({ error: "검색어가 필요합니다." });
+  try {
+    const result = await fetchBunjangListings(q, { limit: req.query.limit });
+    res.set("Cache-Control", "public, max-age=30");
+    return res.json(result);
+  } catch (error) {
+    console.error("번개장터 수집 오류:", error.message);
+    return res.status(error.statusCode || 502).json({
+      error: "번개장터 공개 검색 결과를 불러오지 못했습니다.",
+      detail: error.message
+    });
+  }
+});
+
+app.get("/api/live/combined", async (req, res) => {
+  const q = String(req.query.q || "").trim();
+  if (!q) return res.status(400).json({ error: "검색어가 필요합니다." });
+  const limit = Math.max(1, Math.min(50, Number(req.query.limit) || 30));
+  const providers = [
+    ["중고나라", () => fetchJoongnaListings(q, { limit })],
+    ["번개장터", () => fetchBunjangListings(q, { limit })]
+  ];
+  const settled = await Promise.allSettled(providers.map(([, run]) => run()));
+  const listings = [];
+  const providerStatus = {};
+  const seen = new Set();
+
+  settled.forEach((result, index) => {
+    const name = providers[index][0];
+    if (result.status === "fulfilled") {
+      const data = result.value;
+      providerStatus[name] = { ok: true, count: data.listings?.length || 0, sourceUrl: data.sourceUrl, excluded: data.excluded || {} };
+      for (const item of data.listings || []) {
+        const key = item.url || `${item.source}:${item.id}`;
+        if (!key || seen.has(key)) continue;
+        seen.add(key);
+        listings.push(item);
+      }
+    } else {
+      providerStatus[name] = { ok: false, count: 0, error: result.reason?.message || "불러오기 실패" };
+    }
+  });
+
+  if (!Object.values(providerStatus).some((x) => x.ok)) {
+    return res.status(502).json({
+      error: "실제 중고 매물을 불러오지 못했습니다.",
+      providers: providerStatus,
+      listings: []
+    });
+  }
+
+  listings.sort((a, b) => Number(a.minutes ?? 999999) - Number(b.minutes ?? 999999));
+  res.set("Cache-Control", "public, max-age=30");
+  return res.json({
+    query: q,
+    fetchedAt: new Date().toISOString(),
+    availableOnly: true,
+    providers: providerStatus,
+    count: listings.length,
+    listings
+  });
 });
 
 app.get("/api/phones/:id", (req, res) => {
