@@ -6,6 +6,7 @@ require("dotenv").config();
 
 const { fetchJoongnaListings } = require("./providers/joongna");
 const { fetchBunjangListings } = require("./providers/bunjang");
+const { fetchDaangnListings } = require("./providers/daangn");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -149,11 +150,29 @@ app.get("/api/live/bunjang", async (req, res) => {
   }
 });
 
+
+app.get("/api/live/daangn", async (req, res) => {
+  const q = String(req.query.q || "").trim();
+  if (!q) return res.status(400).json({ error: "검색어가 필요합니다." });
+  try {
+    const result = await fetchDaangnListings(q, { limit: req.query.limit, region: req.query.in });
+    res.set("Cache-Control", "public, max-age=30");
+    return res.json(result);
+  } catch (error) {
+    console.error("당근 수집 오류:", error.message);
+    return res.status(error.statusCode || 502).json({
+      error: "당근 공개 검색 결과를 불러오지 못했습니다.",
+      detail: error.message
+    });
+  }
+});
+
 app.get("/api/live/combined", async (req, res) => {
   const q = String(req.query.q || "").trim();
   if (!q) return res.status(400).json({ error: "검색어가 필요합니다." });
   const limit = Math.max(1, Math.min(50, Number(req.query.limit) || 30));
   const providers = [
+    ["당근", () => fetchDaangnListings(q, { limit, region: req.query.in })],
     ["중고나라", () => fetchJoongnaListings(q, { limit })],
     ["번개장터", () => fetchBunjangListings(q, { limit })]
   ];
