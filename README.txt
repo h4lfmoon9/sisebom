@@ -1,29 +1,31 @@
-시세봄 20단계 - 예약중/판매완료 오탐 수정
+시세봄 21단계 - 실제 매물 화면 마무리
 
-19단계 결과는 번개장터·당근·중고나라가 모두 최종 목록에 들어와서 큰 구조는 정상입니다.
+이번 단계는 백엔드 수집 로직을 건드리지 않고 화면 표시만 정리합니다.
 
-남은 문제:
-최종 excluded.unavailable이 8개로 너무 많습니다.
-원인은 현재 매물이 정상 판매중이어도 description/modelText 안에 주변 추천 매물의
-'예약중', '판매완료' 문구가 섞이면 현재 매물까지 제거되던 것입니다.
-
-수정:
-- unavailable 판별은 item.status + 현재 제목만 사용
-- description/modelText의 다른 추천 매물 상태 문구는 무시
-- 모델 판별은 기존대로 modelText/description 사용
-- 액세서리/구매글/카탈로그도 제목 중심 판별 유지
+변경:
+- 긴 번개장터 제목을 깔끔하게 축약
+- 당근/중고나라 제목 뒤의 플랫폼 설명 제거
+- 매물 이미지가 없으면 깨진 이미지 대신 '사진 없음 / 원본 매물에서 확인'
+- 지역/시간이 둘 다 없으면 '상세 정보는 원본에서 확인'
+- 상단 연결 문구를 플랫폼 원본 수집 개수가 아니라 최종 통과 매물 개수로 표시
+- AI 구매판단 설명에 실제 몇 개 플랫폼의 데이터를 사용했는지 표시
+- 시세 그래프 최대 24개 막대로 정리
+- 카드 제목 2줄 제한 및 모바일 표시 개선
 
 적용:
-1. ZIP 풀기
-2. server 폴더를 sisebom 폴더에 덮어쓰기
-3. GitHub Desktop Summary:
-   예약중 판매완료 오탐 수정 20단계
-4. Commit to main -> Push origin
+1. ZIP을 풉니다.
+2. script.js를 기존 sisebom/script.js에 덮어씁니다.
+3. listing-ui.css를 sisebom 루트에 넣습니다.
+4. index.html의 </head> 바로 위에 아래 한 줄만 추가합니다.
+   <link rel="stylesheet" href="listing-ui.css">
+5. GitHub Desktop Summary:
+   실제 매물 화면 정리 21단계
+6. Commit to main -> Push origin
 
-배포 후 테스트:
-https://sisebom.onrender.com/api/live/combined?q=아이폰%2015&refresh=1
+확인:
+- 사이트에서 iPhone 15 검색
+- 실제 판매중 매물 수와 플랫폼별 개수가 자연스럽게 표시되는지
+- 긴 번개장터 제목이 카드 밖으로 튀어나오지 않는지
+- 이미지 없는 카드가 깔끔한 회색 플레이스홀더로 보이는지
 
-기대:
-- excluded.unavailable이 크게 감소
-- 이전에 주변 추천 매물의 '예약중' 때문에 빠졌던 정상 iPhone 15 매물이 복구
-- 번개장터 579,000원 / 중고나라 정상 매물은 유지
+GitHub Summary: 실제 매물 화면 정리 21단계
