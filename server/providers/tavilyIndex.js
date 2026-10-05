@@ -131,7 +131,7 @@ function canonicalUrl(v = '') {
   }
 }
 
-const MODEL_RE = /(?:애플\s*)?(?:아이폰|iphone)\s*(?:se\s*[123]?|xs\s*max|xs|xr|x|\d{1,2}(?:e)?)(?:\s*(?:프로\s*맥스|pro\s*max|프로|pro|플러스|plus|미니|mini|에어|air))?/ig;
+const MODEL_RE = /(?:애플\s*)?(?:아이폰|iphone)\s*(?:air|에어|se\s*(?:[123]|[123]\s*세대)?|xs\s*max|xs|xr|x|3gs|3g|4s|5c|5s|6s|\d{1,2}(?:e)?)(?:\s*(?:프로\s*맥스|pro\s*max|프로|pro|플러스|plus|미니|mini|에어|air))?/ig;
 
 function modelSnippet(text = '', query = '') {
   const s = cleanText(text);
@@ -161,6 +161,19 @@ function modelSnippet(text = '', query = '') {
 
 function queryModel(query = '') {
   const n = String(query).toLowerCase().replace(/\s+/g, '');
+
+  if (/(?:아이폰|iphone)(?:air|에어)/i.test(n)) {
+    return { generation: 'air', variant: 'air' };
+  }
+
+  const legacy = n.match(/(?:아이폰|iphone)(3gs|3g|4s|5c|5s|6s)(plus|플러스)?/i);
+  if (legacy) {
+    return {
+      generation: legacy[1].toLowerCase(),
+      variant: legacy[2] ? 'plus' : 'base'
+    };
+  }
+
   const m = n.match(/(?:아이폰|iphone)(\d{1,2})(e)?/);
   if (!m) return null;
 
@@ -177,6 +190,8 @@ function queryModel(query = '') {
 function variantEvidenceForBunjang(description = '', query = '') {
   const target = queryModel(query);
   if (!target) return '';
+
+  if (!/^\d+$/.test(String(target.generation))) return '';
 
   const early = cleanText(description).slice(0, 650);
   const gen = target.generation;

@@ -54,6 +54,10 @@ function isCatalogAd(v = '') {
 function parseTarget(query = '') {
   const n = normalizeText(query);
 
+  if (/아이폰air/.test(n)) {
+    return { family: 'air', generation: 'air', variant: 'air' };
+  }
+
   if (/아이폰se(?:1|2|3|1세대|2세대|3세대)?/.test(n)) {
     const s = n.match(/아이폰se([123])/);
     return { family: 'se', generation: s ? `se${s[1]}` : 'se', variant: 'se' };
@@ -65,6 +69,15 @@ function parseTarget(query = '') {
       family: m[1],
       generation: m[1],
       variant: m[1] === 'xsmax' ? 'max' : 'base'
+    };
+  }
+
+  const legacy = n.match(/아이폰(3gs|3g|4s|5c|5s|6s)(plus)?/);
+  if (legacy) {
+    return {
+      family: 'legacy',
+      generation: legacy[1],
+      variant: legacy[2] ? 'plus' : 'base'
     };
   }
 
@@ -84,13 +97,24 @@ function parseTarget(query = '') {
 function titleGenerationInfo(title = '') {
   const n = normalizeText(title);
 
+  if (/아이폰air/.test(n)) return { generation: 'air', variant: 'air' };
+
   if (/아이폰se3/.test(n) || /아이폰se3세대/.test(n)) return { generation: 'se3', variant: 'se' };
   if (/아이폰se2/.test(n) || /아이폰se2세대/.test(n)) return { generation: 'se2', variant: 'se' };
   if (/아이폰se1/.test(n) || /아이폰se1세대/.test(n)) return { generation: 'se1', variant: 'se' };
+
   if (/아이폰xsmax/.test(n)) return { generation: 'xsmax', variant: 'max' };
   if (/아이폰xs/.test(n)) return { generation: 'xs', variant: 'base' };
   if (/아이폰xr/.test(n)) return { generation: 'xr', variant: 'base' };
   if (/아이폰x(?!s|r)/.test(n)) return { generation: 'x', variant: 'base' };
+
+  const legacy = n.match(/아이폰(3gs|3g|4s|5c|5s|6s)(plus)?/);
+  if (legacy) {
+    return {
+      generation: legacy[1],
+      variant: legacy[2] ? 'plus' : 'base'
+    };
+  }
 
   const m = n.match(/아이폰(\d{1,2})(e)?/);
   if (!m) return null;
@@ -114,9 +138,17 @@ function matchesRequestedModel(text = '', query = '') {
   const actual = titleGenerationInfo(text);
   if (!actual) return false;
 
+  if (target.family === 'air') {
+    return actual.generation === 'air';
+  }
+
   if (target.family === 'se') {
     return String(actual.generation).startsWith('se')
       && (target.generation === 'se' || actual.generation === target.generation);
+  }
+
+  if (target.family === 'legacy') {
+    return actual.generation === target.generation && actual.variant === target.variant;
   }
 
   if (['x', 'xr', 'xs', 'xsmax'].includes(target.family)) {
@@ -214,6 +246,7 @@ function filterAndDedupeListings(listings = [], query = '') {
 module.exports = {
   normalizeText,
   parseTarget,
+  titleGenerationInfo,
   matchesRequestedModel,
   minimumPlausiblePrice,
   hasUnavailableStatus,

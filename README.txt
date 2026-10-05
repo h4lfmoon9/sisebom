@@ -1,29 +1,36 @@
-시세봄 22단계 - 용량별 실제 매물 검색
+시세봄 23단계 - 전 iPhone 모델 정확매칭 + 회귀 테스트
 
-핵심:
-- '아이폰 15' 검색: 기존처럼 모든 용량 검색
-- '아이폰 15 256' 검색: 256GB가 자동 선택되고 실제 검색어도 '아이폰 15 256GB'로 요청
-- 용량 칩 128/256/512 등을 클릭하면 해당 용량으로 실제 매물을 다시 검색
-- '전체'를 누르면 다시 전체 용량 실제 매물을 검색
-- 필터 초기화 시 용량별 검색 상태도 정상적으로 전체로 복구
-- 21단계 매물 카드 CSS를 style.css에 직접 합쳐서 index.html 수정이 더 이상 필요 없음
+이번 단계는 iPhone 15만 잘 되는 상태에서 끝내지 않고
+다른 iPhone 모델 검색도 정확하게 만들기 위한 단계입니다.
+
+수정:
+- iPhone 3G / 3GS 구분
+- iPhone 4S 구분
+- iPhone 5 / 5c / 5s 구분
+- iPhone 6 / 6s / Plus 계열 구분
+- iPhone SE 1/2/3세대 구분 유지
+- iPhone X / XR / XS / XS Max 구분 유지
+- iPhone Air를 숫자형 iPhone과 별도 모델로 정확히 판별
+- Tavily 스니펫에서도 3GS, 5s, 5c, 6s, Air 모델명이 잘리지 않게 수정
+
+추가:
+- server/qa/modelMatching.test.js
+- npm test로 모델 필터 회귀 테스트 가능
+- npm run check에 문법검사 + 자동 테스트 포함
 
 적용:
 1. ZIP 풀기
-2. script.js -> sisebom/script.js 덮어쓰기
-3. style.css -> sisebom/style.css 덮어쓰기
-4. GitHub Desktop Summary:
-   용량별 실제 매물 검색 22단계
-5. Commit to main -> Push origin
+2. 안의 server 폴더를 기존 sisebom 폴더에 덮어쓰기
+3. GitHub Desktop Summary:
+   전 iPhone 모델 정확매칭 23단계
+4. Commit to main -> Push origin
 
-테스트:
-- 아이폰 15 검색
-- 아이폰 15 256 검색
-- 통합매물에서 128GB/256GB 버튼을 번갈아 눌러보기
+테스트 추천:
+- 아이폰 15
+- 아이폰 15 프로
+- 아이폰 6s
+- 아이폰 6s 플러스
+- 아이폰 5s
+- 아이폰 에어
 
-정상:
-- 선택 용량에 따라 실제 매물을 새로 불러옴
-- 전체 용량에서는 모든 용량을 다시 불러옴
-- 매물 카드의 사진 없음/긴 제목 UI도 같이 적용됨
-
-GitHub Summary: 용량별 실제 매물 검색 22단계
+GitHub Summary: 전 iPhone 모델 정확매칭 23단계
