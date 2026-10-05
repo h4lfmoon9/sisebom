@@ -44,6 +44,32 @@ function searchableAliases(p){
   return [p?.name,...(p?.aliases||[])].filter(Boolean).map(norm).filter(Boolean);
 }
 
+function appleImageCandidates(p){
+  if(String(p?.brand||'').toLowerCase()!=='apple')return [];
+
+  const id=String(p?.id||'').trim();
+  if(!id)return [];
+
+  const ids=[id];
+  if(id==='iphone15')ids.push('iphone-15');
+
+  const out=[];
+  for(const key of ids){
+    out.push(`images/apple/${key}.png`);
+    out.push(`images/apple/provided/${key}.png`);
+  }
+
+  return [...new Set(out)];
+}
+
+function productImageCandidates(p){
+  return [...new Set([
+    p?.image||'',
+    ...(Array.isArray(p?.imageCandidates)?p.imageCandidates:[]),
+    ...appleImageCandidates(p)
+  ].filter(Boolean))];
+}
+
 function apiPhoneToUi(p){
   const specs=p?.specs||{},scores=p?.scores||{};
   const perfRaw=p?.performance??scores?.performance;
@@ -56,6 +82,7 @@ function apiPhoneToUi(p){
     name:p.name,
     aliases:Array.isArray(p.aliases)?p.aliases:[],
     image:p.image||'',
+    imageCandidates:Array.isArray(p.imageCandidates)?p.imageCandidates:[],
     brand:p.brand||'',
     series:p.series||'',
     chipset:p.chipset??specs.chipset??'정보 확인 중',
@@ -88,7 +115,7 @@ function mergeCatalogPhones(apiPhones){
     }
 
     const old=P[idx];
-    P[idx]={
+    const merged={
       ...incoming,
       ...old,
       aliases:[...new Set([...(incoming.aliases||[]),...(old.aliases||[])])],
@@ -97,6 +124,15 @@ function mergeCatalogPhones(apiPhones){
       autoDiscovered:old.autoDiscovered||incoming.autoDiscovered,
       officialSource:old.officialSource||incoming.officialSource
     };
+
+    merged.image=old.image||incoming.image||appleImageCandidates(merged)[0]||'';
+    merged.imageCandidates=[...new Set([
+      ...(old.imageCandidates||[]),
+      ...(incoming.imageCandidates||[]),
+      ...appleImageCandidates(merged)
+    ])];
+
+    P[idx]=merged;
   }
 
   window.SISEBOM_PHONES=P;
@@ -155,16 +191,30 @@ function storageText(p){
 
 function setImage(p){
   const im=$('#productImage'),fb=$('#imageFallback');
-  if(!p?.image){
-    im.hidden=true;
-    im.removeAttribute('src');
-    fb.hidden=false;
-    return;
-  }
-  im.onerror=()=>{im.hidden=true;fb.hidden=false};
-  im.src=p.image;
-  im.hidden=false;
-  fb.hidden=true;
+  const candidates=productImageCandidates(p);
+  let index=0;
+
+  const tryNext=()=>{
+    if(index>=candidates.length){
+      im.hidden=true;
+      im.removeAttribute('src');
+      fb.hidden=false;
+      return;
+    }
+
+    const src=candidates[index++];
+    im.onerror=tryNext;
+    im.onload=()=>{
+      im.hidden=false;
+      fb.hidden=true;
+      if(p&&!p.image)p.image=src;
+    };
+    im.src=src;
+    im.hidden=false;
+    fb.hidden=true;
+  };
+
+  tryNext();
 }
 
 function perfSub(p){
@@ -718,12 +768,32 @@ function renderModels(){
   $('#modelCount').textContent=shown.length;
 
   g.innerHTML=shown.map(p=>{
-    const image=p.image
-      ?`<img src="${htmlEscape(p.image)}" alt="${htmlEscape(p.name)}" loading="lazy">`
+    const candidates=productImageCandidates(p);
+    const image=candidates.length
+      ?`<img src="${htmlEscape(candidates[0])}" data-model-id="${htmlEscape(p.id)}" data-image-index="0" alt="${htmlEscape(p.name)}" loading="lazy">`
       :'<div class="model-image-placeholder">이미지 준비중</div>';
 
     return `<article class="model-card" data-id="${htmlEscape(p.id)}">${image}<b>${htmlEscape(p.name)}</b><span>${htmlEscape(p.chipset||p.brand||'정보 확인 중')}</span></article>`;
   }).join('');
+
+  g.querySelectorAll('img[data-model-id]').forEach(img=>{
+    img.addEventListener('error',()=>{
+      const p=P.find(x=>x.id===img.dataset.modelId);
+      const candidates=productImageCandidates(p);
+      const next=Number(img.dataset.imageIndex||0)+1;
+
+      if(next<candidates.length){
+        img.dataset.imageIndex=String(next);
+        img.src=candidates[next];
+        return;
+      }
+
+      const fallback=document.createElement('div');
+      fallback.className='model-image-placeholder';
+      fallback.textContent='이미지 준비중';
+      img.replaceWith(fallback);
+    });
+  });
 
   g.querySelectorAll('.model-card').forEach(c=>c.onclick=async()=>{
     current=P.find(p=>p.id===c.dataset.id);

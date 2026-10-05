@@ -94,6 +94,69 @@ function compactPhoneQuery(query = '') {
     .replace(/\s{2,}/g, ' ');
 }
 
+function extractAppleQueryInfo(query = '') {
+  const raw = String(query || '').trim();
+  const compact = raw.toLowerCase().replace(/\s+/g, '');
+
+  const isApple = /(?:아이폰|iphone)/i.test(raw);
+  if (!isApple) return null;
+
+  const gen = compact.match(/(?:아이폰|iphone)(\d{1,2})/)?.[1] || null;
+  const se = /(?:아이폰|iphone)se/i.test(compact);
+  const variant =
+    /promax|프로맥스/i.test(compact) ? 'promax' :
+    /pro|프로/i.test(compact) ? 'pro' :
+    /plus|플러스/i.test(compact) ? 'plus' :
+    /mini|미니/i.test(compact) ? 'mini' :
+    /air|에어/i.test(compact) ? 'air' :
+    /(?:아이폰|iphone)\d{1,2}e/i.test(compact) ? 'e' :
+    'base';
+
+  return { raw, gen, se, variant };
+}
+
+function appleCapacityHints(info) {
+  if (!info) return [];
+
+  if (info.se) return ['64GB', '128GB', '256GB'];
+  const g = Number(info.gen || 0);
+
+  if (g >= 17) return ['256GB', '512GB', '1TB'];
+  if (g >= 13) return ['128GB', '256GB', '512GB'];
+  if (g === 12) return info.variant === 'pro' || info.variant === 'promax'
+    ? ['128GB', '256GB', '512GB']
+    : ['64GB', '128GB', '256GB'];
+  if (g >= 11) return ['64GB', '128GB', '256GB'];
+  return ['64GB', '128GB', '256GB'];
+}
+
+function canonicalAppleQueries(info) {
+  if (!info?.gen) return [];
+
+  const suffixKo =
+    info.variant === 'promax' ? ' 프로맥스' :
+    info.variant === 'pro' ? ' 프로' :
+    info.variant === 'plus' ? ' 플러스' :
+    info.variant === 'mini' ? ' 미니' :
+    info.variant === 'air' ? ' 에어' :
+    info.variant === 'e' ? 'e' : '';
+
+  const suffixEn =
+    info.variant === 'promax' ? ' Pro Max' :
+    info.variant === 'pro' ? ' Pro' :
+    info.variant === 'plus' ? ' Plus' :
+    info.variant === 'mini' ? ' mini' :
+    info.variant === 'air' ? ' Air' :
+    info.variant === 'e' ? 'e' : '';
+
+  return [
+    `아이폰 ${info.gen}${suffixKo}`,
+    `아이폰${info.gen}${suffixKo.replace(/\s+/g, '')}`,
+    `iPhone ${info.gen}${suffixEn}`,
+    `iPhone${info.gen}${suffixEn.replace(/\s+/g, '')}`
+  ];
+}
+
 function buildSearchVariants(query = '') {
   const q = String(query).trim();
   const variants = [];
@@ -102,18 +165,33 @@ function buildSearchVariants(query = '') {
     if (v && !variants.some(x => x.toLowerCase() === v.toLowerCase())) variants.push(v);
   };
 
-  add(q);
-  add(compactPhoneQuery(q));
+  const apple = extractAppleQueryInfo(q);
 
-  if (!hasStorageToken(q)) {
-    // 인기 스마트폰에서 자주 쓰이는 용량 검색을 섞어서
-    // 한 검색 페이지가 일부 결과만 보여주는 문제를 줄인다.
-    for (const storage of ['128GB', '256GB', '512GB', '64GB']) {
-      add(`${q} ${storage}`);
+  if (apple && !hasStorageToken(q)) {
+    // 넓은 "아이폰 12" 검색이 Pro/악세서리 후보로 먼저 200개를 채우는 문제 방지.
+    // 실제 저장용량이 붙은 정확 검색을 먼저 돌린다.
+    const canonical = canonicalAppleQueries(apple);
+    const capacities = appleCapacityHints(apple);
+
+    for (const capacity of capacities) {
+      for (const base of canonical.slice(0, 2)) add(`${base} ${capacity}`);
+    }
+
+    for (const base of canonical) add(base);
+    add(q);
+    add(compactPhoneQuery(q));
+  } else {
+    add(q);
+    add(compactPhoneQuery(q));
+
+    if (!hasStorageToken(q)) {
+      for (const storage of ['128GB', '256GB', '512GB', '64GB']) {
+        add(`${q} ${storage}`);
+      }
     }
   }
 
-  return variants.slice(0, 6);
+  return variants.slice(0, 10);
 }
 
 async function collectVisibleCards(page, cfg) {
