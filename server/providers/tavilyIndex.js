@@ -131,6 +131,69 @@ function canonicalUrl(v = '') {
   }
 }
 
+function cleanRegion(value = '') {
+  return cleanText(value)
+    .replace(/^[·•\-–—|\s]+|[·•\-–—|\s]+$/g, '')
+    .replace(/\s+/g, ' ')
+    .slice(0, 60)
+    .trim();
+}
+
+function parseRegion(source, description = '') {
+  const s = cleanText(description);
+  if (!s) return '';
+
+  if (source === 'daangn') {
+    // 당근 공개 페이지에 자주 나오는 구조:
+    // "## 충북 청주시 서원구 사창동 근처 인기 중고거래"
+    const nearby = s.match(/##\s*([^#]{2,70}?)\s*근처\s*인기\s*중고거래/i);
+    if (nearby) return cleanRegion(nearby[1]);
+
+    const place = s.match(/(?:거래\s*희망\s*장소|거래\s*장소)\s*[:：]?\s*([^#|]{2,50}?)(?=\s*(?:채팅|관심|조회|$))/i);
+    if (place) return cleanRegion(place[1]);
+  }
+
+  if (source === 'bunjang') {
+    const direct = s.match(/직거래\s*장소\s*[:：]?\s*([^#|]{2,60}?)(?=\s*(?:구매하기|택배|배송|신고하기|상품\s*정보|$))/i);
+    if (direct) return cleanRegion(direct[1]);
+  }
+
+  if (source === 'joongna') {
+    const direct = s.match(/(?:직거래\s*장소|거래\s*지역|거래\s*장소)\s*[:：]\s*([^#|]{2,60}?)(?=\s*(?:택배|배송|거래방법|$))/i);
+    if (direct) return cleanRegion(direct[1]);
+  }
+
+  return '';
+}
+
+function extractListingImage(source, listingUrl = '', rawContent = '') {
+  // 안전하게 "현재 매물과 ID가 직접 연결되는 이미지"만 사용한다.
+  // 지금은 번개장터 media URL이 product ID를 포함해서 정확한 연결 검증이 가능하다.
+  if (source !== 'bunjang') return '';
+
+  const idMatch = String(listingUrl).match(/\/products\/(\d+)/i);
+  if (!idMatch) return '';
+
+  const productId = idMatch[1];
+  const content = String(rawContent || '').replace(/&amp;/g, '&');
+
+  const urlRe = /https?:\/\/media\.bunjang\.co\.kr\/product\/[^\s)"'<>\]]+/ig;
+  const candidates = content.match(urlRe) || [];
+
+  for (const raw of candidates) {
+    const candidate = raw.replace(/[.,;:]+$/g, '');
+    try {
+      const u = new URL(candidate);
+      if (u.hostname !== 'media.bunjang.co.kr') continue;
+      if (!u.pathname.startsWith(`/product/${productId}_`)) continue;
+      if (!/\.(?:jpe?g|png|webp)$/i.test(u.pathname)) continue;
+      return u.toString();
+    } catch {}
+  }
+
+  return '';
+}
+
 const MODEL_RE = /(?:애플\s*)?(?:아이폰|iphone)\s*(?:air|에어|se\s*(?:[123]|[123]\s*세대)?|xs\s*max|xs|xr|x|3gs|3g|4s|5c|5s|6s|\d{1,2}(?:e)?)(?:\s*(?:프로\s*맥스|pro\s*max|프로|pro|플러스|plus|미니|mini|에어|air))?/ig;
 
 function modelSnippet(text = '', query = '') {
@@ -325,7 +388,8 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
     }
 
     const rawTitle = cleanText(result?.title || '');
-    const description = cleanText(result?.content || result?.description || result?.snippet || '');
+    const rawContent = String(result?.content || result?.description || result?.snippet || '');
+    const description = cleanText(rawContent);
 
     const contamination = earlySnippetContamination(source, rawTitle, description);
     if (contamination === 'related-products-only') {
@@ -373,9 +437,9 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
       modelText: evidence.slice(0, 160),
       price,
       storage: parseStorage(`${title} ${evidence}`),
-      image: '',
+      image: extractListingImage(source, url, rawContent),
       url,
-      region: '',
+      region: parseRegion(source, description),
       timeText,
       minutes: parseMinutes(timeText),
       status: '판매중',
@@ -401,4 +465,4 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
   };
 }
 
-module.exports = { fetchIndexedListings, minimumPlausiblePrice };
+module.exports = { fetchIndexedListings, minimumPlausiblePrice, parseRegion, extractListingImage };
