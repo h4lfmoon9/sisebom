@@ -6,28 +6,21 @@ const MAX_PHONE_PRICE = 5_000_000;
 
 const CONFIG = {
   daangn: {
-    name: '당근',
-    domain: 'daangn.com',
-    sourceUrl: q => {
-      const u = new URL('https://www.daangn.com/kr/search/buy-sell/');
-      u.searchParams.set('q', q);
-      return u.toString();
-    },
-    searchQuery: q => `${q} 당근 중고거래 판매`,
+    name: '당근', domain: 'daangn.com',
+    sourceUrl: q => { const u = new URL('https://www.daangn.com/kr/search/buy-sell/'); u.searchParams.set('q', q); return u.toString(); },
+    searchQuery: q => `"${q}" 당근 중고거래 판매`,
     isListing: u => /daangn\.com\/(?:kr\/buy-sell\/|articles\/)/i.test(u)
   },
   bunjang: {
-    name: '번개장터',
-    domain: 'bunjang.co.kr',
+    name: '번개장터', domain: 'bunjang.co.kr',
     sourceUrl: q => `https://m.bunjang.co.kr/keywords/${encodeURIComponent(q)}`,
-    searchQuery: q => `${q} 번개장터 중고거래 판매`,
+    searchQuery: q => `"${q}" 번개장터 중고거래 판매`,
     isListing: u => /bunjang\.co\.kr\/products\/\d+/i.test(u)
   },
   joongna: {
-    name: '중고나라',
-    domain: 'joongna.com',
+    name: '중고나라', domain: 'joongna.com',
     sourceUrl: q => `https://web.joongna.com/search/${encodeURIComponent(q)}`,
-    searchQuery: q => `${q} 중고나라 중고거래 판매`,
+    searchQuery: q => `"${q}" 중고나라 중고거래 판매`,
     isListing: u => /joongna\.com\/product\/\d+/i.test(u)
   }
 };
@@ -47,63 +40,47 @@ function cleanText(value = '') {
 
 function minimumPlausiblePrice(query = '') {
   const q = String(query).toLowerCase().replace(/\s+/g, '');
-  const numeric = q.match(/(?:아이폰|iphone)(\d{1,2})/);
-
-  if (numeric) {
-    const gen = Number(numeric[1]);
-    if (gen >= 17) return 150_000;
-    if (gen >= 15) return 100_000;
-    if (gen >= 13) return 70_000;
-    if (gen >= 11) return 40_000;
-    if (gen >= 8) return 20_000;
+  const m = q.match(/(?:아이폰|iphone)(\d{1,2})/);
+  if (m) {
+    const g = Number(m[1]);
+    if (g >= 17) return 150000;
+    if (g >= 15) return 100000;
+    if (g >= 13) return 70000;
+    if (g >= 11) return 40000;
+    if (g >= 8) return 20000;
   }
-
-  if (/(아이폰x|iphonex|아이폰xr|iphonexr|아이폰xs|iphonexs)/i.test(q)) return 20_000;
-  return 10_000;
+  if (/(아이폰x|iphonex|아이폰xr|iphonexr|아이폰xs|iphonexs)/i.test(q)) return 20000;
+  return 10000;
 }
 
 function collectPriceCandidates(text = '') {
   const s = String(text);
-  const found = [];
-
-  function push(index, rawValue, multiplier = 1) {
-    const value = Math.round(Number(String(rawValue).replace(/,/g, '')) * multiplier);
-    if (!Number.isFinite(value) || value <= 0 || value > MAX_PHONE_PRICE) return;
-    found.push({ index, value });
-  }
+  const out = [];
+  const push = (index, raw, multiplier = 1) => {
+    const value = Math.round(Number(String(raw).replace(/,/g, '')) * multiplier);
+    if (Number.isFinite(value) && value > 0 && value <= MAX_PHONE_PRICE) out.push({ index, value });
+  };
 
   for (const m of s.matchAll(/(\d{1,3}(?:,\d{3})+)\s*원/g)) push(m.index, m[1]);
   for (const m of s.matchAll(/(?:^|\D)(\d{4,9})\s*원(?:\D|$)/g)) push(m.index, m[1]);
-  for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*만원(?:\D|$)/g)) push(m.index, m[1], 10_000);
-  for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*천원(?:\D|$)/g)) push(m.index, m[1], 1_000);
+  for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*만원(?:\D|$)/g)) push(m.index, m[1], 10000);
+  for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*천원(?:\D|$)/g)) push(m.index, m[1], 1000);
 
-  return found.sort((a, b) => a.index - b.index);
+  return out.sort((a, b) => a.index - b.index);
 }
 
 function parsePrice(title = '', description = '', query = '') {
-  const minPrice = minimumPlausiblePrice(query);
-
-  // 검색 결과 제목에 가격이 있으면 제목의 첫 현실가를 사용.
-  const titleCandidates = collectPriceCandidates(title)
-    .filter(x => x.value >= minPrice);
-  if (titleCandidates.length) return titleCandidates[0].value;
-
-  // 핵심 수정:
-  // 설명에서 "가장 큰 가격"을 고르면 다른 추천 매물 가격이 섞여
-  // 130만/230만처럼 튈 수 있다.
-  // 검색 스니펫에 나타난 순서대로 첫 번째 현실적인 가격만 사용한다.
-  const descriptionCandidates = collectPriceCandidates(description)
-    .filter(x => x.value >= minPrice);
-
-  return descriptionCandidates.length ? descriptionCandidates[0].value : null;
+  const min = minimumPlausiblePrice(query);
+  const a = collectPriceCandidates(title).filter(x => x.value >= min);
+  if (a.length) return a[0].value;
+  const b = collectPriceCandidates(description).filter(x => x.value >= min);
+  return b.length ? b[0].value : null;
 }
 
 function parseStorage(text = '') {
   const s = String(text);
-
   let m = s.match(/(?:^|\D)(1|2)\s*(?:TB|테라)(?:\D|$)/i);
   if (m) return Number(m[1]) * 1024;
-
   m = s.match(/(?:^|\D)(64|128|256|512|1024|2048)\s*(?:GB|G|기가)?(?:\D|$)/i);
   return m ? Number(m[1]) : null;
 }
@@ -116,49 +93,75 @@ function parseTimeText(text = '') {
 function parseMinutes(text = '') {
   const s = String(text);
   if (/방금/.test(s)) return 0;
-
   let m = s.match(/(\d+)\s*분\s*전/);
-  if (m) return Number(m[1]);
-
+  if (m) return +m[1];
   m = s.match(/(\d+)\s*시간\s*전/);
-  if (m) return Number(m[1]) * 60;
-
+  if (m) return +m[1] * 60;
   m = s.match(/(\d+)\s*일\s*전/);
-  if (m) return Number(m[1]) * 1440;
-
+  if (m) return +m[1] * 1440;
   m = s.match(/(\d+)\s*(?:달|개월)\s*전/);
-  if (m) return Number(m[1]) * 43200;
-
+  if (m) return +m[1] * 43200;
   return 999999;
 }
 
-function canonicalUrl(value = '') {
+function canonicalUrl(v = '') {
   try {
-    const u = new URL(String(value));
+    const u = new URL(String(v));
     u.search = '';
     u.hash = '';
     return u.toString();
-  } catch (_) {
-    return String(value || '').split('?')[0].split('#')[0];
+  } catch {
+    return String(v || '').split('?')[0].split('#')[0];
   }
+}
+
+function modelSnippet(text = '', query = '') {
+  const s = cleanText(text);
+  if (!s) return '';
+
+  const re = /(?:아이폰|iphone)\s*(?:se\s*[123]?|xs\s*max|xs|xr|x|\d{1,2}(?:e)?)(?:\s*(?:프로\s*맥스|pro\s*max|프로|pro|플러스|plus|미니|mini|에어|air))?/ig;
+  const matches = [...s.matchAll(re)];
+  if (!matches.length) return s.slice(0, 180);
+
+  const qn = String(query).toLowerCase().replace(/\s+/g, '');
+  let chosen = matches[0];
+  for (const m of matches) {
+    const mn = m[0].toLowerCase().replace(/\s+/g, '');
+    if (qn.includes(mn) || mn.includes(qn)) {
+      chosen = m;
+      break;
+    }
+  }
+
+  const start = Math.max(0, (chosen.index || 0) - 35);
+  const end = Math.min(s.length, (chosen.index || 0) + chosen[0].length + 110);
+  return s.slice(start, end).replace(/^[|·,.;:\-\s]+|[|·,.;:\-\s]+$/g, '').trim();
+}
+
+function displayTitle(rawTitle = '', description = '', query = '', platform = '') {
+  const t = cleanText(rawTitle);
+  const generic = !t || t === platform || /^(번개장터|중고나라|당근|bunjang|joongna)$/i.test(t);
+  if (!generic) return t;
+
+  const snippet = modelSnippet(description, query);
+  return (snippet || query).slice(0, 120);
 }
 
 async function tavilySearch(query, domain) {
   const key = String(process.env.TAVILY_API_KEY || '').trim();
-
   if (!key) {
-    const error = new Error('TAVILY_API_KEY 환경변수가 설정되지 않았습니다.');
-    error.statusCode = 503;
-    throw error;
+    const e = new Error('TAVILY_API_KEY 환경변수가 설정되지 않았습니다.');
+    e.statusCode = 503;
+    throw e;
   }
 
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  const c = new AbortController();
+  const timer = setTimeout(() => c.abort(), TIMEOUT_MS);
 
   try {
-    const response = await fetch(API, {
+    const r = await fetch(API, {
       method: 'POST',
-      signal: controller.signal,
+      signal: c.signal,
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${key}`
@@ -174,27 +177,24 @@ async function tavilySearch(query, domain) {
       })
     });
 
-    const rawBody = await response.text();
+    const body = await r.text();
     let data = {};
-    try { data = JSON.parse(rawBody); } catch (_) {}
+    try { data = JSON.parse(body); } catch {}
 
-    if (!response.ok) {
-      const detail = data?.detail || data?.message || data?.error || `HTTP ${response.status}`;
-      const error = new Error(
-        `Tavily Search API 오류: ${typeof detail === 'string' ? detail : JSON.stringify(detail)}`
-      );
-      error.statusCode = response.status === 401 || response.status === 403 ? 502 : response.status;
-      throw error;
+    if (!r.ok) {
+      const d = data?.detail || data?.message || data?.error || `HTTP ${r.status}`;
+      const e = new Error(`Tavily Search API 오류: ${typeof d === 'string' ? d : JSON.stringify(d)}`);
+      e.statusCode = 502;
+      throw e;
     }
-
     return data;
-  } catch (error) {
-    if (error?.name === 'AbortError') {
-      const timeout = new Error('Tavily Search API 응답 시간이 초과되었습니다.');
-      timeout.statusCode = 504;
-      throw timeout;
+  } catch (e) {
+    if (e?.name === 'AbortError') {
+      const x = new Error('Tavily Search API 응답 시간이 초과되었습니다.');
+      x.statusCode = 504;
+      throw x;
     }
-    throw error;
+    throw e;
   } finally {
     clearTimeout(timer);
   }
@@ -202,66 +202,54 @@ async function tavilySearch(query, domain) {
 
 async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
   const cfg = CONFIG[source];
-
-  if (!cfg) {
-    const error = new Error(`지원하지 않는 플랫폼: ${source}`);
-    error.statusCode = 400;
-    throw error;
-  }
+  if (!cfg) throw new Error(`지원하지 않는 플랫폼: ${source}`);
 
   const q = String(query || '').trim();
-
   if (!q) {
-    const error = new Error('검색어가 필요합니다.');
-    error.statusCode = 400;
-    throw error;
+    const e = new Error('검색어가 필요합니다.');
+    e.statusCode = 400;
+    throw e;
   }
 
   const data = await tavilySearch(cfg.searchQuery(q), cfg.domain);
   const raw = Array.isArray(data?.results) ? data.results : [];
   const listings = [];
   const seen = new Set();
-  const excluded = {
-    notListing: 0,
-    noPrice: 0,
-    suspiciousPrice: 0
-  };
+  const excluded = { notListing: 0, noPrice: 0, suspiciousPrice: 0 };
 
   for (const result of raw) {
     const url = canonicalUrl(result?.url || '');
-
     if (!url || !cfg.isListing(url)) {
       excluded.notListing++;
       continue;
     }
 
-    const title = cleanText(result?.title || '');
-    const description = cleanText(
-      result?.content || result?.description || result?.snippet || ''
-    );
+    const rawTitle = cleanText(result?.title || '');
+    const description = cleanText(result?.content || result?.description || result?.snippet || '');
+    const title = displayTitle(rawTitle, description, q, cfg.name);
+    const evidence = modelSnippet(`${rawTitle} ${description}`, q) || `${rawTitle} ${description}`;
 
-    const price = parsePrice(title, description, q);
-
+    const price = parsePrice(rawTitle, description, q);
     if (!Number.isFinite(price)) {
-      const allCandidates = collectPriceCandidates(`${title} ${description}`);
-      if (allCandidates.length) excluded.suspiciousPrice++;
-      else excluded.noPrice++;
+      const pcs = collectPriceCandidates(`${rawTitle} ${description}`);
+      pcs.length ? excluded.suspiciousPrice++ : excluded.noPrice++;
       continue;
     }
 
     if (seen.has(url)) continue;
     seen.add(url);
 
-    const combined = `${title} ${description}`.trim();
-    const timeText = parseTimeText(combined);
+    const timeText = parseTimeText(description);
 
     listings.push({
       id: `${source}-${listings.length + 1}`,
       platform: cfg.name,
       source,
-      title: title || description.slice(0, 140) || q,
+      title,
+      description: description.slice(0, 280),
+      modelText: evidence.slice(0, 220),
       price,
-      storage: parseStorage(combined),
+      storage: parseStorage(`${title} ${description}`),
       image: '',
       url,
       region: '',
@@ -269,14 +257,10 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
       minutes: parseMinutes(timeText),
       status: '판매중',
       indexedResult: true,
-      relevance: Number.isFinite(Number(result?.score))
-        ? Number(result.score)
-        : null
+      relevance: Number.isFinite(Number(result?.score)) ? Number(result.score) : null
     });
 
-    if (
-      listings.length >= Math.max(1, Math.min(50, Number(limit) || 30))
-    ) break;
+    if (listings.length >= Math.max(1, Math.min(50, Number(limit) || 30))) break;
   }
 
   return {
@@ -290,14 +274,8 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
     count: listings.length,
     listings,
     excluded,
-    sampleUrls: raw
-      .slice(0, 8)
-      .map(item => String(item?.url || ''))
-      .filter(Boolean)
+    sampleUrls: raw.slice(0, 8).map(x => String(x?.url || '')).filter(Boolean)
   };
 }
 
-module.exports = {
-  fetchIndexedListings,
-  minimumPlausiblePrice
-};
+module.exports = { fetchIndexedListings, minimumPlausiblePrice };
