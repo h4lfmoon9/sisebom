@@ -79,3 +79,49 @@ button,.chip,.text-btn,.search-wrap button{min-height:42px}
 /* FINAL_V3_MULTIBRAND */
 .model-card img,.product-image-card img{object-position:center}
 .image-note{min-height:18px}
+
+/* FINAL_V4_3X3_PAGINATION */
+@media(min-width:981px){
+  .listing-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+.listing-pagination{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  flex-wrap:wrap;
+  margin:22px 0 6px;
+}
+.listing-pagination[hidden]{display:none!important}
+.listing-pagination button{
+  min-width:42px;
+  height:42px;
+  border:1px solid var(--line);
+  background:#fff;
+  color:var(--text);
+  border-radius:12px;
+  font-weight:800;
+  cursor:pointer;
+}
+.listing-pagination button:hover{border-color:var(--green);color:var(--green)}
+.listing-pagination button.active{
+  background:var(--green);
+  border-color:var(--green);
+  color:#fff;
+}
+.listing-pagination button:disabled{
+  opacity:.38;
+  cursor:default;
+}
+.page-gap{color:var(--muted);padding:0 2px}
+.page-count{
+  width:100%;
+  text-align:center;
+  color:var(--muted);
+  font-size:12px;
+  margin-top:3px;
+}
+@media(max-width:640px){
+  .listing-pagination{gap:5px}
+  .listing-pagination button{min-width:38px;height:40px;padding:0 9px}
+}

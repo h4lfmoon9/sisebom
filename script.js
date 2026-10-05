@@ -17,6 +17,8 @@ let requestSeq=0;
 let autoRefreshRounds=0;
 let autoRefreshTimer=null;
 let brandFilter='all';
+let listingPage=1;
+const LISTINGS_PER_PAGE=9;
 
 function norm(s){
   return String(s||'')
@@ -209,6 +211,18 @@ function findPhone(q){
   return best||null;
 }
 
+function selectableStorage(p){
+  const raw=(Array.isArray(p?.storage)?p.storage:[])
+    .map(Number)
+    .filter(x=>Number.isFinite(x)&&x>0&&x<=512);
+
+  const unique=[...new Set(raw)].sort((a,b)=>a-b);
+  if(unique.length)return unique;
+
+  // DB에 용량 정보가 아직 없는 자동등록 모델도 필터를 바로 쓸 수 있게 한다.
+  return [128,256,512];
+}
+
 function storageText(p){
   return (p?.storage||[]).map(x=>x>=1024?(x/1024)+'TB':x+'GB').join(' · ')||'-';
 }
@@ -368,7 +382,7 @@ function availableOnly(x){
 function filteredListings(){
   let a=liveListings.filter(availableOnly);
   if(filters.platform!=='all')a=a.filter(x=>x.platform===filters.platform);
-  if(filters.storage!=='all')a=a.filter(x=>String(x.storage)===String(filters.storage));
+  if(filters.storage!=='all')a=a.filter(x=>x.storage==null||String(x.storage)===String(filters.storage));
   if(filters.min!=null)a=a.filter(x=>Number(x.price)>=filters.min);
   if(filters.max!=null)a=a.filter(x=>Number(x.price)<=filters.max);
 
@@ -406,13 +420,15 @@ function renderProduct(){
 function renderStorage(){
   const box=$('#storageFilters');
   if(!box||!current)return;
+  const options=selectableStorage(current);
   box.innerHTML='<button class="chip '+(filters.storage==='all'?'active':'')+'" data-storage="all">전체</button>'+
-    ((current.storage||[]).map(s=>`<button class="chip ${String(filters.storage)===String(s)?'active':''}" data-storage="${s}">${s>=1024?s/1024+'TB':s+'GB'}</button>`).join(''));
+    (options.map(s=>`<button class="chip ${String(filters.storage)===String(s)?'active':''}" data-storage="${s}">${s}GB</button>`).join(''));
 
   box.querySelectorAll('button').forEach(b=>b.onclick=async()=>{
     const next=b.dataset.storage;
     if(String(filters.storage)===String(next))return;
     filters.storage=next;
+    listingPage=1;
     autoRefreshRounds=0;
     renderStorage();
     await loadLiveListings();
@@ -553,27 +569,91 @@ function bindListingImageFallbacks(grid){
   });
 }
 
+function ensureListingPagination(){
+  let box=$('#listingPagination');
+  if(box)return box;
+
+  box=document.createElement('nav');
+  box.id='listingPagination';
+  box.className='listing-pagination';
+  box.setAttribute('aria-label','매물 페이지 선택');
+  $('#listingGrid')?.insertAdjacentElement('afterend',box);
+  return box;
+}
+
+function paginationNumbers(totalPages,currentPage){
+  if(totalPages<=7)return Array.from({length:totalPages},(_,i)=>i+1);
+
+  const nums=new Set([1,totalPages,currentPage,currentPage-1,currentPage+1]);
+  if(currentPage<=3){nums.add(2);nums.add(3);nums.add(4)}
+  if(currentPage>=totalPages-2){nums.add(totalPages-1);nums.add(totalPages-2);nums.add(totalPages-3)}
+  return [...nums].filter(x=>x>=1&&x<=totalPages).sort((a,b)=>a-b);
+}
+
+function renderListingPagination(totalPages,totalCount){
+  const box=ensureListingPagination();
+  if(!box)return;
+
+  if(totalPages<=1){
+    box.hidden=true;
+    box.innerHTML='';
+    return;
+  }
+
+  box.hidden=false;
+  const pages=paginationNumbers(totalPages,listingPage);
+  let previous=0;
+  let html=`<button data-page="${Math.max(1,listingPage-1)}" ${listingPage===1?'disabled':''}>이전</button>`;
+
+  for(const page of pages){
+    if(previous&&page-previous>1)html+='<span class="page-gap">…</span>';
+    html+=`<button class="${page===listingPage?'active':''}" data-page="${page}" aria-current="${page===listingPage?'page':'false'}">${page}</button>`;
+    previous=page;
+  }
+
+  html+=`<button data-page="${Math.min(totalPages,listingPage+1)}" ${listingPage===totalPages?'disabled':''}>다음</button>`;
+  html+=`<span class="page-count">총 ${totalCount}개 · ${listingPage}/${totalPages}페이지</span>`;
+  box.innerHTML=html;
+
+  box.querySelectorAll('button[data-page]').forEach(btn=>btn.onclick=()=>{
+    const page=Number(btn.dataset.page);
+    if(!Number.isFinite(page)||page===listingPage)return;
+    listingPage=page;
+    renderMarket();
+    $('#listingGrid')?.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+}
+
 function renderListings(a,marketStats=robustMarketStats(a)){
   const grid=$('#listingGrid');
+  const pager=ensureListingPagination();
 
   if(liveState.loading&&!a.length){
+    if(pager)pager.hidden=true;
     grid.innerHTML='<div class="listing-state"><b>실제 중고 매물 수집 중...</b><span>첫 결과가 준비되면 바로 표시하고, 뒤에서 추가 매물을 계속 모읍니다.</span></div>';
     return;
   }
 
   if(liveState.error&&!a.length){
+    if(pager)pager.hidden=true;
     grid.innerHTML=`<div class="listing-state error"><b>매물을 불러오지 못했습니다.</b><span>${htmlEscape(liveState.error)}</span></div>`;
     return;
   }
 
   if(!a.length){
-    grid.innerHTML='<div class="listing-state"><b>조건에 맞는 판매중 매물이 없습니다.</b><span>예약중·판매완료·거래완료와 다른 모델은 표시하지 않습니다.</span></div>';
+    if(pager)pager.hidden=true;
+    grid.innerHTML='<div class="listing-state"><b>아직 확인된 판매중 매물이 없습니다.</b><span>관련 매물을 더 수집하는 중입니다. 잠시 후 자동으로 다시 확인합니다.</span></div>';
     return;
   }
 
+  const totalPages=Math.max(1,Math.ceil(a.length/LISTINGS_PER_PAGE));
+  listingPage=Math.max(1,Math.min(listingPage,totalPages));
+
+  const startIndex=(listingPage-1)*LISTINGS_PER_PAGE;
+  const pageItems=a.slice(startIndex,startIndex+LISTINGS_PER_PAGE);
   const avg=marketStats.average||a.reduce((s,x)=>s+Number(x.price),0)/a.length;
 
-  grid.innerHTML=a.map(x=>{
+  grid.innerHTML=pageItems.map(x=>{
     const d=avg?(Number(x.price)-avg)/avg*100:0;
     const dc=d<=-7?'good':d>=10?'bad':'';
     const dt=d<=-7?`평균보다 ${Math.abs(d).toFixed(0)}% 저렴`:d>=10?`평균보다 ${d.toFixed(0)}% 비쌈`:'적정 시세';
@@ -588,6 +668,7 @@ function renderListings(a,marketStats=robustMarketStats(a)){
   }).join('');
 
   bindListingImageFallbacks(grid);
+  renderListingPagination(totalPages,a.length);
 }
 
 function renderCompare(){
@@ -629,7 +710,7 @@ function parseStorage(q,p){
     m=raw.match(/(32|64|128|256|512|1024|2048)\s*(gb|g|기가)?/i);
     v=m?Number(m[1]):null;
   }
-  return v!=null&&(p?.storage||[]).includes(v)?String(v):'all';
+  return v!=null&&v<=512&&selectableStorage(p).includes(v)?String(v):'all';
 }
 
 function collectingFromProviders(providers){
@@ -638,9 +719,14 @@ function collectingFromProviders(providers){
 
 function scheduleDeepRefresh(){
   clearTimeout(autoRefreshTimer);
-  if(!liveState.collecting||autoRefreshRounds>=2)return;
 
-  const delay=autoRefreshRounds===0?15000:25000;
+  const needsRescue=liveListings.length===0;
+  const maxRounds=needsRescue?4:2;
+  if((!liveState.collecting&&!needsRescue)||autoRefreshRounds>=maxRounds)return;
+
+  const delay=needsRescue
+    ?[7000,12000,18000,25000][autoRefreshRounds]||25000
+    :(autoRefreshRounds===0?15000:25000);
   autoRefreshTimer=setTimeout(async()=>{
     autoRefreshRounds++;
     await loadLiveListings(false,true);
@@ -659,6 +745,7 @@ async function loadLiveListings(force=false,background=false){
   const timer=setTimeout(()=>controller.abort(),15000);
 
   if(!background){
+    listingPage=1;
     liveListings=[];
     liveState={loading:true,error:'',fetchedAt:'',providers:{},analysis:null,collecting:false};
     if(refreshBtn){refreshBtn.disabled=true;refreshBtn.textContent='새로고침 중...'}
@@ -750,6 +837,7 @@ async function search(){
   }
 
   current=p;
+  listingPage=1;
   filters.storage=parseStorage(q,p);
   autoRefreshRounds=0;
   clearTimeout(autoRefreshTimer);
@@ -846,6 +934,7 @@ function renderModels(){
   g.querySelectorAll('.model-card').forEach(c=>c.onclick=async()=>{
     current=P.find(p=>p.id===c.dataset.id);
     if(!current)return;
+    listingPage=1;
     filters.storage='all';
     autoRefreshRounds=0;
     $('#searchInput').value=current.name;
@@ -865,12 +954,14 @@ $$('[data-quick]').forEach(b=>b.onclick=()=>{
 });
 
 $$('#platformFilters .chip').forEach(b=>b.onclick=()=>{
+  listingPage=1;
   filters.platform=b.dataset.platform;
   $$('#platformFilters .chip').forEach(x=>x.classList.toggle('active',x===b));
   renderMarket();
 });
 
 $('#priceApply').onclick=()=>{
+  listingPage=1;
   filters.min=$('#minInput').value?Number($('#minInput').value):null;
   filters.max=$('#maxInput').value?Number($('#maxInput').value):null;
   renderMarket();
@@ -883,12 +974,14 @@ $('#refreshListingsBtn').onclick=()=>{
 };
 
 $('#sortSelect').onchange=e=>{
+  listingPage=1;
   filters.sort=e.target.value;
   renderMarket();
 };
 
 $('#resetBtn').onclick=async()=>{
   const storageChanged=filters.storage!=='all';
+  listingPage=1;
   filters={platform:'all',storage:'all',min:null,max:null,sort:'cheap'};
   $('#minInput').value='';
   $('#maxInput').value='';

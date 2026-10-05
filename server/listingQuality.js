@@ -1,4 +1,6 @@
 'use strict';
+// FINAL_V4_LOOSE_MODEL_MATCH
+const { matchesRequestedModelLoose } = require('./modelMatchLoose');
 // FINAL_V3_MULTIBRAND_MATCH
 
 function normalizeText(value = '') {
@@ -231,7 +233,7 @@ function filterAndDedupeListings(listings = [], query = '') {
       continue;
     }
 
-    if (!matchesRequestedModel(evidence, query)) {
+    if (!matchesRequestedModel(evidence, query) && !matchesRequestedModelLoose(evidence, query)) {
       excluded.wrongModel++;
       continue;
     }

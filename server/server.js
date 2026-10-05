@@ -34,6 +34,12 @@ function normalize(text) {
     .replace(/redmi/g, "레드미")
     .replace(/poco/g, "포코")
     .replace(/motorola/g, "모토로라")
+    .replace(/iphone/g, "아이폰")
+    .replace(/galaxy/g, "갤럭시")
+    .replace(/xiaomi/g, "샤오미")
+    .replace(/redmi/g, "레드미")
+    .replace(/poco/g, "포코")
+    .replace(/motorola/g, "모토로라")
     .replace(/프로\s*맥스/g, "promax")
     .replace(/프로/g, "pro")
     .replace(/플러스/g, "plus")
@@ -116,7 +122,7 @@ app.get("/api/health", (req, res) => res.json({
   liveCombined: true,
   diagnostics: true,
   marketAnalysis: "sisebom-market-v2",
-  release: "final-v3"
+  release: "final-v4"
 }));
 
 app.get("/api/live/status", (req, res) => res.json({
@@ -313,7 +319,7 @@ app.get("/api/live/combined", async (req, res) => {
     fetchedAt: new Date().toISOString(),
     availableOnly: true,
     exactModelOnly: true,
-    release: "final-v3",
+    release: "final-v4",
     providers: providerStatus,
     excluded: quality.excluded,
     rawCount: listings.length,
