@@ -110,7 +110,25 @@ function getBuyText(score) {
 }
 
 app.get("/", (req, res) => res.json({ name: "시세봄 API", ok: true, products: getPhones().length }));
-app.get("/api/health", (req, res) => res.json({ ok: true, message: "시세봄 서버 정상 작동", products: getPhones().length }));
+app.get("/api/health", (req, res) => res.json({
+  ok: true,
+  message: "시세봄 서버 정상 작동",
+  products: getPhones().length,
+  liveProviders: ["당근", "번개장터", "중고나라"],
+  liveCombined: true
+}));
+
+app.get("/api/live/status", (req, res) => res.json({
+  ok: true,
+  providers: {
+    "당근": { loaded: typeof fetchDaangnListings === "function" },
+    "번개장터": { loaded: typeof fetchBunjangListings === "function" },
+    "중고나라": { loaded: typeof fetchJoongnaListings === "function" }
+  },
+  cache: { ttlMs: 90000, staleMs: 600000 },
+  availableOnly: true,
+  exactModelOnly: true
+}));
 app.get("/api/phones", (req, res) => res.json(getPhones()));
 
 app.get("/api/search", (req, res) => {
