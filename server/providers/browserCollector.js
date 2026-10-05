@@ -1,5 +1,9 @@
 'use strict';
 
+// Render의 build 캐시는 runtime에 그대로 보존되지 않을 수 있으므로
+// Chromium을 node_modules 내부에 설치하고 같은 위치에서 찾게 한다.
+process.env.PLAYWRIGHT_BROWSERS_PATH = process.env.PLAYWRIGHT_BROWSERS_PATH || '0';
+
 const { chromium } = require('playwright');
 const {
   CONFIG,

@@ -1,11 +1,11 @@
 {
   "name": "sisebom-server",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "postinstall": "playwright install chromium",
+    "postinstall": "node installPlaywright.js",
     "test": "node --test qa/*.test.js",
     "check": "node --check server.js && node --check listingQuality.js && node --check providers/browserCollectorCore.js && node --check providers/browserCollector.js && node --check providers/joongna.js && npm test"
   },
