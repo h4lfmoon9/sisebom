@@ -11,7 +11,22 @@ function normalizeText(value = '') {
     .replace(/미니/g, 'mini')
     .replace(/에어/g, 'air')
     .replace(/에스\s*이/g, 'se')
-    .replace(/[\s_\-\/()\[\]{}.,:;|'"+]/g, '');
+    .replace(/[\s_\-\/()\[\]{}.,:;|'" +]/g, '');
+}
+
+function minimumPlausiblePrice(query = '') {
+  const q = String(query).toLowerCase().replace(/\s+/g, '');
+  const numeric = q.match(/(?:아이폰|iphone)(\d{1,2})/);
+  if (numeric) {
+    const gen = Number(numeric[1]);
+    if (gen >= 17) return 150_000;
+    if (gen >= 15) return 100_000;
+    if (gen >= 13) return 70_000;
+    if (gen >= 11) return 40_000;
+    if (gen >= 8) return 20_000;
+  }
+  if (/(아이폰x|iphonex|아이폰xr|iphonexr|아이폰xs|iphonexs)/i.test(q)) return 20_000;
+  return 10_000;
 }
 
 function hasUnavailableStatus(value = '') {
@@ -24,7 +39,7 @@ function isWantedPost(value = '') {
 
 function isAccessory(value = '') {
   const text = String(value);
-  return /(케이스|범퍼|강화\s*유리|보호\s*필름|액정\s*필름|카메라\s*보호|렌즈\s*보호|맥세이프\s*(?:케이스|링|거치대|충전기)|휴대폰\s*스트랩|폰\s*스트랩|공\s*박스|빈\s*박스|박스\s*만|충전\s*케이블|라이트닝\s*케이블|usb[- ]?c\s*케이블|충전기\s*만|어댑터\s*만|액정\s*만|디스플레이\s*만|배터리\s*만|부품\s*만)/i.test(text);
+  return /(케이스|범퍼|강화\s*유리|보호\s*필름|액정\s*필름|카메라\s*보호|렌즈\s*보호|맥세이프\s*(?:케이스|링|거치대|충전기)|휴대폰\s*스트랩|폰\s*스트랩|공\s*박스|빈\s*박스|박스\s*만|충전\s*케이블|라이트닝\s*케이블|usb[- ]?c\s*케이블|충전기\s*만|어댑터\s*만|액정\s*만|디스플레이\s*만|배터리\s*만|부품\s*만|부품용|파손폰|고장폰)/i.test(text);
 }
 
 function isCatalogAd(value = '') {
@@ -36,10 +51,9 @@ function isCatalogAd(value = '') {
 }
 
 function parseTarget(query = '') {
-  const raw = String(query);
-  const n = normalizeText(raw);
-
+  const n = normalizeText(query);
   let model = null;
+
   if (/아이폰se(?:1|2|3|1세대|2세대|3세대)?/.test(n)) {
     const se = n.match(/아이폰se([123])/);
     model = { family: 'se', generation: se ? `se${se[1]}` : 'se', variant: 'se' };
@@ -112,6 +126,7 @@ function filterAndDedupeListings(listings = [], query = '') {
   const kept = [];
   const seenUrl = new Set();
   const seenExact = new Set();
+  const minPrice = minimumPlausiblePrice(query);
   const excluded = {
     unavailable: 0,
     wanted: 0,
@@ -119,6 +134,7 @@ function filterAndDedupeListings(listings = [], query = '') {
     catalog: 0,
     wrongModel: 0,
     invalidPrice: 0,
+    suspiciousPrice: 0,
     duplicate: 0
   };
 
@@ -127,8 +143,12 @@ function filterAndDedupeListings(listings = [], query = '') {
     const statusText = `${item?.status || ''} ${title}`;
     const price = Number(item?.price);
 
-    if (!title || !Number.isFinite(price) || price < 10_000 || price > 5_000_000) {
+    if (!title || !Number.isFinite(price) || price <= 0 || price > 5_000_000) {
       excluded.invalidPrice++;
+      continue;
+    }
+    if (price < minPrice) {
+      excluded.suspiciousPrice++;
       continue;
     }
     if (hasUnavailableStatus(statusText)) {
@@ -170,6 +190,7 @@ module.exports = {
   normalizeText,
   parseTarget,
   matchesRequestedModel,
+  minimumPlausiblePrice,
   hasUnavailableStatus,
   isWantedPost,
   isAccessory,

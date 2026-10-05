@@ -2,8 +2,7 @@
 
 const API = 'https://api.tavily.com/search';
 const TIMEOUT_MS = 10000;
-const MIN_PHONE_PRICE = 10000;
-const MAX_PHONE_PRICE = 5000000;
+const MAX_PHONE_PRICE = 5_000_000;
 
 const CONFIG = {
   daangn: {
@@ -46,6 +45,21 @@ function cleanText(value = '') {
     .trim();
 }
 
+function minimumPlausiblePrice(query = '') {
+  const q = String(query).toLowerCase().replace(/\s+/g, '');
+  const numeric = q.match(/(?:아이폰|iphone)(\d{1,2})/);
+  if (numeric) {
+    const gen = Number(numeric[1]);
+    if (gen >= 17) return 150_000;
+    if (gen >= 15) return 100_000;
+    if (gen >= 13) return 70_000;
+    if (gen >= 11) return 40_000;
+    if (gen >= 8) return 20_000;
+  }
+  if (/(아이폰x|iphonex|아이폰xr|iphonexr|아이폰xs|iphonexs)/i.test(q)) return 20_000;
+  return 10_000;
+}
+
 function collectPriceCandidates(text = '') {
   const s = String(text);
   const found = [];
@@ -58,17 +72,27 @@ function collectPriceCandidates(text = '') {
 
   for (const m of s.matchAll(/(\d{1,3}(?:,\d{3})+)\s*원/g)) push(m.index, m[1]);
   for (const m of s.matchAll(/(?:^|\D)(\d{4,9})\s*원(?:\D|$)/g)) push(m.index, m[1]);
-  for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*만원(?:\D|$)/g)) push(m.index, m[1], 10000);
-  for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*천원(?:\D|$)/g)) push(m.index, m[1], 1000);
+  for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*만원(?:\D|$)/g)) push(m.index, m[1], 10_000);
+  for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*천원(?:\D|$)/g)) push(m.index, m[1], 1_000);
 
-  return found
-    .filter(x => x.value >= MIN_PHONE_PRICE && x.value <= MAX_PHONE_PRICE)
-    .sort((a, b) => a.index - b.index);
+  return found.filter(x => x.value > 0 && x.value <= MAX_PHONE_PRICE);
 }
 
-function parsePrice(text = '') {
-  const candidates = collectPriceCandidates(text);
-  return candidates.length ? candidates[0].value : null;
+function parsePrice(title = '', description = '', query = '') {
+  const minPrice = minimumPlausiblePrice(query);
+
+  // 제목에 가격이 있으면 가장 우선한다.
+  const titleCandidates = collectPriceCandidates(title)
+    .filter(x => x.value >= minPrice)
+    .sort((a, b) => a.index - b.index);
+  if (titleCandidates.length) return titleCandidates[0].value;
+
+  // 설명에는 배송비/수수료 같은 낮은 금액이 섞일 수 있어,
+  // 모델별 최소 현실가 이상인 후보 중 가장 큰 값을 사용한다.
+  const descriptionCandidates = collectPriceCandidates(description)
+    .filter(x => x.value >= minPrice)
+    .sort((a, b) => b.value - a.value);
+  return descriptionCandidates.length ? descriptionCandidates[0].value : null;
 }
 
 function parseStorage(text = '') {
@@ -88,19 +112,14 @@ function parseTimeText(text = '') {
 function parseMinutes(text = '') {
   const s = String(text);
   if (/방금/.test(s)) return 0;
-
   let m = s.match(/(\d+)\s*분\s*전/);
   if (m) return Number(m[1]);
-
   m = s.match(/(\d+)\s*시간\s*전/);
   if (m) return Number(m[1]) * 60;
-
   m = s.match(/(\d+)\s*일\s*전/);
   if (m) return Number(m[1]) * 1440;
-
   m = s.match(/(\d+)\s*(?:달|개월)\s*전/);
   if (m) return Number(m[1]) * 43200;
-
   return 999999;
 }
 
@@ -155,7 +174,6 @@ async function tavilySearch(query, domain) {
       error.statusCode = response.status === 401 || response.status === 403 ? 502 : response.status;
       throw error;
     }
-
     return data;
   } catch (error) {
     if (error?.name === 'AbortError') {
@@ -188,11 +206,10 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
   const raw = Array.isArray(data?.results) ? data.results : [];
   const listings = [];
   const seen = new Set();
-  const excluded = { notListing: 0, noPrice: 0 };
+  const excluded = { notListing: 0, noPrice: 0, suspiciousPrice: 0 };
 
   for (const result of raw) {
     const url = canonicalUrl(result?.url || '');
-
     if (!url || !cfg.isListing(url)) {
       excluded.notListing++;
       continue;
@@ -200,17 +217,19 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
 
     const title = cleanText(result?.title || '');
     const description = cleanText(result?.content || result?.description || result?.snippet || '');
-    const combined = `${title} ${description}`.trim();
-    const price = parsePrice(combined);
+    const price = parsePrice(title, description, q);
 
     if (!Number.isFinite(price)) {
-      excluded.noPrice++;
+      const allCandidates = collectPriceCandidates(`${title} ${description}`);
+      if (allCandidates.length) excluded.suspiciousPrice++;
+      else excluded.noPrice++;
       continue;
     }
 
     if (seen.has(url)) continue;
     seen.add(url);
 
+    const combined = `${title} ${description}`.trim();
     const timeText = parseTimeText(combined);
 
     listings.push({
@@ -248,4 +267,4 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
   };
 }
 
-module.exports = { fetchIndexedListings };
+module.exports = { fetchIndexedListings, minimumPlausiblePrice };
