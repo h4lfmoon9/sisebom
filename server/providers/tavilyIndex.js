@@ -7,7 +7,11 @@ const MAX_PHONE_PRICE = 5_000_000;
 const CONFIG = {
   daangn: {
     name: '당근', domain: 'daangn.com',
-    sourceUrl: q => { const u = new URL('https://www.daangn.com/kr/search/buy-sell/'); u.searchParams.set('q', q); return u.toString(); },
+    sourceUrl: q => {
+      const u = new URL('https://www.daangn.com/kr/search/buy-sell/');
+      u.searchParams.set('q', q);
+      return u.toString();
+    },
     searchQuery: q => `"${q}" 당근 중고거래 판매`,
     isListing: u => /daangn\.com\/(?:kr\/buy-sell\/|articles\/)/i.test(u)
   },
@@ -56,23 +60,45 @@ function minimumPlausiblePrice(query = '') {
 function collectPriceCandidates(text = '') {
   const s = String(text);
   const out = [];
-  const push = (index, raw, multiplier = 1) => {
-    const value = Math.round(Number(String(raw).replace(/,/g, '')) * multiplier);
-    if (Number.isFinite(value) && value > 0 && value <= MAX_PHONE_PRICE) out.push({ index, value });
+
+  const push = (index, raw, multiplier = 1, extra = 0) => {
+    const value = Math.round(Number(String(raw).replace(/,/g, '')) * multiplier + extra);
+    if (Number.isFinite(value) && value > 0 && value <= MAX_PHONE_PRICE) {
+      out.push({ index, value });
+    }
   };
+
+  // 57만9천 / 57만 9천
+  for (const m of s.matchAll(/(?:^|\D)(\d{1,3})\s*만\s*(\d{1,3})\s*천(?:원)?(?:\D|$)/g)) {
+    push(m.index, m[1], 10000, Number(m[2]) * 1000);
+  }
+
+  // 57만원 / 57만
+  for (const m of s.matchAll(/(?:^|\D)(\d{1,3}(?:\.\d+)?)\s*만(?:원)?(?:\D|$)/g)) {
+    push(m.index, m[1], 10000);
+  }
 
   for (const m of s.matchAll(/(\d{1,3}(?:,\d{3})+)\s*원/g)) push(m.index, m[1]);
   for (const m of s.matchAll(/(?:^|\D)(\d{4,9})\s*원(?:\D|$)/g)) push(m.index, m[1]);
-  for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*만원(?:\D|$)/g)) push(m.index, m[1], 10000);
   for (const m of s.matchAll(/(?:^|\D)(\d+(?:\.\d+)?)\s*천원(?:\D|$)/g)) push(m.index, m[1], 1000);
 
-  return out.sort((a, b) => a.index - b.index);
+  // 같은 위치에서 중복 매칭된 값 제거
+  const seen = new Set();
+  return out
+    .sort((a, b) => a.index - b.index)
+    .filter(x => {
+      const key = `${x.index}:${x.value}`;
+      if (seen.has(key)) return false;
+      seen.add(key);
+      return true;
+    });
 }
 
 function parsePrice(title = '', description = '', query = '') {
   const min = minimumPlausiblePrice(query);
   const a = collectPriceCandidates(title).filter(x => x.value >= min);
   if (a.length) return a[0].value;
+
   const b = collectPriceCandidates(description).filter(x => x.value >= min);
   return b.length ? b[0].value : null;
 }
@@ -115,16 +141,18 @@ function canonicalUrl(v = '') {
   }
 }
 
+const MODEL_RE = /(?:애플\s*)?(?:아이폰|iphone)\s*(?:se\s*[123]?|xs\s*max|xs|xr|x|\d{1,2}(?:e)?)(?:\s*(?:프로\s*맥스|pro\s*max|프로|pro|플러스|plus|미니|mini|에어|air))?/ig;
+
 function modelSnippet(text = '', query = '') {
   const s = cleanText(text);
   if (!s) return '';
 
-  const re = /(?:아이폰|iphone)\s*(?:se\s*[123]?|xs\s*max|xs|xr|x|\d{1,2}(?:e)?)(?:\s*(?:프로\s*맥스|pro\s*max|프로|pro|플러스|plus|미니|mini|에어|air))?/ig;
-  const matches = [...s.matchAll(re)];
-  if (!matches.length) return s.slice(0, 180);
+  const matches = [...s.matchAll(MODEL_RE)];
+  if (!matches.length) return '';
 
   const qn = String(query).toLowerCase().replace(/\s+/g, '');
   let chosen = matches[0];
+
   for (const m of matches) {
     const mn = m[0].toLowerCase().replace(/\s+/g, '');
     if (qn.includes(mn) || mn.includes(qn)) {
@@ -133,18 +161,45 @@ function modelSnippet(text = '', query = '') {
     }
   }
 
-  const start = Math.max(0, (chosen.index || 0) - 35);
-  const end = Math.min(s.length, (chosen.index || 0) + chosen[0].length + 110);
-  return s.slice(start, end).replace(/^[|·,.;:\-\s]+|[|·,.;:\-\s]+$/g, '').trim();
+  const start = Math.max(0, chosen.index || 0);
+  const end = Math.min(s.length, start + 150);
+  let snippet = s.slice(start, end);
+
+  // 다음 추천 카드/이미지로 넘어가기 전까지만 사용
+  snippet = snippet.split(/\s*(?:-\s*\d+번째\s*이미지|Image\s*\d+\s*:|Image\s*\d+\b)/i)[0];
+  return snippet.replace(/^[|·,.;:\-\s]+|[|·,.;:\-\s]+$/g, '').trim();
+}
+
+function isGenericPlatformTitle(rawTitle = '', platform = '') {
+  const t = cleanText(rawTitle);
+  return !t || t === platform || /^(번개장터|중고나라|당근|bunjang|joongna)$/i.test(t);
+}
+
+function earlySnippetContamination(source, rawTitle = '', description = '') {
+  if (source !== 'bunjang') return null;
+  if (!isGenericPlatformTitle(rawTitle, '번개장터')) return null;
+
+  const early = cleanText(description).slice(0, 220);
+
+  // 현재 상품 내용 없이 추천상품 묶음만 검색 스니펫에 잡힌 경우
+  if (/가장\s*비슷한\s*상품|비슷한\s*상품을\s*앱에서|추천\s*상품/i.test(early)) {
+    return 'related-products-only';
+  }
+
+  // 현재 상품 자체가 이미 판매완료인데 아래 추천상품 iPhone 때문에 잡힌 경우
+  if (/판매\s*완료|거래\s*완료|sold\s*out/i.test(early)) {
+    return 'current-item-unavailable';
+  }
+
+  return null;
 }
 
 function displayTitle(rawTitle = '', description = '', query = '', platform = '') {
   const t = cleanText(rawTitle);
-  const generic = !t || t === platform || /^(번개장터|중고나라|당근|bunjang|joongna)$/i.test(t);
-  if (!generic) return t;
+  if (!isGenericPlatformTitle(t, platform)) return t;
 
   const snippet = modelSnippet(description, query);
-  return (snippet || query).slice(0, 120);
+  return (snippet || query).slice(0, 100);
 }
 
 async function tavilySearch(query, domain) {
@@ -215,7 +270,14 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
   const raw = Array.isArray(data?.results) ? data.results : [];
   const listings = [];
   const seen = new Set();
-  const excluded = { notListing: 0, noPrice: 0, suspiciousPrice: 0 };
+
+  const excluded = {
+    notListing: 0,
+    noPrice: 0,
+    suspiciousPrice: 0,
+    contaminatedSnippet: 0,
+    unavailable: 0
+  };
 
   for (const result of raw) {
     const url = canonicalUrl(result?.url || '');
@@ -226,8 +288,24 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
 
     const rawTitle = cleanText(result?.title || '');
     const description = cleanText(result?.content || result?.description || result?.snippet || '');
+
+    const contamination = earlySnippetContamination(source, rawTitle, description);
+    if (contamination === 'related-products-only') {
+      excluded.contaminatedSnippet++;
+      continue;
+    }
+    if (contamination === 'current-item-unavailable') {
+      excluded.unavailable++;
+      continue;
+    }
+
     const title = displayTitle(rawTitle, description, q, cfg.name);
-    const evidence = modelSnippet(`${rawTitle} ${description}`, q) || `${rawTitle} ${description}`;
+    const evidence = modelSnippet(`${rawTitle} ${description}`, q);
+
+    if (!evidence) {
+      excluded.contaminatedSnippet++;
+      continue;
+    }
 
     const price = parsePrice(rawTitle, description, q);
     if (!Number.isFinite(price)) {
@@ -247,9 +325,9 @@ async function fetchIndexedListings(source, query, { limit = 30 } = {}) {
       source,
       title,
       description: description.slice(0, 280),
-      modelText: evidence.slice(0, 220),
+      modelText: evidence.slice(0, 160),
       price,
-      storage: parseStorage(`${title} ${description}`),
+      storage: parseStorage(`${title} ${evidence}`),
       image: '',
       url,
       region: '',
