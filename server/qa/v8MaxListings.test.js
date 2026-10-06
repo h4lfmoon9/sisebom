@@ -12,7 +12,7 @@ const frontendSource = fs.readFileSync(path.join(__dirname, '../../script.js'), 
 test('V8.1 수집기는 플랫폼당 기본 20000개 안전 상한을 사용한다', () => {
   assert.match(collectorSource, /SISEBOM_MAX_LISTINGS[^\n]*20000/);
   assert.match(collectorSource, /MAX_SCROLL_ROUNDS[^\n]*500/);
-  assert.match(collectorSource, /DEEP_JOB_MAX_MS[^\n]*1800000/);
+  assert.match(collectorSource, /DEEP_JOB_MAX_MS[^\n]*(?:1800000|2700000)/);
 });
 
 test('V8.1 프론트는 라이브 검색 요청에 20000개 상한을 요청한다', () => {

@@ -11,6 +11,10 @@ const {
   normalizeBrowserCard
 } = require('./browserCollectorCore');
 const { enrichRawListingImages } = require('./listingImageEnricher');
+const {
+  extractJoongnaCardsFromHtml,
+  extractJoongnaCardsFromJson
+} = require('./joongnaDynamicParser');
 
 const MAX_LISTINGS_PER_PLATFORM = Math.max(1000, Math.min(50000, Number(process.env.SISEBOM_MAX_LISTINGS) || 20000));
 const DEFAULT_TARGET = MAX_LISTINGS_PER_PLATFORM;
@@ -21,9 +25,10 @@ const MAX_BROWSER_CONCURRENCY = Math.max(1, Math.min(3, Number(process.env.SISEB
 // server.js의 기존 9초 provider timeout 안에서 첫 응답을 돌려주기 위한 제한.
 // 실제 심층 수집은 뒤에서 계속 진행한다.
 const FIRST_RESPONSE_WAIT_MS = Math.max(2500, Math.min(7800, Number(process.env.SISEBOM_FIRST_RESPONSE_WAIT_MS) || 6200));
-const DEEP_JOB_MAX_MS = Math.max(120000, Math.min(7200000, Number(process.env.SISEBOM_DEEP_JOB_MAX_MS) || 1800000));
+const DEEP_JOB_MAX_MS = Math.max(120000, Math.min(7200000, Number(process.env.SISEBOM_DEEP_JOB_MAX_MS) || 2700000));
 const MAX_JOONGNA_PAGES = Math.max(20, Math.min(2000, Number(process.env.SISEBOM_JOONGNA_MAX_PAGES) || 1000));
-const JOONGNA_PAGE_DELAY_MS = Math.max(120, Math.min(2000, Number(process.env.SISEBOM_JOONGNA_PAGE_DELAY_MS) || 260));
+const JOONGNA_PAGE_DELAY_MS = Math.max(120, Math.min(2500, Number(process.env.SISEBOM_JOONGNA_PAGE_DELAY_MS) || 700));
+const JOONGNA_IDLE_ROUNDS = Math.max(5, Math.min(40, Number(process.env.SISEBOM_JOONGNA_IDLE_ROUNDS) || 12));
 const JOB_TTL_MS = Math.max(60000, Math.min(3600000, Number(process.env.SISEBOM_JOB_TTL_MS) || 30 * 60 * 1000));
 const IMAGE_ENRICH_LIMIT = Math.max(4, Math.min(24, Number(process.env.SISEBOM_IMAGE_ENRICH_LIMIT) || 12));
 
@@ -467,34 +472,60 @@ function addVisibleCardsToJob(cards, cfg, searchQuery, job) {
   return job.seen.size - before;
 }
 
-function joongnaPagedUrl(cfg, searchQuery, pageNumber = 1) {
-  const u = new URL(cfg.searchUrl(searchQuery));
-  // 최신순으로 고정해 페이지 이동 중 결과 순서가 흔들리는 것을 줄인다.
-  u.searchParams.set('sort', 'RECENT_SORT');
-  u.searchParams.set('page', String(Math.max(1, pageNumber)));
-  return u.toString();
-}
-
 async function readJoongnaReportedTotal(page) {
   return page.evaluate(() => {
     const text = String(document.body?.innerText || '');
-    const match = text.match(/총\s*([\d,]+)\s*개/);
-    return match ? Number(match[1].replace(/,/g, '')) : null;
+    const patterns = [
+      /총\s*([\d,]+)\s*개/,
+      /([\d,]+)\s*개의\s*(?:상품|매물|검색결과)/,
+      /검색\s*결과\s*([\d,]+)\s*개/
+    ];
+    for (const re of patterns) {
+      const match = text.match(re);
+      if (match) return Number(match[1].replace(/,/g, ''));
+    }
+    return null;
   }).catch(() => null);
 }
 
-async function collectJoongnaPages(page, cfg, searchQuery, job, deadline) {
-  let pageNumber = 1;
-  let pageSize = null;
-  let expectedPages = null;
-  let noNewPageStreak = 0;
+async function collectJoongnaDynamic(page, cfg, searchQuery, job, deadline) {
+  let networkAddedSinceRound = 0;
+  let idleRounds = 0;
+  let lastHeight = 0;
+  let lastSeenSize = job.seen.size;
+  let networkResponses = 0;
 
-  while (
-    pageNumber <= MAX_JOONGNA_PAGES &&
-    Date.now() < deadline &&
-    job.seen.size < job.target
-  ) {
-    const response = await page.goto(joongnaPagedUrl(cfg, searchQuery, pageNumber), {
+  const onResponse = async response => {
+    try {
+      const request = response.request();
+      const type = request.resourceType();
+      const url = response.url();
+      if (!/joongna\.com/i.test(url) || !['xhr', 'fetch'].includes(type)) return;
+
+      const contentType = String(response.headers()['content-type'] || '');
+      if (!/json|text\/plain|javascript/i.test(contentType)) return;
+
+      const body = await response.text();
+      if (!body || body.length > 15_000_000) return;
+
+      let payload;
+      try { payload = JSON.parse(body); } catch { return; }
+
+      const extracted = extractJoongnaCardsFromJson(payload);
+      if (extracted.reportedTotal) {
+        job.reportedTotal = Math.max(Number(job.reportedTotal) || 0, extracted.reportedTotal);
+      }
+      const added = addVisibleCardsToJob(extracted.cards, cfg, searchQuery, job);
+      networkAddedSinceRound += added;
+      networkResponses++;
+      job.updatedAt = Date.now();
+    } catch {}
+  };
+
+  page.on('response', onResponse);
+
+  try {
+    const response = await page.goto(cfg.searchUrl(searchQuery), {
       waitUntil: 'domcontentloaded',
       timeout: PAGE_TIMEOUT_MS
     });
@@ -509,56 +540,85 @@ async function collectJoongnaPages(page, cfg, searchQuery, job, deadline) {
       throw e;
     }
 
-    // SSR 결과가 먼저 오고 일부 카드/이미지가 뒤늦게 붙는 경우까지 기다린다.
-    await page.waitForTimeout(pageNumber === 1 ? 650 : JOONGNA_PAGE_DELAY_MS);
+    await page.waitForTimeout(1000);
 
-    const cards = await collectVisibleCards(page, cfg);
-    const listingCards = cards.filter(card => {
-      const urlKey = canonicalUrl(card?.url || '');
-      return urlKey && cfg.isListing(urlKey);
-    });
+    // The current Joongna web app embeds the first result batch in the page's
+    // serialized data. Read it directly in addition to visible cards so a
+    // client-rendering change does not turn a valid search into zero results.
+    try {
+      const html = await page.content();
+      const embedded = extractJoongnaCardsFromHtml(html);
+      addVisibleCardsToJob(embedded, cfg, searchQuery, job);
+    } catch {}
 
-    if (pageNumber === 1) {
-      const total = await readJoongnaReportedTotal(page);
-      if (Number.isFinite(total) && total > 0) {
-        job.reportedTotal = Math.max(Number(job.reportedTotal) || 0, total);
-      }
-
-      if (listingCards.length > 0) {
-        const firstPageUnique = new Set(
-          listingCards.map(card => canonicalUrl(card?.url || '')).filter(Boolean)
-        ).size;
-        pageSize = Math.max(1, firstPageUnique || listingCards.length);
-        if (Number.isFinite(total) && total > 0) {
-          expectedPages = Math.ceil(total / pageSize);
-        }
-      }
+    const total = await readJoongnaReportedTotal(page);
+    if (Number.isFinite(total) && total > 0) {
+      job.reportedTotal = Math.max(Number(job.reportedTotal) || 0, total);
     }
 
-    const added = addVisibleCardsToJob(listingCards, cfg, searchQuery, job);
-    job.pagesScanned = (Number(job.pagesScanned) || 0) + 1;
+    for (let round = 0; round < MAX_SCROLL_ROUNDS; round++) {
+      if (Date.now() >= deadline || job.seen.size >= job.target) break;
 
-    if (listingCards.length === 0 || added === 0) noNewPageStreak++;
-    else noNewPageStreak = 0;
+      const visibleCards = await collectVisibleCards(page, cfg).catch(() => []);
+      addVisibleCardsToJob(visibleCards, cfg, searchQuery, job);
 
-    // 명시된 총 결과 수의 마지막 페이지까지 읽었으면 종료.
-    if (expectedPages && pageNumber >= expectedPages) break;
+      // Some Next.js renders replace the serialized search payload as more
+      // results are loaded. Re-check it occasionally; canonical URL dedupe makes
+      // this cheap and safe.
+      if (round < 5 || round % 10 === 0) {
+        try {
+          const html = await page.content();
+          addVisibleCardsToJob(extractJoongnaCardsFromHtml(html), cfg, searchQuery, job);
+        } catch {}
+      }
 
-    // 사이트가 더 이상 페이지 결과를 주지 않을 때 자연스럽게 종료.
-    if (listingCards.length === 0 || noNewPageStreak >= 3) break;
+      const before = lastSeenSize;
+      const clicked = await clickPublicMoreButton(page);
+      const state = await page.evaluate(() => {
+        const beforeY = window.scrollY;
+        const height = Math.max(document.body?.scrollHeight || 0, document.documentElement?.scrollHeight || 0);
+        window.scrollTo(0, height);
+        return { beforeY, height };
+      }).catch(() => ({ beforeY: 0, height: 0 }));
 
-    pageNumber++;
-    if (Date.now() < deadline && job.seen.size < job.target) {
-      await page.waitForTimeout(JOONGNA_PAGE_DELAY_MS);
+      await page.waitForTimeout(clicked ? Math.max(900, JOONGNA_PAGE_DELAY_MS) : JOONGNA_PAGE_DELAY_MS);
+
+      // End key helps pages that attach load-more logic to viewport/keyboard
+      // movement rather than a static ?page=N URL.
+      await page.keyboard.press('End').catch(() => {});
+      await page.waitForTimeout(Math.min(1800, JOONGNA_PAGE_DELAY_MS + 250));
+
+      job.pagesScanned = (Number(job.pagesScanned) || 0) + 1;
+
+      const after = job.seen.size;
+      const heightChanged = state.height > lastHeight;
+      const gotNew = after > before || networkAddedSinceRound > 0;
+      networkAddedSinceRound = 0;
+      lastSeenSize = after;
+      lastHeight = Math.max(lastHeight, state.height || 0);
+
+      if (gotNew || heightChanged || clicked) idleRounds = 0;
+      else idleRounds++;
+
+      // Wait through several quiet rounds because Joongna can load the next
+      // batch slowly. Stop only after a long no-progress streak.
+      if (idleRounds >= JOONGNA_IDLE_ROUNDS) break;
     }
+
+    // Give the last in-flight public XHR/fetch response a moment to finish.
+    await page.waitForTimeout(600).catch(() => {});
+    job.pagesScanned = Math.max(Number(job.pagesScanned) || 0, networkResponses ? 1 : 0);
+  } finally {
+    page.off('response', onResponse);
   }
 }
 
 async function collectVariant(page, cfg, searchQuery, job, deadline) {
-  // 중고나라는 검색 결과가 명시적 ?page=N 페이지네이션으로 나뉜다.
-  // 첫 화면의 수십 개만 읽고 끝내지 않고 마지막 공개 페이지까지 순차 수집한다.
+  // FINAL V8.2: Joongna is a dynamic web app. Read visible cards + embedded
+  // serialized items + the same public XHR/fetch responses used by the page,
+  // and keep scrolling/loading until the feed stops producing new listings.
   if (job.source === 'joongna') {
-    return collectJoongnaPages(page, cfg, searchQuery, job, deadline);
+    return collectJoongnaDynamic(page, cfg, searchQuery, job, deadline);
   }
 
   const url = cfg.searchUrl(searchQuery);
