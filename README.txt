@@ -1,103 +1,53 @@
-시세봄 FINAL V5 — 전체 스마트폰 카탈로그 대확장
+﻿시세봄 로컬 서버 V1
+====================
 
-기준
-- FINAL V4의 용량 선택 / 3×3 9개 페이지 / 이전·다음 / 페이지 번호 / 판매완료 제외 기능을 그대로 유지
-- 스마트폰만 추가 (태블릿, 워치, 이어폰 제외)
-- 기존에 검증된 제품 데이터/이미지는 덮어쓰지 않고 V5 시드와 자동 병합
-- V5 시드 이미지 값은 비워 둠: 제품 이미지 정책과 충돌하지 않도록 새 이미지를 임의 추가하지 않음
-
-추가 규모
-- V5 시드 모델: 2,088개
-- 브랜드: 39개
-- 시리즈/패밀리: 164개
-- 브랜드별: Samsung 346, Xiaomi 257, Motorola 181, OPPO 141, realme 136, vivo 100, Huawei 87, Sony 75, LG 68, OnePlus 62, HONOR 58, POCO 58, Nokia 51, TECNO 39, Google 38, iQOO 35, Meizu 35, Infinix 33, ASUS 30, HTC 29, Sharp 27, ZTE 23, itel 21, Lenovo 19, nubia 19, TCL 17, Microsoft 15, Black Shark 14, BlackBerry 13, Alcatel 12, REDMAGIC 12, HMD 10, Fairphone 7, Nothing 7, Legion 4, ZUK 4, CMF 2, Razer 2, Essential 1
-
-핵심 확장
-1) Samsung
-   Galaxy S / Z / Note / A / M / F / J / C / On / Grand / Core / Ace / Young / Y /
-   Mega / E / Trend / Pocket / Beam / XCover / Folder / W
-   + 한국 통신사 계열 Wide / Jump / Quantum / Buddy / Jean
-   + 2026 S26 / S26+ / S26 Ultra / S26 FE
-   + 2026 Z Fold8 / Z Fold8 Ultra / Z Flip8
-
-2) Xiaomi 그룹
-   Xiaomi/Mi 숫자형, T, MIX/Fold/Flip, Civi, Mi Note, Mi Max, Mi A, CC/Play
-   Redmi 숫자형/A/Go, Redmi Note, K, Turbo
-   POCO F/X/M/C
-   Black Shark
-
-3) Motorola
-   Edge / Razr / Moto G / Moto E / Motorola One / Moto X / Moto Z / Moto C / Moto M /
-   Defy / ThinkPhone / Signature / Droid
-
-4) 그 외
-   Google Pixel, LG, Sony Xperia, OnePlus, OPPO, vivo, iQOO, realme, HONOR, Huawei,
-   ASUS, Nothing, CMF, Nokia, HMD, ZTE, nubia, REDMAGIC, Meizu, TCL, Alcatel, Sharp,
-   HTC, Lenovo, ZUK, Legion, TECNO, Infinix, itel, Fairphone, BlackBerry, Lumia,
-   Essential, Razer Phone
-
-검색 개선
-- 판매자가 브랜드를 빼고 "S24", "점프3", "와이드7", "edge 50", "픽셀9"처럼 적어도 인식 범위 확대
-- Wide/Jump/Quantum/Buddy 한국어/영문 별칭 추가
-- Redmi Note / POCO / Motorola / Pixel 등 축약 검색 보강
-- 기본형 검색에 Ultra/Pro/Plus/FE 등이 섞이는 것을 계속 차단
-
-적용 방법
-1. 이 ZIP을 sisebom 저장소 루트에 풀고 덮어쓰기
-2. PowerShell:
-   node apply-final-v5.js
-3. 서버 테스트:
-   cd server
-   npm test
-4. GitHub Desktop
-   Summary: 전체 스마트폰 카탈로그 FINAL V5
-5. Commit to main -> Push origin
-6. Render 배포 완료 확인
-
-추천 확인 모델
-- 갤럭시 와이드7
-- 갤럭시 점프3
-- 갤럭시 퀀텀5
-- 갤럭시 버디3
-- 갤럭시 A55 / A56
-- 갤럭시 S26 Ultra
-- 갤럭시 Z Fold8 Ultra
-- Xiaomi 17 Ultra
-- Redmi Note 14 Pro / Note 17
-- POCO F6 / F9 Pro
-- Motorola Edge 50 / Edge 70
-- Motorola Razr 60 Ultra
-- Pixel 11 Pro Fold
-- Sony Xperia VIII
-- OnePlus 15
-- OPPO Find N6
+목표
+- 내 Windows PC가 켜져 있을 때만 시세봄 서버가 실행됩니다.
+- PC를 끄면 시세봄도 같이 꺼집니다.
+- Windows를 다시 켜고 로그인하면 시세봄 서버가 자동으로 다시 실행됩니다.
+- 서버가 오류로 종료되면 5초 뒤 자동 재시작합니다.
+- 별도 Render 요금 없이 내 PC에서 Node.js 서버를 실행합니다.
 
 중요
-- "모든 스마트폰"은 지역별 파생명/통신사 리브랜딩이 계속 생기기 때문에 완전히 고정된 목록이 될 수 없음.
-  그래서 V5는 대규모 정적 시드 + 기존 공식 카탈로그 자동 발견 구조를 같이 유지함.
-- 새 모델은 공식 카탈로그 자동 발견으로 추가될 수 있고, 정적 시드는 중고 검색에서 자주 쓰이는 역사적/지역 모델을 넓게 보완함.
+- 이 ZIP은 "시세봄 프로젝트 최상단"에 풀어서 사용하세요.
+- 즉 server 폴더와 이 파일들이 같은 위치에 있어야 합니다.
 
-[FINAL V6]
-- 아이폰 제외 전 브랜드 모델에 제품정보/대표이미지 자동 보강 로직 추가
-- 빈 제품정보는 브랜드/시리즈 기반으로 자동 채움
-- 대표 이미지가 없으면 모델명 기반 이미지 자동 생성
+처음 1회 설정
+1. ZIP을 시세봄 프로젝트 최상단에 압축 해제
+2. "설치-1회.bat" 더블클릭
+3. Node.js가 설치되어 있으면 server 폴더의 npm 패키지를 설치합니다.
+4. "자동실행-설치.bat" 더블클릭
+5. 이후 Windows 로그인 시 시세봄 서버가 자동 실행됩니다.
 
-[FINAL V8]
-- 중고 매물 검색에서 용량 조건 제거
-- 아이폰15 포함 전 모델을 모델명 중심으로 검색
-- 새 매물이 더 이상 나오지 않을 때까지 심층 수집
-- 플랫폼당 5,000개 안전 상한 / 최대 10,000개 환경변수 조정 가능
-- 프론트는 심층 수집 완료까지 주기적으로 결과 갱신
+평소 사용
+- "시세봄-서버-켜기.bat" : 서버 수동 실행
+- "시세봄-서버-끄기.bat" : 서버 종료
+- "시세봄-상태확인.bat" : 현재 실행 상태 확인
+- "시세봄-열기.bat" : http://localhost:3000 열기
+- "자동실행-설치.bat" : Windows 로그인 자동 실행 등록
+- "자동실행-제거.bat" : 자동 실행 삭제
+- "공개주소-켜기.bat" : 선택 기능. 외부에서도 접속 가능한 임시 공개 주소 생성
 
-[FINAL V8.1]
-- 중고나라 명시적 page=N 페이지네이션 전체 순회
-- 플랫폼당 기본 20,000개 안전 상한 / 최대 50,000개 환경설정
-- 심층 수집 기본 30분, 중고나라 총 결과수 기반 마지막 페이지 계산
+자동 복구
+- server/server.js가 갑자기 종료되면 5초 후 자동으로 다시 실행합니다.
+- PC 재부팅 후에는 Windows 로그인 시 다시 시작됩니다.
+- 코드 자체에 문법 오류가 있으면 재부팅만으로 고쳐지지는 않습니다.
+  이 경우 logs 폴더의 server-error.log를 확인하세요.
 
-[FINAL V8.2]
-- 중고나라 동적 검색 결과: 직렬화 items + 공개 XHR/fetch + 장기 스크롤 수집으로 보강
+로그
+- logs/server-output.log : 일반 출력
+- logs/server-error.log  : 오류 출력
+- logs/watchdog.log      : 자동 재시작 기록
 
-[FINAL V8.4]
-- 중고나라 공개 검색 HTML을 브라우저보다 먼저 직접 요청해 SSR의 items 매물을 읽습니다.
-- Render에서 Playwright/Chromium이 실패해도 직접 HTML 수집 결과가 있으면 중고나라 매물을 반환합니다.
-- 기본 검색과 최신순 검색을 합쳐 중복 제거 후, 기존 번호 페이지 심층 수집도 추가로 시도합니다.
+공개 주소(선택)
+- "공개주소-켜기.bat"는 Cloudflare의 cloudflared를 자동으로 받아
+  http://localhost:3000을 임시 공개 URL로 연결합니다.
+- 실행 창에 https://xxxxx.trycloudflare.com 같은 주소가 뜹니다.
+- PC 또는 이 창을 끄면 공개 주소도 꺼집니다.
+- 재부팅 때마다 주소가 바뀔 수 있습니다.
+- 고정 주소/도메인은 나중에 별도로 설정할 수 있습니다.
+
+문제가 생기면
+1. "시세봄-상태확인.bat" 실행
+2. logs/server-error.log 파일 확인
+3. 그 파일을 ChatGPT에 보내면 원인을 이어서 수정할 수 있습니다.
