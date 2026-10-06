@@ -152,8 +152,8 @@ function applyVisualProfile(phone={}){
     if(isMissing(out[field]) && !isMissing(out.specs[field])) out[field] = out.specs[field];
   }
 
-  if(isMissing(out.image)) out.image = svgData(out);
-  if(isMissing(out.imageMode)) out.imageMode = 'generated-series-placeholder';
+  // FINAL V7: representative-image automation disabled by request.
+  // Keep only an image that already exists in the catalog; do not generate one.
   if(out.imageVerified == null) out.imageVerified = false;
   return out;
 }

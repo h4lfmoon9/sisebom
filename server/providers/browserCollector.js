@@ -241,15 +241,43 @@ function buildSearchVariants(query = '') {
     if (v && !variants.some(x => x.toLowerCase() === v.toLowerCase())) variants.push(v);
   };
 
-  const baseVariants = brandQueryVariants(q);
+  const apple = extractAppleQueryInfo(q);
+  const explicitStorage = hasStorageToken(q);
 
-  if (!hasStorageToken(q)) {
-    for (const storage of capacityHintsForQuery(q)) {
-      for (const base of baseVariants.slice(0, 4)) add(`${base} ${storage}`);
+  // FINAL V7: iPhone searches start with the broad model name so a marketplace
+  // that does not index capacity text cannot make the whole search look empty.
+  // When a capacity is explicitly selected, every variant keeps that capacity
+  // so 128/256/512GB results never bleed into each other.
+  if (apple?.gen) {
+    const canonical = canonicalAppleQueries(apple);
+
+    if (explicitStorage) {
+      const storage = String(q).match(/(?:32|64|128|256|512|1024|2048)\s*(?:gb|g|기가)?\b|(?:1|2)\s*(?:tb|테라)\b/i)?.[0]
+        ?.replace(/기가/i, 'GB')
+        ?.replace(/\s+/g, '') || '';
+      for (const base of canonical) add(`${base} ${storage}`);
+      for (const base of brandQueryVariants(q)) add(base);
+      return variants.filter(v => hasStorageToken(v)).slice(0, 14);
     }
+
+    for (const base of canonical) add(base);
+    for (const base of brandQueryVariants(q)) add(base);
+    for (const storage of appleCapacityHints(apple)) {
+      for (const base of canonical.slice(0, 2)) add(`${base} ${storage}`);
+    }
+    return variants.slice(0, 14);
+  }
+
+  const baseVariants = brandQueryVariants(q);
+  if (explicitStorage) {
+    for (const base of baseVariants) add(base);
+    return variants.filter(v => hasStorageToken(v)).slice(0, 14);
   }
 
   for (const base of baseVariants) add(base);
+  for (const storage of capacityHintsForQuery(q)) {
+    for (const base of baseVariants.slice(0, 4)) add(`${base} ${storage}`);
+  }
   return variants.slice(0, 14);
 }
 
@@ -522,7 +550,10 @@ async function runDeepJob(job) {
           if (job.seen.size === before) emptyVariantStreak++;
           else emptyVariantStreak = 0;
 
-          if (emptyVariantStreak >= 3) break;
+          // FINAL V7: do not abort an iPhone search just because the first
+          // marketplace spelling variants were empty. This was causing iPhone 15
+          // to stop before reaching a useful broad/compact spelling.
+          if (!extractAppleQueryInfo(job.query) && emptyVariantStreak >= 4) break;
         }
       } finally {
         await context.close().catch(() => {});

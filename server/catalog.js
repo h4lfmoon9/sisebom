@@ -5,8 +5,6 @@ const path = require('path');
 const { discoverOfficialCatalog } = require('./catalogDiscovery');
 const { mergeDiscovered } = require('./catalogRules');
 const { applyAutoProfileCatalog } = require('./catalogAutoProfile');
-const { mergeStaticCatalogV5 } = require('./catalogV5Merge');
-// FINAL_V5_STATIC_MERGE
 
 const DATA_DIR = path.join(__dirname, 'data');
 const DISCOVERY_TTL_MS = Math.max(
@@ -45,7 +43,7 @@ function readStaticCatalog() {
     }
   }
 
-  return applyAutoProfileCatalog(mergeStaticCatalogV5(phones));
+  return applyAutoProfileCatalog(phones);
 }
 
 function getStaticCatalog() {

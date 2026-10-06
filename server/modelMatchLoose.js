@@ -69,6 +69,9 @@ function targetCandidates(query = '') {
     [/^samsunggalaxy/, 'galaxy'],
     [/^samsung/, ''],
     [/^galaxy/, ''],
+    [/^xiaomi/, ''],
+    [/^redmi/, ''],
+    [/^poco/, ''],
     [/^motorola/, ''],
     [/^google/, ''],
     [/^sonyxperia/, 'xperia'],
@@ -82,6 +85,13 @@ function targetCandidates(query = '') {
 
   // Korean carrier models and Samsung family names are commonly listed without "Galaxy".
   if (q.startsWith('galaxy')) out.push(q.slice('galaxy'.length));
+
+  // Common seller shorthand: Z Fold6 -> Fold6, Z Flip6 -> Flip6,
+  // Galaxy S24 Ultra -> S24U.
+  for (const value of [...out]) {
+    if (/^z(?:fold|flip)\d/i.test(value)) out.push(value.slice(1));
+    if (/^s\d{2}ultra$/i.test(value)) out.push(value.replace(/ultra$/i, 'u'));
+  }
 
   return [...new Set(out.filter(x => x.length >= 3))].sort((a,b) => b.length - a.length);
 }
@@ -119,6 +129,8 @@ function candidateMatches(evidenceNorm, candidate, queryNorm) {
           return true;
         }
       }
+      // Samsung sellers commonly shorten Ultra to a trailing U (S24U/S25U).
+      if (targetVariant === 'ultra' && /^s\d{2}u$/i.test(candidate)) return true;
       if (tail.startsWith(targetVariant) && !tailHasCompetingVariant(tail, targetVariant)) return true;
     }
 
@@ -137,10 +149,9 @@ function matchesRequestedModelLoose(evidence = '', query = '') {
 
   // Strong conflicting brands are rejected.
   if (qb && eb && qb !== eb) {
-    // Galaxy/Samsung normalization or Xiaomi sub-brands should not cross-match.
-    const sameGroup =
-      (['xiaomi','redmi','poco'].includes(qb) && ['xiaomi','redmi','poco'].includes(eb));
-    if (!sameGroup) return false;
+    // Explicit different brands/sub-brands are rejected. A seller can omit the
+    // brand entirely, but Redmi/POCO must not be mistaken for Xiaomi numbered phones.
+    return false;
   }
 
   for (const candidate of targetCandidates(query)) {

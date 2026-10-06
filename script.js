@@ -382,7 +382,9 @@ function availableOnly(x){
 function filteredListings(){
   let a=liveListings.filter(availableOnly);
   if(filters.platform!=='all')a=a.filter(x=>x.platform===filters.platform);
-  if(filters.storage!=='all')a=a.filter(x=>x.storage==null||String(x.storage)===String(filters.storage));
+  // FINAL V7: selected capacities are strict buckets. Unknown-capacity cards
+  // are no longer shown in every 128/256/512GB tab.
+  if(filters.storage!=='all')a=a.filter(x=>String(x.storage)===String(filters.storage));
   if(filters.min!=null)a=a.filter(x=>Number(x.price)>=filters.min);
   if(filters.max!=null)a=a.filter(x=>Number(x.price)<=filters.max);
 
@@ -530,16 +532,8 @@ function platformCountText(items){
 }
 
 function maybeAdoptLiveRepresentativeImage(){
-  if(!current||current.image)return false;
-  const listing=liveListings.find(x=>x?.image&&/^https?:\/\//i.test(x.image));
-  if(!listing)return false;
-
-  current.image=listing.image;
-  current.imageMode='live-listing';
-  current.imageVerified=false;
-  setImage(current);
-  renderModels();
-  return true;
+  // FINAL V7: 대표이미지 자동 삽입 중단. 기존에 등록된 이미지만 사용한다.
+  return false;
 }
 
 function providerIssueSummary(providers){
@@ -729,7 +723,9 @@ function scheduleDeepRefresh(){
     :(autoRefreshRounds===0?15000:25000);
   autoRefreshTimer=setTimeout(async()=>{
     autoRefreshRounds++;
-    await loadLiveListings(false,true);
+    // When zero listings were found, force a brand-new provider job instead
+    // of reading the same completed/failed cached job again.
+    await loadLiveListings(needsRescue,true);
   },delay);
 }
 
