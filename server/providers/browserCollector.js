@@ -354,6 +354,82 @@ async function clickPublicMoreButton(page) {
   }).catch(() => false);
 }
 
+
+async function joongnaListingSignature(page, cfg) {
+  return page.evaluate(({ selector }) => {
+    const hrefs = [...document.querySelectorAll(selector)]
+      .map(a => a.href || a.getAttribute('href') || '')
+      .filter(Boolean)
+      .slice(0, 12);
+    return hrefs.join('|');
+  }, { selector: cfg.selector }).catch(() => '');
+}
+
+async function clickJoongnaNextNumberedPage(page, cfg) {
+  const before = await joongnaListingSignature(page, cfg);
+
+  const result = await page.evaluate(() => {
+    const visible = el => {
+      const r = el.getBoundingClientRect();
+      const cs = getComputedStyle(el);
+      return r.width > 0 && r.height > 0 && cs.display !== 'none' && cs.visibility !== 'hidden';
+    };
+
+    const all = [...document.querySelectorAll('button')]
+      .filter(visible)
+      .map(el => ({
+        el,
+        text: String(el.innerText || el.textContent || '').trim(),
+        disabled: Boolean(el.disabled) || el.getAttribute('aria-disabled') === 'true',
+        current: el.getAttribute('aria-current') === 'page' || /active|selected|current/i.test(String(el.className || ''))
+      }))
+      .filter(x => /^\d+$/.test(x.text));
+
+    if (!all.length) return { clicked: false, reason: 'no-number-buttons' };
+
+    let current = all.find(x => x.current)?.text;
+    if (!current) {
+      // Many versions of Joongna render the current page as a disabled number button.
+      current = all.find(x => x.disabled)?.text || '1';
+    }
+    const currentNum = Number(current) || 1;
+    const candidates = all
+      .filter(x => !x.disabled && Number(x.text) > currentNum)
+      .sort((a, b) => Number(a.text) - Number(b.text));
+
+    let target = candidates[0];
+
+    // If the visible number range has ended, try a visible next-arrow button.
+    if (!target) {
+      const arrow = [...document.querySelectorAll('button,a')].find(el => {
+        if (!visible(el)) return false;
+        const label = `${el.getAttribute('aria-label') || ''} ${el.getAttribute('title') || ''} ${String(el.innerText || '')}`;
+        return /다음|next|chevron-right|arrow-right|›|»/i.test(label);
+      });
+      if (arrow) {
+        arrow.click();
+        return { clicked: true, page: currentNum + 1, via: 'next-arrow' };
+      }
+      return { clicked: false, reason: 'no-next-button', current: currentNum };
+    }
+
+    target.el.click();
+    return { clicked: true, page: Number(target.text), via: 'number' };
+  }).catch(error => ({ clicked: false, reason: error?.message || 'evaluate-failed' }));
+
+  if (!result.clicked) return result;
+
+  // Wait until the visible product set changes. Joongna keeps the same route while
+  // switching numbered pages, so waiting for URL navigation is unreliable.
+  const started = Date.now();
+  while (Date.now() - started < 7000) {
+    await page.waitForTimeout(220).catch(() => {});
+    const after = await joongnaListingSignature(page, cfg);
+    if (after && after !== before) return { ...result, changed: true };
+  }
+  return { ...result, changed: false };
+}
+
 function jobKey(source, query) {
   return `${source}|${String(query).trim().toLowerCase()}`;
 }
@@ -490,10 +566,8 @@ async function readJoongnaReportedTotal(page) {
 
 async function collectJoongnaDynamic(page, cfg, searchQuery, job, deadline) {
   let networkAddedSinceRound = 0;
-  let idleRounds = 0;
-  let lastHeight = 0;
-  let lastSeenSize = job.seen.size;
   let networkResponses = 0;
+  let numberedPages = 0;
 
   const onResponse = async response => {
     try {
@@ -510,13 +584,11 @@ async function collectJoongnaDynamic(page, cfg, searchQuery, job, deadline) {
 
       let payload;
       try { payload = JSON.parse(body); } catch { return; }
-
       const extracted = extractJoongnaCardsFromJson(payload);
       if (extracted.reportedTotal) {
         job.reportedTotal = Math.max(Number(job.reportedTotal) || 0, extracted.reportedTotal);
       }
-      const added = addVisibleCardsToJob(extracted.cards, cfg, searchQuery, job);
-      networkAddedSinceRound += added;
+      networkAddedSinceRound += addVisibleCardsToJob(extracted.cards, cfg, searchQuery, job);
       networkResponses++;
       job.updatedAt = Date.now();
     } catch {}
@@ -525,6 +597,9 @@ async function collectJoongnaDynamic(page, cfg, searchQuery, job, deadline) {
   page.on('response', onResponse);
 
   try {
+    // IMPORTANT: use Joongna's plain public search URL. The older collector appended
+    // an assumed sort token (?sort=RECENT_SORT), which is not required by the current
+    // public page and could lead to a different/empty render.
     const response = await page.goto(cfg.searchUrl(searchQuery), {
       waitUntil: 'domcontentloaded',
       timeout: PAGE_TIMEOUT_MS
@@ -540,74 +615,74 @@ async function collectJoongnaDynamic(page, cfg, searchQuery, job, deadline) {
       throw e;
     }
 
-    await page.waitForTimeout(1000);
-
-    // The current Joongna web app embeds the first result batch in the page's
-    // serialized data. Read it directly in addition to visible cards so a
-    // client-rendering change does not turn a valid search into zero results.
-    try {
-      const html = await page.content();
-      const embedded = extractJoongnaCardsFromHtml(html);
-      addVisibleCardsToJob(embedded, cfg, searchQuery, job);
-    } catch {}
+    // The current public page is server-rendered enough to expose the result cards,
+    // but give hydration a few seconds so numbered pagination controls are active.
+    await page.waitForSelector(cfg.selector, { timeout: Math.max(5000, PAGE_TIMEOUT_MS) }).catch(() => {});
+    await page.waitForTimeout(900);
 
     const total = await readJoongnaReportedTotal(page);
-    if (Number.isFinite(total) && total > 0) {
-      job.reportedTotal = Math.max(Number(job.reportedTotal) || 0, total);
-    }
+    if (Number.isFinite(total) && total > 0) job.reportedTotal = total;
 
-    for (let round = 0; round < MAX_SCROLL_ROUNDS; round++) {
+    let noProgressPages = 0;
+    let previousSize = -1;
+
+    for (let pageRound = 0; pageRound < MAX_JOONGNA_PAGES; pageRound++) {
       if (Date.now() >= deadline || job.seen.size >= job.target) break;
 
+      // Collect both rendered product anchors and embedded serialized data.
       const visibleCards = await collectVisibleCards(page, cfg).catch(() => []);
       addVisibleCardsToJob(visibleCards, cfg, searchQuery, job);
 
-      // Some Next.js renders replace the serialized search payload as more
-      // results are loaded. Re-check it occasionally; canonical URL dedupe makes
-      // this cheap and safe.
-      if (round < 5 || round % 10 === 0) {
-        try {
-          const html = await page.content();
-          addVisibleCardsToJob(extractJoongnaCardsFromHtml(html), cfg, searchQuery, job);
-        } catch {}
+      try {
+        const html = await page.content();
+        addVisibleCardsToJob(extractJoongnaCardsFromHtml(html), cfg, searchQuery, job);
+      } catch {}
+
+      // Also scroll through the current numbered page in case lazy cards are below fold.
+      for (let i = 0; i < 8 && Date.now() < deadline; i++) {
+        const before = job.seen.size;
+        await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
+        await page.waitForTimeout(Math.max(280, JOONGNA_PAGE_DELAY_MS)).catch(() => {});
+        const more = await collectVisibleCards(page, cfg).catch(() => []);
+        addVisibleCardsToJob(more, cfg, searchQuery, job);
+        if (job.seen.size === before && networkAddedSinceRound === 0) break;
+        networkAddedSinceRound = 0;
       }
 
-      const before = lastSeenSize;
-      const clicked = await clickPublicMoreButton(page);
-      const state = await page.evaluate(() => {
-        const beforeY = window.scrollY;
-        const height = Math.max(document.body?.scrollHeight || 0, document.documentElement?.scrollHeight || 0);
-        window.scrollTo(0, height);
-        return { beforeY, height };
-      }).catch(() => ({ beforeY: 0, height: 0 }));
+      job.pagesScanned = pageRound + 1;
 
-      await page.waitForTimeout(clicked ? Math.max(900, JOONGNA_PAGE_DELAY_MS) : JOONGNA_PAGE_DELAY_MS);
+      if (job.seen.size === previousSize) noProgressPages++;
+      else noProgressPages = 0;
+      previousSize = job.seen.size;
 
-      // End key helps pages that attach load-more logic to viewport/keyboard
-      // movement rather than a static ?page=N URL.
-      await page.keyboard.press('End').catch(() => {});
-      await page.waitForTimeout(Math.min(1800, JOONGNA_PAGE_DELAY_MS + 250));
+      // Do not spend dozens of minutes clicking dead pages if the public result set
+      // is clearly no longer changing.
+      if (noProgressPages >= 4) break;
+      if (job.seen.size >= job.target) break;
 
-      job.pagesScanned = (Number(job.pagesScanned) || 0) + 1;
+      // Joongna currently exposes numbered pagination buttons (1,2,3,...), not a
+      // "더보기" feed. Click the next real page and wait for product links to change.
+      const next = await clickJoongnaNextNumberedPage(page, cfg);
+      if (!next.clicked) break;
+      numberedPages++;
 
-      const after = job.seen.size;
-      const heightChanged = state.height > lastHeight;
-      const gotNew = after > before || networkAddedSinceRound > 0;
-      networkAddedSinceRound = 0;
-      lastSeenSize = after;
-      lastHeight = Math.max(lastHeight, state.height || 0);
-
-      if (gotNew || heightChanged || clicked) idleRounds = 0;
-      else idleRounds++;
-
-      // Wait through several quiet rounds because Joongna can load the next
-      // batch slowly. Stop only after a long no-progress streak.
-      if (idleRounds >= JOONGNA_IDLE_ROUNDS) break;
+      await page.waitForTimeout(Math.max(450, JOONGNA_PAGE_DELAY_MS)).catch(() => {});
+      await page.evaluate(() => window.scrollTo(0, 0)).catch(() => {});
     }
 
-    // Give the last in-flight public XHR/fetch response a moment to finish.
-    await page.waitForTimeout(600).catch(() => {});
-    job.pagesScanned = Math.max(Number(job.pagesScanned) || 0, networkResponses ? 1 : 0);
+    await page.waitForTimeout(500).catch(() => {});
+    job.pagesScanned = Math.max(job.pagesScanned, numberedPages + 1, networkResponses ? 1 : 0);
+
+    // Give a useful diagnostic instead of silently returning 0 when Joongna changes
+    // its markup or blocks the Render browser.
+    if (job.seen.size === 0) {
+      const bodyText = await page.evaluate(() => String(document.body?.innerText || '').slice(0, 1200)).catch(() => '');
+      if (/접근|차단|captcha|robot|비정상|로그인/i.test(bodyText)) {
+        job.error = '중고나라가 Render 브라우저 접근을 제한했습니다.';
+      } else {
+        job.error = '중고나라 검색 페이지는 열렸지만 상품 링크를 읽지 못했습니다. 페이지 구조 변경 가능성이 있습니다.';
+      }
+    }
   } finally {
     page.off('response', onResponse);
   }
