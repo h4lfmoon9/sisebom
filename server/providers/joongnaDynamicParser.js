@@ -101,6 +101,33 @@ function extractJoongnaCardsFromHtml(html = '') {
   const attempts = [source, normalizeEscapedJsonText(source)];
 
   for (const value of attempts) {
+    // The public Joongna SSR page currently serializes the search list as
+    // "items":[...] immediately before changedProductFilterType. Prefer that
+    // segment because pages can contain unrelated "items" arrays earlier.
+    const starts = ['"items":', '\"items\":'];
+    const ends = [',"changedProductFilterType"', ',\"changedProductFilterType\"'];
+
+    for (const startMarker of starts) {
+      const start = value.indexOf(startMarker);
+      if (start < 0) continue;
+      const contentStart = start + startMarker.length;
+
+      for (const endMarker of ends) {
+        const end = value.indexOf(endMarker, contentStart);
+        if (end < 0) continue;
+        let segment = value.slice(contentStart, end).trim();
+        segment = normalizeEscapedJsonText(segment);
+        try {
+          const items = JSON.parse(segment);
+          if (Array.isArray(items)) {
+            const cards = items.map(joongnaRawToCard).filter(Boolean);
+            if (cards.length) return cards;
+          }
+        } catch {}
+      }
+    }
+
+    // Fallback for older/current variants where the closing marker changes.
     const items = extractJsonAfterMarker(value, '"items":', '[');
     if (!Array.isArray(items)) continue;
     const cards = items.map(joongnaRawToCard).filter(Boolean);

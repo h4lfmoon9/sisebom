@@ -15,6 +15,7 @@ const {
   extractJoongnaCardsFromHtml,
   extractJoongnaCardsFromJson
 } = require('./joongnaDynamicParser');
+const { fetchJoongnaDirect } = require('./joongnaDirectFetcher');
 
 const MAX_LISTINGS_PER_PLATFORM = Math.max(1000, Math.min(50000, Number(process.env.SISEBOM_MAX_LISTINGS) || 20000));
 const DEFAULT_TARGET = MAX_LISTINGS_PER_PLATFORM;
@@ -471,6 +472,8 @@ function makeJob(source, query, options = {}) {
     reportedTotal: null,
     pagesScanned: 0,
     error: '',
+    directFetchCount: 0,
+    directFetchAttempts: [],
     promise: null
   };
 }
@@ -505,6 +508,8 @@ function snapshotJob(job) {
     imageEnrichedCount: Number(job.imageEnrichedCount) || 0,
     reportedTotal: Number(job.reportedTotal) || null,
     pagesScanned: Number(job.pagesScanned) || 0,
+    directFetchCount: Number(job.directFetchCount) || 0,
+    directFetchAttempts: Array.isArray(job.directFetchAttempts) ? [...job.directFetchAttempts] : [],
     candidateCount: job.seen.size,
     targetCount: job.target,
     count: listings.length,
@@ -688,6 +693,25 @@ async function collectJoongnaDynamic(page, cfg, searchQuery, job, deadline) {
   }
 }
 
+async function collectJoongnaDirectFallback(cfg, searchQuery, job, deadline) {
+  const result = await fetchJoongnaDirect(searchQuery, { deadline }).catch(error => ({
+    cards: [],
+    reportedTotal: null,
+    attempts: [{ url: cfg.searchUrl(searchQuery), status: null, count: 0, error: error?.message || 'direct fetch failed' }]
+  }));
+
+  const added = addVisibleCardsToJob(result.cards || [], cfg, searchQuery, job);
+  job.directFetchCount += added;
+  job.directFetchAttempts.push(...(result.attempts || []).slice(0, 4));
+  if (result.reportedTotal) {
+    job.reportedTotal = Math.max(Number(job.reportedTotal) || 0, Number(result.reportedTotal) || 0);
+  }
+  const successful = (result.attempts || []).find(x => Number(x.status) >= 200 && Number(x.status) < 400);
+  if (successful && !job.responseStatus) job.responseStatus = successful.status;
+  job.updatedAt = Date.now();
+  return added;
+}
+
 async function collectVariant(page, cfg, searchQuery, job, deadline) {
   // FINAL V8.2: Joongna is a dynamic web app. Read visible cards + embedded
   // serialized items + the same public XHR/fetch responses used by the page,
@@ -741,6 +765,22 @@ async function runDeepJob(job) {
   const deadline = Date.now() + DEEP_JOB_MAX_MS;
 
   try {
+    // FINAL V8.4: Joongna's public SSR search page already contains serialized
+    // listing data. Read it with plain HTTP before launching Chromium so listings
+    // can still appear when Playwright/Chromium is unavailable on Render.
+    if (job.source === 'joongna') {
+      let directQueries = 0;
+      for (const variant of variants) {
+        if (Date.now() >= deadline || job.seen.size >= job.target || directQueries >= 4) break;
+        if (!job.queriesTried.includes(variant)) job.queriesTried.push(variant);
+        await collectJoongnaDirectFallback(cfg, variant, job, deadline);
+        directQueries++;
+        // One successful broad spelling is enough to seed the UI quickly; browser
+        // pagination below can continue collecting deeper pages.
+        if (job.seen.size >= 40) break;
+      }
+    }
+
     await withBrowserSlot(async () => {
       const browser = await getBrowser();
       const context = await browser.newContext({
@@ -757,7 +797,7 @@ async function runDeepJob(job) {
           if (Date.now() >= deadline || job.seen.size >= job.target) break;
 
           const before = job.seen.size;
-          job.queriesTried.push(variant);
+          if (!job.queriesTried.includes(variant)) job.queriesTried.push(variant);
           job.updatedAt = Date.now();
 
           try {
@@ -804,7 +844,9 @@ async function runDeepJob(job) {
     job.status = 'done';
   } catch (error) {
     job.status = job.seen.size ? 'partial' : 'failed';
-    job.error = error?.message || '수집 실패';
+    job.error = job.seen.size && job.source === 'joongna'
+      ? `중고나라 직접 HTML 수집은 성공했지만 심층 브라우저 수집은 실패했습니다: ${error?.message || 'browser failed'}`
+      : (error?.message || '수집 실패');
   } finally {
     job.updatedAt = Date.now();
     job.finishedAt = Date.now();
