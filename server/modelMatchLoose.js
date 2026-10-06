@@ -1,141 +1,158 @@
 'use strict';
 
+// FINAL V5: broad model matching for old/new, regional, carrier and global phone families.
+// This is intentionally conservative around suffix variants (Ultra/Pro/Plus/FE/etc.).
+
 function n(value = '') {
-  return String(value)
+  return String(value || '')
     .toLowerCase()
-    .replace(/iphone|아이폰/g, 'iphone')
+    .replace(/\b5g\b/g, '')
+    .replace(/\blte\b/g, '')
+    .replace(/(\d+)\s*(?:gb|기가|g)\b/g, '')
+    .replace(/(?:1|2)\s*(?:tb|테라)\b/g, '')
+    .replace(/samsung/g, 'samsung')
     .replace(/galaxy|갤럭시/g, 'galaxy')
+    .replace(/iphone|아이폰/g, 'iphone')
     .replace(/xiaomi|샤오미/g, 'xiaomi')
     .replace(/redmi|레드미/g, 'redmi')
     .replace(/poco|포코/g, 'poco')
-    .replace(/motorola|모토로라|moto/g, 'motorola')
+    .replace(/motorola|모토로라/g, 'motorola')
+    .replace(/google/g, 'google')
+    .replace(/pixel|픽셀/g, 'pixel')
+    .replace(/sony/g, 'sony')
+    .replace(/엑스페리아/g, 'xperia')
+    .replace(/oneplus/g, 'oneplus')
     .replace(/울트라/g, 'ultra')
     .replace(/프로\s*맥스/g, 'promax')
     .replace(/pro\s*max/g, 'promax')
+    .replace(/프로\s*플러스/g, 'proplus')
+    .replace(/pro\s*\+/g, 'proplus')
     .replace(/프로/g, 'pro')
     .replace(/플러스/g, 'plus')
     .replace(/\+/g, 'plus')
     .replace(/폴드/g, 'fold')
     .replace(/플립/g, 'flip')
-    .replace(/노트/g, 'note')
     .replace(/미니/g, 'mini')
+    .replace(/라이트/g, 'lite')
+    .replace(/울트라/g, 'ultra')
     .replace(/에어/g, 'air')
+    .replace(/와이드/g, 'wide')
+    .replace(/점프/g, 'jump')
+    .replace(/퀀텀/g, 'quantum')
+    .replace(/버디/g, 'buddy')
+    .replace(/노트/g, 'note')
+    .replace(/자급제|공기계|풀박스|판매|팝니다|상태좋음/g, '')
     .replace(/[^a-z0-9가-힣]/g, '');
 }
 
-function variantFromTail(tail = '') {
-  if (/promax/.test(tail)) return 'promax';
-  if (/ultra|^u(?:\d|$)/.test(tail)) return 'ultra';
-  if (/proplus/.test(tail)) return 'proplus';
-  if (/pro/.test(tail)) return 'pro';
-  if (/plus/.test(tail)) return 'plus';
-  if (/fe/.test(tail)) return 'fe';
-  if (/mini/.test(tail)) return 'mini';
-  return 'base';
+const VARIANTS = [
+  'promax','proplus','ultra','plus','pro','fe','lite','mini','air','fusion','neo','stylus','power','play'
+];
+
+const BRAND_MARKERS = [
+  'iphone','galaxy','xiaomi','redmi','poco','motorola','pixel','xperia',
+  'oneplus','oppo','vivo','iqoo','realme','honor','huawei','asus','nothing',
+  'cmf','nokia','hmd','zte','nubia','redmagic','meizu','tcl','alcatel',
+  'sharp','htc','lenovo','tecno','infinix','itel','fairphone','blackberry'
+];
+
+function brandMarker(s = '') {
+  const x = n(s);
+  return BRAND_MARKERS.find(b => x.includes(b)) || '';
 }
 
-function sameVariant(target, actual) {
-  if (target === actual) return true;
-  if (target === 'plus' && actual === 'proplus') return false;
+function targetCandidates(query = '') {
+  const q = n(query);
+  const out = [q];
+
+  const rules = [
+    [/^samsunggalaxy/, 'galaxy'],
+    [/^samsung/, ''],
+    [/^galaxy/, ''],
+    [/^motorola/, ''],
+    [/^google/, ''],
+    [/^sonyxperia/, 'xperia'],
+    [/^sony/, ''],
+    [/^lg/, '']
+  ];
+
+  for (const [re, replacement] of rules) {
+    if (re.test(q)) out.push(q.replace(re, replacement));
+  }
+
+  // Korean carrier models and Samsung family names are commonly listed without "Galaxy".
+  if (q.startsWith('galaxy')) out.push(q.slice('galaxy'.length));
+
+  return [...new Set(out.filter(x => x.length >= 3))].sort((a,b) => b.length - a.length);
+}
+
+function explicitVariant(s = '') {
+  const x = n(s);
+  return VARIANTS.find(v => x.includes(v)) || 'base';
+}
+
+function tailHasCompetingVariant(tail = '', targetVariant = 'base') {
+  const found = VARIANTS.find(v => tail.startsWith(v));
+  if (!found) return false;
+  return found !== targetVariant;
+}
+
+function candidateMatches(evidenceNorm, candidate, queryNorm) {
+  let start = evidenceNorm.indexOf(candidate);
+  if (start < 0) return false;
+
+  const targetVariant = explicitVariant(queryNorm);
+
+  // Search all occurrences: one may be a false prefix, a later one can be exact.
+  while (start >= 0) {
+    const tail = evidenceNorm.slice(start + candidate.length, start + candidate.length + 16);
+
+    if (targetVariant === 'base') {
+      if (!VARIANTS.some(v => tail.startsWith(v))) return true;
+    } else {
+      // If candidate already contains the suffix, make sure it is not only a prefix
+      // of a stronger sibling (Pro -> Pro Max / Pro Plus).
+      if (candidate.includes(targetVariant)) {
+        if (targetVariant === 'pro' && /^(?:max|plus)/.test(tail)) {
+          // keep looking for a cleaner occurrence
+        } else {
+          return true;
+        }
+      }
+      if (tail.startsWith(targetVariant) && !tailHasCompetingVariant(tail, targetVariant)) return true;
+    }
+
+    start = evidenceNorm.indexOf(candidate, start + 1);
+  }
   return false;
 }
 
-function hasCompetingBrand(e, allowed) {
-  const brands = ['iphone','galaxy','xiaomi','redmi','poco','motorola'];
-  return brands.some(b => b !== allowed && e.includes(b));
-}
-
-function parseTarget(query = '') {
-  const q = n(query);
-
-  let m = q.match(/galaxy(s|a|m)(\d{2})(ultra|plus|fe)?/);
-  if (m) return { brand:'galaxy', family:`${m[1]}${m[2]}`, variant:m[3] || 'base' };
-
-  m = q.match(/galaxy(?:z)?(fold|flip)(\d{1,2})(ultra|fe)?/);
-  if (m) return { brand:'galaxy', family:`${m[1]}${m[2]}`, variant:m[3] || 'base' };
-
-  m = q.match(/xiaomi(\d{2}[a-z]?)(ultra|pro|lite)?/);
-  if (m) return { brand:'xiaomi', family:m[1], variant:m[2] || 'base' };
-
-  m = q.match(/redmi(note)?(\d{1,2}[a-z]?)(proplus|pro|plus)?/);
-  if (m) return { brand:'redmi', family:`${m[1] ? 'note' : ''}${m[2]}`, variant:m[3] || 'base' };
-
-  m = q.match(/poco([fxm]\d{1,2})(pro)?/);
-  if (m) return { brand:'poco', family:m[1], variant:m[2] || 'base' };
-
-  m = q.match(/motorola(edge|razr)(\d{1,3})(ultra|pro|fusion|neo)?/);
-  if (m) return { brand:'motorola', family:`${m[1]}${m[2]}`, variant:m[3] || 'base' };
-
-  m = q.match(/motorolag(\d{1,3})/);
-  if (m) return { brand:'motorola', family:`g${m[1]}`, variant:'base' };
-
-  return null;
-}
-
-function actualForTarget(evidence = '', target) {
-  const e = n(evidence);
-
-  if (target.brand === 'galaxy') {
-    let re;
-    if (/^(s|a|m)\d{2}$/.test(target.family)) {
-      re = new RegExp(`(?:galaxy)?${target.family}(ultra|u|plus|fe)?`);
-    } else {
-      re = new RegExp(`(?:galaxy(?:z)?)?${target.family}(ultra|fe)?`);
-    }
-
-    const m = e.match(re);
-    if (!m) return null;
-
-    let variant = m[1] || 'base';
-    if (variant === 'u') variant = 'ultra';
-    return { brand:'galaxy', family:target.family, variant };
-  }
-
-  if (target.brand === 'xiaomi') {
-    if (hasCompetingBrand(e, 'xiaomi')) return null;
-    const m = e.match(new RegExp(`(?:xiaomi)?${target.family}(ultra|pro|lite)?`));
-    if (!m) return null;
-    return { brand:'xiaomi', family:target.family, variant:m[1] || 'base' };
-  }
-
-  if (target.brand === 'redmi') {
-    if (hasCompetingBrand(e, 'redmi')) return null;
-    const m = e.match(new RegExp(`(?:redmi)?${target.family}(proplus|pro|plus)?`));
-    if (!m) return null;
-    return { brand:'redmi', family:target.family, variant:m[1] || 'base' };
-  }
-
-  if (target.brand === 'poco') {
-    if (hasCompetingBrand(e, 'poco')) return null;
-    const m = e.match(new RegExp(`(?:poco)?${target.family}(pro)?`));
-    if (!m) return null;
-    return { brand:'poco', family:target.family, variant:m[1] || 'base' };
-  }
-
-  if (target.brand === 'motorola') {
-    if (hasCompetingBrand(e, 'motorola')) return null;
-    const m = e.match(new RegExp(`(?:motorola)?${target.family}(ultra|pro|fusion|neo)?`));
-    if (!m) return null;
-    return { brand:'motorola', family:target.family, variant:m[1] || 'base' };
-  }
-
-  return null;
-}
-
 function matchesRequestedModelLoose(evidence = '', query = '') {
-  const target = parseTarget(query);
-  if (!target) return false;
+  const e = n(evidence);
+  const q = n(query);
+  if (!e || !q) return false;
 
-  const actual = actualForTarget(evidence, target);
-  if (!actual) return false;
+  const qb = brandMarker(q);
+  const eb = brandMarker(e);
 
-  return actual.brand === target.brand &&
-    actual.family === target.family &&
-    sameVariant(target.variant, actual.variant);
+  // Strong conflicting brands are rejected.
+  if (qb && eb && qb !== eb) {
+    // Galaxy/Samsung normalization or Xiaomi sub-brands should not cross-match.
+    const sameGroup =
+      (['xiaomi','redmi','poco'].includes(qb) && ['xiaomi','redmi','poco'].includes(eb));
+    if (!sameGroup) return false;
+  }
+
+  for (const candidate of targetCandidates(query)) {
+    if (candidateMatches(e, candidate, q)) return true;
+  }
+  return false;
 }
 
 module.exports = {
   n,
-  parseTarget,
+  brandMarker,
+  targetCandidates,
+  explicitVariant,
   matchesRequestedModelLoose
 };

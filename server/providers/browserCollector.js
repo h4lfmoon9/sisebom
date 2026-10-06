@@ -1,4 +1,5 @@
 'use strict';
+// FINAL_V5_ALL_SMARTPHONE_SEARCH
 
 // Render build/runtime에서 같은 Chromium 경로를 사용.
 process.env.PLAYWRIGHT_BROWSERS_PATH = process.env.PLAYWRIGHT_BROWSERS_PATH || '0';
@@ -168,16 +169,39 @@ function brandQueryVariants(query = '') {
   add(q);
   add(compactPhoneQuery(q));
 
-  if (/샤오미/i.test(q)) add(q.replace(/샤오미/ig, 'Xiaomi'));
-  if (/xiaomi/i.test(q)) add(q.replace(/xiaomi/ig, '샤오미'));
-  if (/레드미/i.test(q)) add(q.replace(/레드미/ig, 'Redmi'));
-  if (/redmi/i.test(q)) add(q.replace(/redmi/ig, '레드미'));
-  if (/포코/i.test(q)) add(q.replace(/포코/ig, 'POCO'));
-  if (/poco/i.test(q)) add(q.replace(/poco/ig, '포코'));
-  if (/모토로라/i.test(q)) add(q.replace(/모토로라/ig, 'Motorola'));
-  if (/motorola/i.test(q)) add(q.replace(/motorola/ig, '모토로라'));
-  if (/갤럭시/i.test(q)) add(q.replace(/갤럭시/ig, 'Galaxy'));
-  if (/galaxy/i.test(q)) add(q.replace(/galaxy/ig, '갤럭시'));
+  const swaps = [
+    [/샤오미/ig, 'Xiaomi'], [/xiaomi/ig, '샤오미'],
+    [/레드미/ig, 'Redmi'], [/redmi/ig, '레드미'],
+    [/포코/ig, 'POCO'], [/poco/ig, '포코'],
+    [/모토로라/ig, 'Motorola'], [/motorola/ig, '모토로라'],
+    [/갤럭시/ig, 'Galaxy'], [/galaxy/ig, '갤럭시'],
+    [/픽셀/ig, 'Pixel'], [/\bPixel\b/ig, '픽셀'],
+    [/엑스페리아/ig, 'Xperia']
+  ];
+  for (const [re, replacement] of swaps) {
+    if (re.test(q)) add(q.replace(re, replacement));
+  }
+
+  // Marketplace sellers often omit the manufacturer/family prefix.
+  add(q.replace(/^(?:갤럭시|Galaxy)\s*/i, ''));
+  add(q.replace(/^(?:모토로라|Motorola)\s*/i, ''));
+  add(q.replace(/^Google\s+/i, ''));
+  add(q.replace(/^Sony\s+/i, ''));
+  add(q.replace(/^LG\s+/i, ''));
+
+  // Korean carrier / family spellings.
+  const familySwaps = [
+    [/와이드/ig, 'Wide'], [/\bWide\b/ig, '와이드'],
+    [/점프/ig, 'Jump'], [/\bJump\b/ig, '점프'],
+    [/퀀텀/ig, 'Quantum'], [/\bQuantum\b/ig, '퀀텀'],
+    [/버디/ig, 'Buddy'], [/\bBuddy\b/ig, '버디'],
+    [/폴드/ig, 'Fold'], [/\bFold\b/ig, '폴드'],
+    [/플립/ig, 'Flip'], [/\bFlip\b/ig, '플립'],
+    [/울트라/ig, 'Ultra'], [/\bUltra\b/ig, '울트라']
+  ];
+  for (const [re, replacement] of familySwaps) {
+    if (re.test(q)) add(q.replace(re, replacement));
+  }
 
   return out;
 }
@@ -201,6 +225,9 @@ function capacityHintsForQuery(query = '') {
   }
   if (/(?:motorola|모토로라|moto|razr|edge)/.test(q)) {
     return ['256GB', '128GB', '512GB'];
+  }
+  if (/(?:pixel|픽셀|sony|xperia|oneplus|oppo|vivo|iqoo|realme|honor|huawei|asus|rog|zenfone|nothing|cmf|nokia|hmd|zte|nubia|redmagic|meizu|tcl|alcatel|sharp|htc|lenovo|tecno|infinix|itel|fairphone|lg\s)/.test(q)) {
+    return ['128GB', '256GB', '512GB', '64GB'];
   }
 
   return ['128GB', '256GB', '512GB', '64GB'];
