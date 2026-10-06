@@ -12,15 +12,16 @@ const {
 } = require('./browserCollectorCore');
 const { enrichRawListingImages } = require('./listingImageEnricher');
 
-const DEFAULT_TARGET = Math.max(40, Math.min(500, Number(process.env.SISEBOM_COLLECT_LIMIT) || 200));
-const MAX_SCROLL_ROUNDS = Math.max(5, Math.min(30, Number(process.env.SISEBOM_SCROLL_ROUNDS) || 12));
+const MAX_LISTINGS_PER_PLATFORM = Math.max(500, Math.min(10000, Number(process.env.SISEBOM_MAX_LISTINGS) || 5000));
+const DEFAULT_TARGET = MAX_LISTINGS_PER_PLATFORM;
+const MAX_SCROLL_ROUNDS = Math.max(30, Math.min(500, Number(process.env.SISEBOM_SCROLL_ROUNDS) || 240));
 const PAGE_TIMEOUT_MS = Math.max(6000, Math.min(30000, Number(process.env.SISEBOM_PAGE_TIMEOUT_MS) || 12000));
 const MAX_BROWSER_CONCURRENCY = Math.max(1, Math.min(3, Number(process.env.SISEBOM_BROWSER_CONCURRENCY) || 2));
 
 // server.js의 기존 9초 provider timeout 안에서 첫 응답을 돌려주기 위한 제한.
 // 실제 심층 수집은 뒤에서 계속 진행한다.
 const FIRST_RESPONSE_WAIT_MS = Math.max(2500, Math.min(7800, Number(process.env.SISEBOM_FIRST_RESPONSE_WAIT_MS) || 6200));
-const DEEP_JOB_MAX_MS = Math.max(15000, Math.min(180000, Number(process.env.SISEBOM_DEEP_JOB_MAX_MS) || 70000));
+const DEEP_JOB_MAX_MS = Math.max(60000, Math.min(1200000, Number(process.env.SISEBOM_DEEP_JOB_MAX_MS) || 900000));
 const JOB_TTL_MS = Math.max(60000, Math.min(3600000, Number(process.env.SISEBOM_JOB_TTL_MS) || 30 * 60 * 1000));
 const IMAGE_ENRICH_LIMIT = Math.max(4, Math.min(24, Number(process.env.SISEBOM_IMAGE_ENRICH_LIMIT) || 12));
 
@@ -234,51 +235,30 @@ function capacityHintsForQuery(query = '') {
 }
 
 function buildSearchVariants(query = '') {
-  const q = String(query).trim();
+  const q = String(query || '').trim();
   const variants = [];
   const add = value => {
     const v = String(value || '').trim();
-    if (v && !variants.some(x => x.toLowerCase() === v.toLowerCase())) variants.push(v);
+    if (!v) return;
+    // FINAL V8: storage is not a search condition. Strip capacity text from every
+    // marketplace query so one broad model search can discover all capacities.
+    const broad = v
+      .replace(/(?:^|\s)(?:32|64|128|256|512|1024|2048)\s*(?:gb|g|기가)(?=\s|$)/ig, ' ')
+      .replace(/(?:^|\s)(?:1|2)\s*(?:tb|테라)(?=\s|$)/ig, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+    if (broad && !variants.some(x => x.toLowerCase() === broad.toLowerCase())) variants.push(broad);
   };
 
   const apple = extractAppleQueryInfo(q);
-  const explicitStorage = hasStorageToken(q);
-
-  // FINAL V7: iPhone searches start with the broad model name so a marketplace
-  // that does not index capacity text cannot make the whole search look empty.
-  // When a capacity is explicitly selected, every variant keeps that capacity
-  // so 128/256/512GB results never bleed into each other.
   if (apple?.gen) {
-    const canonical = canonicalAppleQueries(apple);
-
-    if (explicitStorage) {
-      const storage = String(q).match(/(?:32|64|128|256|512|1024|2048)\s*(?:gb|g|기가)?\b|(?:1|2)\s*(?:tb|테라)\b/i)?.[0]
-        ?.replace(/기가/i, 'GB')
-        ?.replace(/\s+/g, '') || '';
-      for (const base of canonical) add(`${base} ${storage}`);
-      for (const base of brandQueryVariants(q)) add(base);
-      return variants.filter(v => hasStorageToken(v)).slice(0, 14);
-    }
-
-    for (const base of canonical) add(base);
+    for (const base of canonicalAppleQueries(apple)) add(base);
     for (const base of brandQueryVariants(q)) add(base);
-    for (const storage of appleCapacityHints(apple)) {
-      for (const base of canonical.slice(0, 2)) add(`${base} ${storage}`);
-    }
-    return variants.slice(0, 14);
+    return variants.slice(0, 12);
   }
 
-  const baseVariants = brandQueryVariants(q);
-  if (explicitStorage) {
-    for (const base of baseVariants) add(base);
-    return variants.filter(v => hasStorageToken(v)).slice(0, 14);
-  }
-
-  for (const base of baseVariants) add(base);
-  for (const storage of capacityHintsForQuery(q)) {
-    for (const base of baseVariants.slice(0, 4)) add(`${base} ${storage}`);
-  }
-  return variants.slice(0, 14);
+  for (const base of brandQueryVariants(q)) add(base);
+  return variants.slice(0, 12);
 }
 
 async function collectVisibleCards(page, cfg) {
@@ -382,7 +362,8 @@ function pruneJobs() {
 
 function makeJob(source, query, options = {}) {
   const cfg = CONFIG[source];
-  const target = Math.max(DEFAULT_TARGET, Number(options.limit) || 0);
+  const requested = Number(options.limit) || DEFAULT_TARGET;
+  const target = Math.min(MAX_LISTINGS_PER_PLATFORM, Math.max(DEFAULT_TARGET, requested));
 
   return {
     key: jobKey(source, query),
@@ -503,7 +484,9 @@ async function collectVariant(page, cfg, searchQuery, job, deadline) {
     if (job.seen.size === before) unchangedRounds++;
     else unchangedRounds = 0;
 
-    if (job.seen.size >= job.target || unchangedRounds >= 3) break;
+    // Stop naturally when repeated scroll/more attempts reveal nothing new.
+    // job.target is only a hard safety ceiling, not the normal stopping point.
+    if (job.seen.size >= job.target || unchangedRounds >= 5) break;
 
     const clicked = await clickPublicMoreButton(page);
     await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight)).catch(() => {});
@@ -553,7 +536,9 @@ async function runDeepJob(job) {
           // FINAL V7: do not abort an iPhone search just because the first
           // marketplace spelling variants were empty. This was causing iPhone 15
           // to stop before reaching a useful broad/compact spelling.
-          if (!extractAppleQueryInfo(job.query) && emptyVariantStreak >= 4) break;
+          // FINAL V8: try every broad spelling variant. A few empty variants should not
+          // prevent later Korean/English/compact spellings from finding listings.
+          if (emptyVariantStreak >= 8) break;
         }
       } finally {
         await context.close().catch(() => {});
@@ -671,5 +656,6 @@ module.exports = {
   fetchBrowserListings,
   closeBrowser,
   buildSearchVariants,
+  MAX_LISTINGS_PER_PLATFORM,
   getBrowser
 };

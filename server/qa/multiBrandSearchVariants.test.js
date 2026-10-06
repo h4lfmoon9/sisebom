@@ -4,10 +4,10 @@ const assert = require('node:assert/strict');
 const { buildSearchVariants } = require('../providers/browserCollector');
 
 for (const q of ['갤럭시 S24 Ultra','샤오미 14','Redmi Note 14 Pro','POCO F6','motorola edge 50']) {
-  test(`${q} 용량 포함 정확 검색어 우선`, () => {
+  test(`${q} 모델명 중심 검색`, () => {
     const variants = buildSearchVariants(q);
-    assert.ok(variants.length >= 3);
-    assert.match(variants[0], /(?:128|256|512)GB/i);
+    assert.ok(variants.length >= 1);
+    assert.ok(variants.every(v => !/(?:32|64|128|256|512|1024|2048)\s*(?:GB|G|기가)|(?:1|2)\s*(?:TB|테라)/i.test(v)));
   });
 }
 

@@ -369,10 +369,8 @@ function buildListingQuery(p){
 }
 
 function liveSearchQuery(){
-  const base=buildListingQuery(current);
-  if(filters.storage==='all')return base;
-  const n=Number(filters.storage);
-  return `${base} ${n>=1024?n/1024+'TB':n+'GB'}`;
+  // FINAL V8: used-market search never adds a capacity condition.
+  return buildListingQuery(current);
 }
 
 function availableOnly(x){
@@ -382,9 +380,6 @@ function availableOnly(x){
 function filteredListings(){
   let a=liveListings.filter(availableOnly);
   if(filters.platform!=='all')a=a.filter(x=>x.platform===filters.platform);
-  // FINAL V7: selected capacities are strict buckets. Unknown-capacity cards
-  // are no longer shown in every 128/256/512GB tab.
-  if(filters.storage!=='all')a=a.filter(x=>String(x.storage)===String(filters.storage));
   if(filters.min!=null)a=a.filter(x=>Number(x.price)>=filters.min);
   if(filters.max!=null)a=a.filter(x=>Number(x.price)<=filters.max);
 
@@ -420,21 +415,15 @@ function renderProduct(){
 }
 
 function renderStorage(){
+  // FINAL V8: capacity is no longer a used-listing search/filter condition.
+  filters.storage='all';
   const box=$('#storageFilters');
-  if(!box||!current)return;
-  const options=selectableStorage(current);
-  box.innerHTML='<button class="chip '+(filters.storage==='all'?'active':'')+'" data-storage="all">전체</button>'+
-    (options.map(s=>`<button class="chip ${String(filters.storage)===String(s)?'active':''}" data-storage="${s}">${s}GB</button>`).join(''));
-
-  box.querySelectorAll('button').forEach(b=>b.onclick=async()=>{
-    const next=b.dataset.storage;
-    if(String(filters.storage)===String(next))return;
-    filters.storage=next;
-    listingPage=1;
-    autoRefreshRounds=0;
-    renderStorage();
-    await loadLiveListings();
-  });
+  if(box){
+    box.innerHTML='';
+    box.hidden=true;
+    const wrap=box.closest('.filter-group,.filter-block,.filter-item,.field');
+    if(wrap)wrap.hidden=true;
+  }
 }
 
 function analysisFor(arr){
@@ -456,9 +445,7 @@ function renderMarket(){
   $('#avgPrice').textContent=won(stats.average);
   $('#maxPrice').textContent=won(stats.max);
 
-  let newPrice=filters.storage!=='all'
-    ?Number(current?.launchPrices?.[String(filters.storage)]||0)
-    :Number(current?.newPrice)||0;
+  let newPrice=Number(current?.newPrice)||0;
   $('#newPrice').textContent=newPrice?won(newPrice):'정보 없음';
 
   const note=$('#marketDataNote');
@@ -493,7 +480,7 @@ function renderMarket(){
     $('#aiText').textContent=analysis?.summary||`${current.name} 판매중 매물 ${arr.length}개를 분석했습니다.`;
   }
 
-  $('#chartLabel').textContent=filters.storage==='all'?'전체 용량':(Number(filters.storage)>=1024?Number(filters.storage)/1024+'TB':filters.storage+'GB');
+  $('#chartLabel').textContent='전체 매물';
   renderBars(arr);
   renderListings(arr,stats);
 }
@@ -715,16 +702,19 @@ function scheduleDeepRefresh(){
   clearTimeout(autoRefreshTimer);
 
   const needsRescue=liveListings.length===0;
-  const maxRounds=needsRescue?4:2;
-  if((!liveState.collecting&&!needsRescue)||autoRefreshRounds>=maxRounds)return;
+  // FINAL V8: while providers are still collecting, keep polling long enough to
+  // receive the final deep-scan result instead of stopping after two checks.
+  const maxRounds=liveState.collecting?60:(needsRescue?6:0);
+  if(maxRounds===0||autoRefreshRounds>=maxRounds)return;
 
   const delay=needsRescue
-    ?[7000,12000,18000,25000][autoRefreshRounds]||25000
-    :(autoRefreshRounds===0?15000:25000);
+    ?Math.min(30000,7000+autoRefreshRounds*4000)
+    :15000;
+
   autoRefreshTimer=setTimeout(async()=>{
     autoRefreshRounds++;
-    // When zero listings were found, force a brand-new provider job instead
-    // of reading the same completed/failed cached job again.
+    // If a zero-result job has already finished/failed, refresh=1 starts a new job.
+    // If it is still running, the backend reuses that same running job safely.
     await loadLiveListings(needsRescue,true);
   },delay);
 }
@@ -753,7 +743,7 @@ async function loadLiveListings(force=false,background=false){
 
   try{
     const refresh=force?'&refresh=1':'';
-    const r=await fetch(`${API_BASE}/api/live/combined?q=${encodeURIComponent(q)}&limit=50${refresh}`,{
+    const r=await fetch(`${API_BASE}/api/live/combined?q=${encodeURIComponent(q)}&limit=5000${refresh}`,{
       headers:{accept:'application/json'},
       signal:controller.signal
     });
@@ -834,7 +824,7 @@ async function search(){
 
   current=p;
   listingPage=1;
-  filters.storage=parseStorage(q,p);
+  filters.storage='all';
   autoRefreshRounds=0;
   clearTimeout(autoRefreshTimer);
   renderProduct();
@@ -975,8 +965,7 @@ $('#sortSelect').onchange=e=>{
   renderMarket();
 };
 
-$('#resetBtn').onclick=async()=>{
-  const storageChanged=filters.storage!=='all';
+$('#resetBtn').onclick=()=>{
   listingPage=1;
   filters={platform:'all',storage:'all',min:null,max:null,sort:'cheap'};
   $('#minInput').value='';
@@ -984,8 +973,7 @@ $('#resetBtn').onclick=async()=>{
   $('#sortSelect').value='cheap';
   $$('#platformFilters .chip').forEach((b,i)=>b.classList.toggle('active',i===0));
   renderStorage();
-  if(storageChanged)await loadLiveListings();
-  else renderMarket();
+  renderMarket();
 };
 
 $('#compareSelect').onchange=renderCompare;

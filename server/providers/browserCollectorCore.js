@@ -252,9 +252,9 @@ function normalizeBrowserCard(source, raw = {}, query = '', index = 0) {
     description: cleanText(text).slice(0, 500),
     modelText: `${title} ${cleanText(text).slice(0, 220)}`,
     price,
-    // FINAL V7: a capacity-specific marketplace search is authoritative when
-    // the card itself omits the capacity. This keeps 128/256/512GB buckets apart.
-    storage: parseStorage(`${title} ${text}`) ?? parseStorage(raw.searchQuery || ''),
+    // FINAL V8: capacity is metadata only, never a search/filter condition.
+    // Use only what the listing itself states; do not infer it from the query.
+    storage: parseStorage(`${title} ${text}`),
     image: normalizeImage(source, url, raw.image || ''),
     url,
     region: parseRegion(source, text),
