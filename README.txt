@@ -51,3 +51,7 @@
 1. "시세봄-상태확인.bat" 실행
 2. logs/server-error.log 파일 확인
 3. 그 파일을 ChatGPT에 보내면 원인을 이어서 수정할 수 있습니다.
+
+[V2 FIX]
+- Windows CMD에서 UTF-8 BOM 때문에 명령어 첫 글자가 깨지는 문제 수정
+- BAT 파일을 ASCII/CRLF로 변경
