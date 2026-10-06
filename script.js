@@ -704,7 +704,7 @@ function scheduleDeepRefresh(){
   const needsRescue=liveListings.length===0;
   // FINAL V8: while providers are still collecting, keep polling long enough to
   // receive the final deep-scan result instead of stopping after two checks.
-  const maxRounds=liveState.collecting?60:(needsRescue?6:0);
+  const maxRounds=liveState.collecting?180:(needsRescue?12:0);
   if(maxRounds===0||autoRefreshRounds>=maxRounds)return;
 
   const delay=needsRescue
@@ -743,7 +743,7 @@ async function loadLiveListings(force=false,background=false){
 
   try{
     const refresh=force?'&refresh=1':'';
-    const r=await fetch(`${API_BASE}/api/live/combined?q=${encodeURIComponent(q)}&limit=5000${refresh}`,{
+    const r=await fetch(`${API_BASE}/api/live/combined?q=${encodeURIComponent(q)}&limit=20000${refresh}`,{
       headers:{accept:'application/json'},
       signal:controller.signal
     });

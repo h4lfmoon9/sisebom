@@ -275,9 +275,9 @@ app.get("/api/live/combined", async (req, res) => {
   }
 
   const providers = [
-    ["당근", () => withTimeout(fetchDaangnListings(q, { limit: 5000, region, force: forceRefresh }), 9000, "당근")],
-    ["중고나라", () => withTimeout(fetchJoongnaListings(q, { limit: 5000, force: forceRefresh }), 9000, "중고나라")],
-    ["번개장터", () => withTimeout(fetchBunjangListings(q, { limit: 5000, force: forceRefresh }), 9000, "번개장터")]
+    ["당근", () => withTimeout(fetchDaangnListings(q, { limit: 20000, region, force: forceRefresh }), 9000, "당근")],
+    ["중고나라", () => withTimeout(fetchJoongnaListings(q, { limit: 20000, force: forceRefresh }), 9000, "중고나라")],
+    ["번개장터", () => withTimeout(fetchBunjangListings(q, { limit: 20000, force: forceRefresh }), 9000, "번개장터")]
   ];
 
   const settled = await Promise.allSettled(providers.map(([, run]) => run()));

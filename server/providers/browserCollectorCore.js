@@ -28,7 +28,7 @@ const CONFIG = {
   joongna: {
     name: '중고나라',
     searchUrl(query) {
-      return `https://web.joongna.com/search/${encodeURIComponent(query)}`;
+      return `https://web.joongna.com/search/${encodeURIComponent(query)}?sort=RECENT_SORT`;
     },
     selector: 'a[href*="/product/"]',
     isListing(url) {

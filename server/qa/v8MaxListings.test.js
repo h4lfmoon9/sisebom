@@ -9,14 +9,14 @@ const { normalizeBrowserCard } = require('../providers/browserCollectorCore');
 const collectorSource = fs.readFileSync(path.join(__dirname, '../providers/browserCollector.js'), 'utf8');
 const frontendSource = fs.readFileSync(path.join(__dirname, '../../script.js'), 'utf8');
 
-test('V8 수집기는 플랫폼당 기본 5000개 안전 상한을 사용한다', () => {
-  assert.match(collectorSource, /SISEBOM_MAX_LISTINGS[^\n]*5000/);
-  assert.match(collectorSource, /MAX_SCROLL_ROUNDS[^\n]*240/);
-  assert.match(collectorSource, /DEEP_JOB_MAX_MS[^\n]*900000/);
+test('V8.1 수집기는 플랫폼당 기본 20000개 안전 상한을 사용한다', () => {
+  assert.match(collectorSource, /SISEBOM_MAX_LISTINGS[^\n]*20000/);
+  assert.match(collectorSource, /MAX_SCROLL_ROUNDS[^\n]*500/);
+  assert.match(collectorSource, /DEEP_JOB_MAX_MS[^\n]*1800000/);
 });
 
-test('V8 프론트는 라이브 검색 요청에 5000개 상한을 요청한다', () => {
-  assert.match(frontendSource, /api\/live\/combined[^\n]*limit=5000/);
+test('V8.1 프론트는 라이브 검색 요청에 20000개 상한을 요청한다', () => {
+  assert.match(frontendSource, /api\/live\/combined[^\n]*limit=20000/);
 });
 
 test('V8 용량 선택은 중고매물 검색 조건에서 제거됐다', () => {

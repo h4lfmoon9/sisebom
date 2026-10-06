@@ -17,8 +17,9 @@ test('1TB hidden from storage choices', () => {
   assert.match(script, /v<=512/);
 });
 
-test('unknown storage listings stay visible in capacity search', () => {
-  assert.match(script, /x\.storage==null\|\|String\(x\.storage\)===String\(filters\.storage\)/);
+test('V8 이후 용량은 중고매물 필터 조건으로 사용하지 않는다', () => {
+  assert.doesNotMatch(script, /if\(filters\.storage!==['"]all['"]\)a=a\.filter/);
+  assert.match(script, /function liveSearchQuery\(\)\{[\s\S]*return buildListingQuery\(current\);/);
 });
 
 test('numbered pagination exists', () => {
