@@ -16,6 +16,7 @@ const {
   extractJoongnaCardsFromJson
 } = require('./joongnaDynamicParser');
 const { fetchJoongnaDirect } = require('./joongnaDirectFetcher');
+const { collectJoongmoJoongna, JOONGMO_HOME } = require('./joongmoReferenceCollector');
 
 const MAX_LISTINGS_PER_PLATFORM = Math.max(1000, Math.min(50000, Number(process.env.SISEBOM_MAX_LISTINGS) || 20000));
 const DEFAULT_TARGET = MAX_LISTINGS_PER_PLATFORM;
@@ -474,6 +475,9 @@ function makeJob(source, query, options = {}) {
     error: '',
     directFetchCount: 0,
     directFetchAttempts: [],
+    joongmoCount: 0,
+    joongmoRounds: 0,
+    joongmoAttempts: [],
     promise: null
   };
 }
@@ -510,6 +514,9 @@ function snapshotJob(job) {
     pagesScanned: Number(job.pagesScanned) || 0,
     directFetchCount: Number(job.directFetchCount) || 0,
     directFetchAttempts: Array.isArray(job.directFetchAttempts) ? [...job.directFetchAttempts] : [],
+    joongmoCount: Number(job.joongmoCount) || 0,
+    joongmoRounds: Number(job.joongmoRounds) || 0,
+    joongmoAttempts: Array.isArray(job.joongmoAttempts) ? [...job.joongmoAttempts] : [],
     candidateCount: job.seen.size,
     targetCount: job.target,
     count: listings.length,
@@ -712,6 +719,29 @@ async function collectJoongnaDirectFallback(cfg, searchQuery, job, deadline) {
   return added;
 }
 
+
+async function collectJoongmoFallback(page, cfg, searchQuery, job, deadline) {
+  const result = await collectJoongmoJoongna(page, searchQuery, {
+    deadline,
+    target: job.target,
+    timeoutMs: PAGE_TIMEOUT_MS
+  }).catch(error => ({
+    cards: [],
+    count: 0,
+    rounds: 0,
+    attempts: [{ url: JOONGMO_HOME, status: null, count: 0, error: error?.message || 'joongmo collector failed' }]
+  }));
+
+  const added = addVisibleCardsToJob(result.cards || [], cfg, searchQuery, job);
+  job.joongmoCount += added;
+  job.joongmoRounds = Math.max(job.joongmoRounds || 0, Number(result.rounds) || 0);
+  job.joongmoAttempts.push(...(result.attempts || []).slice(0, 6));
+  const ok = (result.attempts || []).find(x => Number(x.status) >= 200 && Number(x.status) < 400);
+  if (ok && !job.responseStatus) job.responseStatus = ok.status;
+  job.updatedAt = Date.now();
+  return added;
+}
+
 async function collectVariant(page, cfg, searchQuery, job, deadline) {
   // FINAL V8.2: Joongna is a dynamic web app. Read visible cards + embedded
   // serialized items + the same public XHR/fetch responses used by the page,
@@ -791,6 +821,19 @@ async function runDeepJob(job) {
       page.setDefaultTimeout(PAGE_TIMEOUT_MS);
 
       try {
+        // FINAL V8.5: Joongmo is the primary public reference for Joongna listings.
+        // Search Joongmo first and keep only /detail/joonggonara/ results.
+        if (job.source === 'joongna') {
+          let joongmoQueries = 0;
+          for (const variant of variants) {
+            if (Date.now() >= deadline || job.seen.size >= job.target || joongmoQueries >= 4) break;
+            if (!job.queriesTried.includes(variant)) job.queriesTried.push(variant);
+            await collectJoongmoFallback(page, cfg, variant, job, deadline);
+            joongmoQueries++;
+            if (job.seen.size >= 80) break;
+          }
+        }
+
         let emptyVariantStreak = 0;
 
         for (const variant of variants) {
@@ -845,7 +888,7 @@ async function runDeepJob(job) {
   } catch (error) {
     job.status = job.seen.size ? 'partial' : 'failed';
     job.error = job.seen.size && job.source === 'joongna'
-      ? `중고나라 직접 HTML 수집은 성공했지만 심층 브라우저 수집은 실패했습니다: ${error?.message || 'browser failed'}`
+      ? `중고닷/중고나라 보조 수집으로 일부 매물을 확보했지만 심층 수집은 실패했습니다: ${error?.message || 'browser failed'}`
       : (error?.message || '수집 실패');
   } finally {
     job.updatedAt = Date.now();

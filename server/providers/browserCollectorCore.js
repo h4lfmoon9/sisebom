@@ -32,7 +32,7 @@ const CONFIG = {
     },
     selector: 'a[href*="/product/"]',
     isListing(url) {
-      return /joongna\.com\/product\/\d+/i.test(String(url));
+      return /(?:joongna\.com\/product\/\d+|joongmo\.com\/detail\/joonggonara\/\d+)/i.test(String(url));
     }
   }
 };
