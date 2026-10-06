@@ -1,5 +1,7 @@
 'use strict';
 
+const { applyVisualProfile } = require('./catalogVisualProfile');
+
 function clamp(n, min = 1, max = 100) {
   return Math.max(min, Math.min(max, Math.round(Number(n) || 0)));
 }
@@ -203,8 +205,9 @@ function applyAutoProfile(phone = {}) {
   };
 
   if (!out.scoreSource && inferred) out.scoreSource = 'sisebom-auto-profile-v1';
-  return out;
+  return applyVisualProfile(out);
 }
+
 
 function applyAutoProfileCatalog(phones = []) {
   return (Array.isArray(phones) ? phones : []).map(applyAutoProfile);
