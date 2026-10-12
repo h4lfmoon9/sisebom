@@ -1,0 +1,13 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>시세봄 관리자</title><style>
+body{font-family:system-ui;background:#f5f7fb;margin:0;padding:24px;color:#172033}.wrap{max-width:850px;margin:auto}.card{background:#fff;border:1px solid #e5e7eb;border-radius:16px;padding:18px;margin:14px 0}.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}button,a{border:0;border-radius:10px;padding:10px 14px;background:#111827;color:#fff;text-decoration:none;cursor:pointer}.s{background:#e5e7eb;color:#111827}.bad{background:#b91c1c}.badge{padding:5px 9px;border-radius:99px;background:#e5e7eb}.on{background:#dcfce7;color:#166534}.off{background:#fee2e2;color:#991b1b}pre{background:#0f172a;color:#dbeafe;padding:12px;border-radius:12px;max-height:260px;overflow:auto;white-space:pre-wrap}.muted{color:#64748b}
+</style><div class="wrap"><h1>시세봄 관리자</h1><div class="muted">GitHub 없이 내 PC에서 실행·업데이트·백업·재시작</div>
+<div class="card"><h3>서버</h3><div class="row"><span id=b class=badge>확인중</span><span id=h class=muted></span></div><div class=row style="margin-top:12px"><button onclick="p('/api/start')">켜기</button><button class=s onclick="p('/api/restart')">재시작</button><button class=bad onclick="p('/api/stop')">끄기</button><a class=s href="http://localhost:3000" target=_blank>시세봄 열기</a></div></div>
+<div class=card><h3>업데이트 ZIP</h3><p class=muted>내가 만든 업데이트 ZIP을 선택하면 자동 백업 → 덮어쓰기 → apply 스크립트 실행 → 서버 재시작까지 해.</p><input id=f type=file accept=".zip"><button onclick="up()">업데이트 적용</button><p id=u class=muted></p></div>
+<div class=card><h3>오류 로그</h3><pre id=l>불러오는 중...</pre></div></div>
+<script>
+async function r(){try{let d=await(await fetch('/api/status')).json();b.textContent=d.running?'실행 중':'꺼짐';b.className='badge '+(d.running?'on':'off');h.textContent=d.health?.ok?'HTTP '+d.health.status:(d.health?.error||'응답없음');l.textContent=d.errorLog||d.managerLog||'오류 없음'}catch{}}
+async function p(x){let d=await(await fetch(x,{method:'POST'})).json();if(!d.ok)alert(d.error||'실패');setTimeout(r,500)}
+function up(){let q=f.files[0];if(!q)return alert('ZIP을 골라줘');if(!confirm('백업 후 업데이트할까?'))return;u.textContent='적용 중...';let x=new XMLHttpRequest();x.open('POST','/api/update?filename='+encodeURIComponent(q.name));x.onload=()=>{try{let d=JSON.parse(x.responseText);u.textContent=d.ok?'완료 · 백업 '+d.backup:'실패: '+d.error}catch{u.textContent='응답 오류'};setTimeout(r,800)};x.send(q)}
+r();setInterval(r,3000)
+</script>

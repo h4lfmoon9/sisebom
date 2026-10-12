@@ -1,0 +1,1 @@
+﻿$Startup=[Environment]::GetFolderPath("Startup");$Target=Join-Path $Startup "Sisebom-Manager.cmd";$Launcher=Join-Path $PSScriptRoot "start-manager.ps1";Set-Content $Target "@echo off`r`npowershell.exe -NoProfile -ExecutionPolicy Bypass -WindowStyle Hidden -File `"$Launcher`"`r`n" -Encoding ASCII;& $Launcher
